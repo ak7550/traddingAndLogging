@@ -3,9 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SheetModule } from './sheet/sheet.module';
 import { ConfigModule } from '@nestjs/config';
+import { TradingModule } from './trading/trading.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), SheetModule],
+  imports: [
+    ConfigModule.forRoot({
+      cache: true,
+    }),
+    SheetModule,
+    TradingModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

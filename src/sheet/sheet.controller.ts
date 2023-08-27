@@ -1,9 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
+import { SheetService } from './sheet.service';
 
 @Controller('sheet')
 export class SheetController {
+  private sheetService: SheetService;
+
+  constructor(sheetService: SheetService) {
+    this.sheetService = sheetService;
+  }
+
   @Get()
-  getSheetData(): string {
-    return 'dummy string data';
+  async getSheetData(): Promise<any[][]> {
+    return await this.sheetService.getSheetData();
   }
 }
