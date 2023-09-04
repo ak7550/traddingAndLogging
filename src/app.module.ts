@@ -9,6 +9,7 @@ import { TradingModule } from './trading/trading.module';
   imports: [
     ConfigModule.forRoot({
       cache: true,
+      isGlobal: true
     }),
     SheetModule,
     TradingModule,

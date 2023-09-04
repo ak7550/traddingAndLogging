@@ -1,8 +1,9 @@
-import { Module, Global } from '@nestjs/common';
-import { DhaanService } from './dhaan.service';
+import { Module } from "@nestjs/common";
+import { DhaanService } from "./dhaan.service";
+import DhaanRequestHandler from "./requestHandler.service";
 
 @Module({
-  providers: [ DhaanService ],
-  exports: [DhaanService]
+    providers: [DhaanService, DhaanRequestHandler],
+    exports: [DhaanService],
 })
 export class DhaanModule {}

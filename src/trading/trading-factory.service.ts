@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { DhaanConstants} from "src/dhaan/config/dhaanConstants.constant";
 import { DhaanService } from "src/dhaan/dhaan.service";
 import { TradingInterface } from "src/trading/interfaces/trading.interface";
 
@@ -10,7 +11,7 @@ export class TradingFactoryService {
     public getInstance(broker: string): TradingInterface {
         let tradingService: TradingInterface;
         switch (broker) {
-            case "dhaan":
+            case DhaanConstants.brokerName:
                 tradingService = this.dhaanService;
                 break;
             default:
