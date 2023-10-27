@@ -3,23 +3,23 @@ import { Exclude, Expose } from "class-transformer";
 import { IsAlphanumeric, IsNotEmpty, ValidateIf, Min } from "class-validator";
 import { DhaanConstants } from "src/dhaan/config/dhaanConstants.constant";
 
-export class StockInfo {
-    constructor(data: Partial<StockInfo>) {
+export class StockInfoDTO {
+    constructor(data: Partial<StockInfoDTO>) {
         // this.securityId = undefined;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: String,
         description: "Name of the stock.",
-        examples: [ "IDFC", "VENUSPIPES" ],
-    } )
+        examples: ["IDFC", "VENUSPIPES"],
+    })
     @IsAlphanumeric()
-    @IsNotEmpty( {
+    @IsNotEmpty({
         message: "Trading symbol should not be empty",
-    } )
-    @ValidateIf( ( symbol: string ): boolean => {
+    })
+    @ValidateIf((symbol: string): boolean => {
         let flag: boolean = false;
-        switch ( symbol ) {
+        switch (symbol) {
             case DhaanConstants.brokerName:
             case "zerodha":
             case "fyers":
@@ -30,115 +30,118 @@ export class StockInfo {
                 break;
         }
         return flag;
-    } )
+    })
     @Expose()
     private _tradingSymbol!: string;
 
-    public get tradingSymbol (): string {
+    public get tradingSymbol(): string {
         return this._tradingSymbol;
     }
-    public set tradingSymbol ( value: string ) {
+    public set tradingSymbol(value: string) {
         this._tradingSymbol = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: String,
-        description: "This is an unique code that helps to indentify a company which is listed in the Indian stock market.",
+        description:
+            "This is an unique code that helps to indentify a company which is listed in the Indian stock market.",
         example: "INE480C01020",
-    } )
+    })
     private _isin!: string; // this value uniquely indentifies all the shares
-    
-    public get isin (): string {
+
+    public get isin(): string {
         return this._isin;
     }
-    public set isin ( value: string ) {
+    public set isin(value: string) {
         this._isin = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: Number,
-    } )
+    })
     private _securityId!: number;
 
-    public get securityId (): number {
+    public get securityId(): number {
         return this._securityId;
     }
-    public set securityId ( value: number ) {
+    public set securityId(value: number) {
         this._securityId = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: Number,
-    } )
-    @Min( 1, {
+    })
+    @Min(1, {
         message: "total quantity of any holding stock cannot be less than 1",
-    } )
+    })
     @Expose()
     private _totalQty!: number;
 
-    public get totalQty (): number {
+    public get totalQty(): number {
         return this._totalQty;
     }
-    public set totalQty ( value: number ) {
+    public set totalQty(value: number) {
         this._totalQty = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: Number,
-    } )
-    @Min( 1, {
-        message: "total average price of any holding stock cannot be less than 1",
-    } )
+    })
+    @Min(1, {
+        message:
+            "total average price of any holding stock cannot be less than 1",
+    })
     @Expose()
     private _avgCostPrice!: number;
 
-    public get avgCostPrice (): number {
+    public get avgCostPrice(): number {
         return this._avgCostPrice;
     }
-    public set avgCostPrice ( value: number ) {
+    public set avgCostPrice(value: number) {
         this._avgCostPrice = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: Number,
-    } )
-    @Min( 1, {
-        message: "total closing prioce of any holding stock cannot be less than 1",
-    } )
+    })
+    @Min(1, {
+        message:
+            "total closing prioce of any holding stock cannot be less than 1",
+    })
     @Exclude()
     private _closingPrice!: number;
 
-    public get closingPrice (): number {
+    public get closingPrice(): number {
         return this._closingPrice;
     }
-    public set closingPrice ( value: number ) {
+    public set closingPrice(value: number) {
         this._closingPrice = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: Number,
-    } )
+    })
     @Exclude() // this property lets the DTO know that what are the fields that should be exposed to its viewers
     private _pnl!: number;
 
-    public get pnl (): number {
+    public get pnl(): number {
         return this._pnl;
     }
-    public set pnl ( value: number ) {
+    public set pnl(value: number) {
         this._pnl = value;
     }
 
-    @ApiProperty( {
+    @ApiProperty({
         type: Number,
-    } )
+    })
     // @Exclude()
     @Expose() // as it is not being mapped, so the undefined value wont be visible
     private _percentagePnl!: number;
 
-    public get percentagePnl (): number {
+    public get percentagePnl(): number {
         return this._percentagePnl;
     }
-    public set percentagePnl ( value: number ) {
+    public set percentagePnl(value: number) {
         this._percentagePnl = value;
     }
 
