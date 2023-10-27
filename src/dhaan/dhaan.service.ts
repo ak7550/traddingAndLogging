@@ -18,7 +18,11 @@ export class DhaanService implements TradingInterface {
         env: DhanEnv.PROD,
     });
 
-    constructor(private readonly requestHandler: DhaanRequestHandler) {}
+    constructor(private readonly requestHandler: DhaanRequestHandler) { }
+
+    placeOrders(): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
 
     //todo
     /**

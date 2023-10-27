@@ -21,12 +21,18 @@ export class TradingController {
         return "hello";
     }
 
-    @Get("stoplos-orders")
-    async placeOrders(
-        @Query("broker", new DefaultValuePipe("dhaan")) broker: string,
+    @Get( "stoplos-orders" )
+    async placeOrders (
+        @Query( "broker", new DefaultValuePipe( "dhaan" ) ) broker: string,
     ): Promise<any> {
         const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(broker);
+            this.tradingFactory.getInstance( broker );
         return await tradingService.placeStopLossOrders();
+    }
+    
+    @Get( "placeOrders" )
+    async placeOrders (@Query('broker', new DefaultValuePipe('dhaan')) broker:string): Promise<any> {
+        const tradingService: TradingInterface = this.tradingFactory.getInstance(broker);
+        return await tradingService.placeOrders();
     }
 }

@@ -36,7 +36,7 @@ class AxiosFactory {
         }), {
             maxRPS: 100,
         });
-        AxiosFactory.tradingAxios = axiosRateLimit( axios.create( {
+        AxiosFactory.historicalAxios = axiosRateLimit( axios.create( {
             baseURL: process.env.DHAAN_BASE_URL,
                 headers: {
                     [DhaanConstants.ACCESS_TOKEN]:
@@ -59,7 +59,7 @@ class AxiosFactory {
             default:
                 break;
         }
-        return null;
+        return axios;
     }
 }
 
@@ -71,23 +71,23 @@ export default class DhaanRequestHandler {
         env: DhanEnv.PROD,
     });
 
-    async execute<Type>(
+    async execute<Type> (
         route: string,
         requestMethod: RequestMethod,
         requestBody: Object,
         apiType: ApiType,
     ): Promise<Type> {
         try {
-            this.logger.log(`Inside execut method: ${route}`);
-            const http: AxiosInstance = AxiosFactory.getAxiosInstance(apiType);
+            this.logger.log( `Inside execut method: ${ route }` );
+            const http: AxiosInstance = AxiosFactory.getAxiosInstance( apiType );
             let promise: Promise<AxiosResponse<Type>>;
 
-            switch (requestMethod) {
+            switch ( requestMethod ) {
                 case RequestMethod.GET:
-                    promise = http.get<Type>(route);
+                    promise = http.get<Type>( route );
                     break;
                 case RequestMethod.POST:
-                    promise = http.post<Type>(route, requestBody);
+                    promise = http.post<Type>( route, requestBody );
                     break;
                 case RequestMethod.PUT:
                     break;
@@ -102,10 +102,10 @@ export default class DhaanRequestHandler {
             const observableRequest: Observable<AxiosResponse<Type>> = from(
                 promise,
             ).pipe(
-                catchError((error: AxiosError) => {
-                    this.logger.error("error that we faced just now", error);
-                    throw new Error("An error happened!");
-                }),
+                catchError( ( error: AxiosError ) => {
+                    this.logger.error( "error that we faced just now", error );
+                    throw new Error( "An error happened!" );
+                } ),
             );
 
             const resposne: AxiosResponse<Type> =
@@ -114,11 +114,31 @@ export default class DhaanRequestHandler {
 
             const holdingDetails: HoldingsDetail[] = await this.client.getHoldings();
             return resposne.data;
-        } catch (error) {
+        } catch ( error ) {
             this.logger.error(
-                `Error occured while hitting the ${route} request from Dhaan apis`,
+                `Error occured while hitting the ${ route } request from Dhaan apis`,
                 error,
             );
         }
+    }
+    
+    /**
+     * executeGetRequest
+     */
+    public async executeGetRequest<Type>(route: string): Promise<Type> {
+        this.logger.log(`Inside executeGetRequest method: ${route}`);
+
+        // Make the Axios request and handle it using from and catchError
+        const observableRequest: Observable<AxiosResponse<Type>> = from(
+            this.http.get<Type>(route),
+        ).pipe(
+            catchError((error: AxiosError) => {
+                this.logger.error("error that we faced just now", error);
+                throw new Error("An error happened!");
+            }),
+        );
+
+        const resposne: AxiosResponse<Type> = await firstValueFrom(observableRequest);
+        return resposne.data;
     }
 }
