@@ -3,7 +3,7 @@ import { StockInfoDTO } from "../dtos/stock-info.dto";
 
 export interface TradingInterface {
     placeStopLossOrders(): Promise<OrderInfoDTO[]>;
-    getAllHoldings (): Promise<StockInfo[]>;
+    getAllHoldings (): Promise<StockInfoDTO[]>;
 
     placeOrders(): Promise<any>;
 }

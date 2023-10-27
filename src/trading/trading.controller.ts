@@ -8,9 +8,7 @@ export class TradingController {
     constructor(private readonly tradingFactory: TradingFactoryService) {}
 
     @Get("holdings")
-    async getAllHoldings(
-        @Query("broker", new DefaultValuePipe("dhaan")) broker: string,
-    ): Promise<StockInfoDTO[]> {
+    async getAllHoldings(@Query("broker", new DefaultValuePipe("dhaan")) broker: string): Promise<StockInfoDTO[]> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
         return await tradingService.getAllHoldings();
@@ -22,14 +20,12 @@ export class TradingController {
     }
 
     @Get( "stoplos-orders" )
-    async placeOrders (
-        @Query( "broker", new DefaultValuePipe( "dhaan" ) ) broker: string,
-    ): Promise<any> {
+    async placeStopLossOrders (@Query( "broker", new DefaultValuePipe( "dhaan" ) ) broker: string,): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance( broker );
         return await tradingService.placeStopLossOrders();
     }
-    
+
     @Get( "placeOrders" )
     async placeOrders (@Query('broker', new DefaultValuePipe('dhaan')) broker:string): Promise<any> {
         const tradingService: TradingInterface = this.tradingFactory.getInstance(broker);
