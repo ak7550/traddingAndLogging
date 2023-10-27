@@ -10,18 +10,22 @@ import DhaanRequestHandler from "./requestHandler.service";
 export class DhaanService implements TradingInterface {
     private readonly logger: Logger = new Logger(DhaanService.name);
 
-   constructor(private readonly requestHandler: DhaanRequestHandler){}
+    constructor(private readonly requestHandler: DhaanRequestHandler) { }
+
+    placeOrders(): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
 
     public async getAllHoldings(): Promise<StockInfo[]> {
         try {
-            this.logger.log( "Inside getAllHoldings method", DhaanService.name );
+            this.logger.log("Inside getAllHoldings method", DhaanService.name);
 
-            const response: DhaanHoldingDTO[] = await this.requestHandler.executeGetRequest<DhaanHoldingDTO[]>( DhaanConstants.holdingDataRoute );
+            const response: DhaanHoldingDTO[] = await this.requestHandler.executeGetRequest<DhaanHoldingDTO[]>(DhaanConstants.holdingDataRoute);
 
-            const stockInfos: StockInfo[] = response.map((dhaanHoldingData: DhaanHoldingDTO):StockInfo =>
-                plainToClass<StockInfo, DhaanHoldingDTO>( StockInfo, dhaanHoldingData, { excludeExtraneousValues: true } ) );
+            const stockInfos: StockInfo[] = response.map((dhaanHoldingData: DhaanHoldingDTO): StockInfo =>
+                plainToClass<StockInfo, DhaanHoldingDTO>(StockInfo, dhaanHoldingData, { excludeExtraneousValues: true }));
 
-            this.logger.log( "converted into stockInfo: ", stockInfos);
+            this.logger.log("converted into stockInfo: ", stockInfos);
             this.logger.log("trying to convert a single one: ", plainToClass(StockInfo, response[0]));
 
             return stockInfos;

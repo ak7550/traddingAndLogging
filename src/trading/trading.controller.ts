@@ -20,6 +20,7 @@ export class TradingController {
 
     @Get( "placeOrders" )
     async placeOrders (@Query('broker', new DefaultValuePipe('dhaan')) broker:string): Promise<any> {
-        return null;
+        const tradingService: TradingInterface = this.tradingFactory.getInstance(broker);
+        return await tradingService.placeOrders();
     }
 }

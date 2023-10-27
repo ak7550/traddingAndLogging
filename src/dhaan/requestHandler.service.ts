@@ -33,7 +33,7 @@ export default class DhaanRequestHandler {
     /**
      * executeGetRequest
      */
-    public async executeGetRequest<Type> ( route: string ): Promise<Type> {
+    public async executeGetRequest<Type>(route: string): Promise<Type> {
         this.logger.log(`Inside executeGetRequest method: ${route}`);
 
         // Make the Axios request and handle it using from and catchError
