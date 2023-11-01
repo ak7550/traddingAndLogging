@@ -1,7 +1,7 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import axios from "axios";
 import axiosRateLimit from "axios-rate-limit";
-import { ApiType, DhaanConstants } from "./config/dhaanConstants.constant";
+import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import { AxiosInstance } from "axios";
 import { AxiosResponse } from "axios";
 import { Observable, catchError, from, firstValueFrom } from "rxjs";

@@ -1,0 +1,9 @@
+a cron task must be there to figure out, if there is a stop loss order present or not for all the holdings 
+
+but the question si how to hanfle this cron task
+
+Method name: putStopLossForAllTheholdings()
+-> fetch the data of all the holdings
+-> loop through all the holding info
+-> for each of the holding -> figure out the exact sl value using specific algo
+-> put the sl order

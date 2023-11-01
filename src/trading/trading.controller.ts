@@ -1,4 +1,4 @@
-import { Get, Controller, Query, DefaultValuePipe } from "@nestjs/common";
+import { Get, Controller, Query, DefaultValuePipe, Post } from "@nestjs/common";
 import { TradingInterface } from "./interfaces/trading.interface";
 import { TradingFactoryService } from "src/trading/trading-factory.service";
 import { StockInfoDTO } from "./dtos/stock-info.dto";
@@ -19,11 +19,11 @@ export class TradingController {
         return "hello";
     }
 
-    @Get( "stoplos-orders" )
-    async placeStopLossOrders (@Query( "broker", new DefaultValuePipe( "dhaan" ) ) broker: string,): Promise<any> {
+    @Post("/orders/sl/daily")
+    async placeDailyStopLossOrders (@Query( "broker", new DefaultValuePipe( "dhaan" ) ) broker: string,): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance( broker );
-        return await tradingService.placeStopLossOrders();
+        return await tradingService.placeDailyStopLossOrders();
     }
 
     @Get( "placeOrders" )

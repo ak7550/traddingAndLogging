@@ -1,7 +1,7 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { StockInfoDTO } from "src/trading/dtos/stock-info.dto";
 import { TradingInterface } from "src/trading/interfaces/trading.interface";
-import { DhaanConstants, ApiType } from "./config/dhaanConstants.constant";
+import { DhaanConstants, ApiType } from "./config/dhaan.constant";
 import { DhaanHoldingDTO } from "./dto/holding.dto";
 import { plainToClass } from "class-transformer";
 import DhaanRequestHandler from "./requestHandler.service";
@@ -20,7 +20,7 @@ export class DhaanService implements TradingInterface {
 
     constructor(private readonly requestHandler: DhaanRequestHandler) { }
 
-    placeOrders(): Promise<any> {
+    async placeOrders(): Promise<any> {
         throw new Error("Method not implemented.");
     }
 
@@ -29,7 +29,7 @@ export class DhaanService implements TradingInterface {
      * It checks the buying and current price of a particular stock, and figures out what should be the stoploss value for it, accordingly it places stoploss orders.
      * @returns
      */
-    async placeStopLossOrders(): Promise<OrderInfoDTO[]> {
+    async placeDailyStopLossOrders(): Promise<OrderInfoDTO[]> {
         try {
             const stockInfos: StockInfoDTO[] = await this.getAllHoldings();
 
@@ -48,10 +48,9 @@ export class DhaanService implements TradingInterface {
                         stockInfo.avgCostPrice,
                     );
 
-                    return await null; //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
+                    return await placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
                 },
             );
-
         } catch (error) {
             this.logger.error(
                 "Error occured while fetching the holdings data using Dhaan apis",
@@ -59,6 +58,11 @@ export class DhaanService implements TradingInterface {
             );
         }
         return null;
+    }
+
+    //todo
+    private async placeStopLossOrder() {
+        return await null;
     }
 
     public async getAllHoldings(): Promise<StockInfoDTO[]> {

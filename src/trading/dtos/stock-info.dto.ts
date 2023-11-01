@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
 import { IsAlphanumeric, IsNotEmpty, ValidateIf, Min } from "class-validator";
-import { DhaanConstants } from "src/dhaan/config/dhaanConstants.constant";
+import { DhaanConstants } from "src/dhaan/config/dhaan.constant";
 
 export class StockInfoDTO {
     constructor(data: Partial<StockInfoDTO>) {
