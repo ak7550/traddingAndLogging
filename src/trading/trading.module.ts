@@ -3,6 +3,7 @@ import { TradingController } from "./trading.controller";
 import { DhaanModule } from "src/dhaan/dhaan.module";
 import { ConfigModule } from "@nestjs/config";
 import { TradingFactoryService } from "src/trading/trading-factory.service";
+import { AngelModule } from "src/angel/angel.module";
 
 @Module({
     providers: [TradingFactoryService],
@@ -12,6 +13,7 @@ import { TradingFactoryService } from "src/trading/trading-factory.service";
             cache: true,
         }),
         DhaanModule,
+        AngelModule
     ],
 })
 export class TradingModule {}

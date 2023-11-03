@@ -21,8 +21,7 @@ export class TradingController {
 
     @Post("/orders/sl/daily")
     async placeDailyStopLossOrders (@Query( "broker", new DefaultValuePipe( "dhaan" ) ) broker: string,): Promise<any> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance( broker );
+        const tradingService: TradingInterface = this.tradingFactory.getInstance( broker );
         return await tradingService.placeDailyStopLossOrders();
     }
 

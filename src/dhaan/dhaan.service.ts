@@ -8,17 +8,12 @@ import DhaanRequestHandler from "./requestHandler.service";
 import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import OhlcDTO from "./dto/ohlc.dto";
 import { getTrailingStopLoss } from "src/common/globalUtility.utility";
-import { DhanEnv, DhanHqClient, OrderResponse } from "dhanhq";
 
 @Injectable()
 export class DhaanService implements TradingInterface {
     private readonly logger: Logger = new Logger(DhaanService.name);
-    private readonly client: DhanHqClient = new DhanHqClient({
-        accessToken: process.env.DHAAN_ACCESS_TOKEN,
-        env: DhanEnv.PROD,
-    });
 
-    constructor(private readonly requestHandler: DhaanRequestHandler) { }
+    constructor(private readonly requestHandler: DhaanRequestHandler) {}
 
     async placeOrders(): Promise<any> {
         throw new Error("Method not implemented.");
@@ -33,7 +28,8 @@ export class DhaanService implements TradingInterface {
         try {
             const stockInfos: StockInfoDTO[] = await this.getAllHoldings();
 
-            const orderResponses: Promise<OrderResponse>[] = stockInfos.map(
+            //todo
+            const orderResponses: Promise<any>[] = stockInfos.map(
                 async (stockInfo: StockInfoDTO): Promise<any> => {
                     const response: OhlcDTO =
                         await this.requestHandler.execute<OhlcDTO>(
@@ -48,7 +44,7 @@ export class DhaanService implements TradingInterface {
                         stockInfo.avgCostPrice,
                     );
 
-                    return await placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
+                    return await this.placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
                 },
             );
         } catch (error) {

@@ -1,12 +1,11 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import axios from "axios";
-import axiosRateLimit from "axios-rate-limit";
+import axiosRateLimit, { RateLimitedAxiosInstance } from "axios-rate-limit";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import { AxiosInstance } from "axios";
 import { AxiosResponse } from "axios";
 import { Observable, catchError, from, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
-import { DhanEnv, DhanHqClient, HoldingsDetail } from "dhanhq";
 import { APPLICATION_JSON } from "src/common/globalConstants.constant";
 
 
@@ -15,37 +14,26 @@ class AxiosFactory {
     private static nonTradingAxios: AxiosInstance;
     private static historicalAxios: AxiosInstance;
 
+    private getAxiosInstance(maxRPS: number) : RateLimitedAxiosInstance {
+        return axiosRateLimit(
+            axios.create({
+                baseURL: process.env.DHAAN_BASE_URL,
+                headers: {
+                    [DhaanConstants.ACCESS_TOKEN]:
+                        process.env.DHAAN_ACCESS_TOKEN,
+                    "Content-Type": APPLICATION_JSON, // not necessary though
+                },
+            }),
+            {
+                maxRPS
+            },
+        );
+    }
+
     constructor() {
-        AxiosFactory.tradingAxios = axiosRateLimit( axios.create( {
-            baseURL: process.env.DHAAN_BASE_URL,
-                headers: {
-                    [DhaanConstants.ACCESS_TOKEN]:
-                        process.env.DHAAN_ACCESS_TOKEN,
-                    "Content-Type": APPLICATION_JSON, // not necessary though
-                },
-        }), {
-            maxRPS: 25,
-        });
-        AxiosFactory.nonTradingAxios = axiosRateLimit( axios.create( {
-            baseURL: process.env.DHAAN_BASE_URL,
-                headers: {
-                    [DhaanConstants.ACCESS_TOKEN]:
-                        process.env.DHAAN_ACCESS_TOKEN,
-                    "Content-Type": APPLICATION_JSON, // not necessary though
-                },
-        }), {
-            maxRPS: 100,
-        });
-        AxiosFactory.historicalAxios = axiosRateLimit( axios.create( {
-            baseURL: process.env.DHAAN_BASE_URL,
-                headers: {
-                    [DhaanConstants.ACCESS_TOKEN]:
-                        process.env.DHAAN_ACCESS_TOKEN,
-                    "Content-Type": APPLICATION_JSON, // not necessary though
-                },
-        }), {
-            maxRPS: 10,
-        });
+        AxiosFactory.tradingAxios = this.getAxiosInstance( 25 );
+        AxiosFactory.nonTradingAxios = this.getAxiosInstance( 100 );
+        AxiosFactory.historicalAxios = this.getAxiosInstance( 10 );
     }
 
     static getAxiosInstance(apiType: ApiType): AxiosInstance {
@@ -66,10 +54,6 @@ class AxiosFactory {
 @Injectable()
 export default class DhaanRequestHandler {
     private readonly logger: Logger = new Logger(DhaanRequestHandler.name);
-    private readonly client: DhanHqClient = new DhanHqClient({
-        accessToken: process.env.DHAAN_ACCESS_TOKEN,
-        env: DhanEnv.PROD,
-    });
 
     async execute<Type> (
         route: string,
@@ -108,11 +92,8 @@ export default class DhaanRequestHandler {
                 } ),
             );
 
-            const resposne: AxiosResponse<Type> =
-                await firstValueFrom( observableRequest );
+            const resposne: AxiosResponse<Type> = await firstValueFrom( observableRequest );
 
-
-            const holdingDetails: HoldingsDetail[] = await this.client.getHoldings();
             return resposne.data;
         } catch ( error ) {
             this.logger.error(
@@ -120,25 +101,5 @@ export default class DhaanRequestHandler {
                 error,
             );
         }
-    }
-
-    /**
-     * executeGetRequest
-     */
-    public async executeGetRequest<Type>(route: string): Promise<Type> {
-        this.logger.log(`Inside executeGetRequest method: ${route}`);
-
-        // Make the Axios request and handle it using from and catchError
-        const observableRequest: Observable<AxiosResponse<Type>> = from(
-            this.http.get<Type>(route),
-        ).pipe(
-            catchError((error: AxiosError) => {
-                this.logger.error("error that we faced just now", error);
-                throw new Error("An error happened!");
-            }),
-        );
-
-        const resposne: AxiosResponse<Type> = await firstValueFrom(observableRequest);
-        return resposne.data;
     }
 }
