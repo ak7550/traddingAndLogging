@@ -2,11 +2,9 @@ import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import axios from "axios";
 import axiosRateLimit, { RateLimitedAxiosInstance } from "axios-rate-limit";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
-import { AxiosInstance } from "axios";
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { Observable, catchError, from, firstValueFrom } from "rxjs";
-import { AxiosError } from "axios";
-import { APPLICATION_JSON } from "src/common/globalConstants.constant";
+import { GlobalConstant } from "src/common/globalConstants.constant";
 
 
 class AxiosFactory {
@@ -19,13 +17,12 @@ class AxiosFactory {
             axios.create({
                 baseURL: process.env.DHAAN_BASE_URL,
                 headers: {
-                    [DhaanConstants.ACCESS_TOKEN]:
-                        process.env.DHAAN_ACCESS_TOKEN,
-                    "Content-Type": APPLICATION_JSON, // not necessary though
+                    [DhaanConstants.ACCESS_TOKEN]: process.env.DHAAN_ACCESS_TOKEN,
+                    [GlobalConstant.CONTENT_TYPE]: GlobalConstant.APPLICATION_JSON, // not necessary though
                 },
             }),
             {
-                maxRPS
+                maxRPS,
             },
         );
     }

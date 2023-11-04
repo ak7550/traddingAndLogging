@@ -1,0 +1,2 @@
+what is getCandleData ==> angel-rate-limit
+most probably it's associated to the historical data api, if it allows to hit only 3 apis per second, this will make the api very slow
