@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { AngelService } from "src/angel/angel.service";
 import { AngelConstant } from "src/angel/config/angel.constant";
-import { DhaanConstants} from "src/dhaan/config/dhaan.constant";
+import { DhaanConstants } from "src/dhaan/config/dhaan.constant";
 import { DhaanService } from "src/dhaan/dhaan.service";
 import { TradingInterface } from "src/trading/interfaces/trading.interface";
 

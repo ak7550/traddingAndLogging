@@ -1,12 +1,12 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
+import { getTrailingStopLoss } from "src/common/globalUtility.utility";
 import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import { TradingInterface } from "src/trading/interfaces/trading.interface";
-import { AngelRequestHandler } from "./requestaHandler.service";
+import { AngelConstant, ApiType } from "./config/angel.constant";
 import { AngelHoldingDTO } from "./dto/holding.dto";
 import { AngelOHLCHistoricalDataDTO } from "./dto/ohlc.historical.dto";
-import { getTrailingStopLoss } from "src/common/globalUtility.utility";
 import { AngelOrderResponse } from "./dto/order.response.dto";
-import { AngelConstant, ApiType } from "./config/angel.constant";
+import { AngelRequestHandler } from "./requestaHandler.service";
 
 @Injectable()
 export class AngelService implements TradingInterface {

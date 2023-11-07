@@ -1,13 +1,13 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
+import { plainToClass } from "class-transformer";
+import { getTrailingStopLoss } from "src/common/globalUtility.utility";
+import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import { StockInfoDTO } from "src/trading/dtos/stock-info.dto";
 import { TradingInterface } from "src/trading/interfaces/trading.interface";
-import { DhaanConstants, ApiType } from "./config/dhaan.constant";
+import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import { DhaanHoldingDTO } from "./dto/holding.dto";
-import { plainToClass } from "class-transformer";
-import DhaanRequestHandler from "./requestHandler.service";
-import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import OhlcDTO from "./dto/ohlc.dto";
-import { getTrailingStopLoss } from "src/common/globalUtility.utility";
+import DhaanRequestHandler from "./requestHandler.service";
 
 @Injectable()
 export class DhaanService implements TradingInterface {

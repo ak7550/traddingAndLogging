@@ -1,17 +1,15 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import { ApiType } from "./config/angel.constant";
-import { AxiosInstance, AxiosResponse, AxiosError } from "axios";
-import { Observable, catchError, from, firstValueFrom } from "rxjs";
-import { AngelAPIResponse } from "./dto/generic.response.dto";
+import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import { AxiosFactory } from "./axios-factory.service";
-import { AngelHoldingDTO } from "./dto/holding.dto";
-
+import { ApiType } from "./config/angel.constant";
+import { AngelAPIResponse } from "./dto/generic.response.dto";
 
 @Injectable()
 export class AngelRequestHandler {
-    private readonly logger: Logger = new Logger( AngelRequestHandler.name );
+    private readonly logger: Logger = new Logger(AngelRequestHandler.name);
 
-    constructor(private readonly axiosFactory: AxiosFactory){}
+    constructor(private readonly axiosFactory: AxiosFactory) {}
 
     /**
      * this method is being used to call almost all the angel apis and handle their responses
@@ -33,7 +31,8 @@ export class AngelRequestHandler {
             this.logger.log(
                 `Inside execute method: ${AngelRequestHandler.name}, route ${route}`,
             );
-            const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType( apiType );
+            const http: AxiosInstance =
+                this.axiosFactory.getAxiosInstanceByApiType(apiType);
             let promise: Promise<AxiosResponse<AngelAPIResponse<Type>>>;
 
             switch (requestMethod) {
@@ -41,7 +40,10 @@ export class AngelRequestHandler {
                     promise = http.get<AngelAPIResponse<Type>>(route);
                     break;
                 case RequestMethod.POST:
-                    promise = http.post<AngelAPIResponse<Type>>(route,requestBody);
+                    promise = http.post<AngelAPIResponse<Type>>(
+                        route,
+                        requestBody,
+                    );
                     break;
                 case RequestMethod.PUT:
                     break;
@@ -53,19 +55,28 @@ export class AngelRequestHandler {
                     break;
             }
 
-            const observableRequest: Observable<AxiosResponse<any>> = from(promise).pipe(
+            const observableRequest: Observable<AxiosResponse<any>> = from(
+                promise,
+            ).pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error("error that we faced just now", error);
                     throw new Error("An error happened!");
                 }),
             );
 
-            const resposne: AxiosResponse<AngelAPIResponse<Type>> = await firstValueFrom( observableRequest );
-            this.logger.log( `${ AngelRequestHandler.name }: ${ this.execute.name }
-            response: ${ resposne.data.data }`, `route: ${ route }` );
+            const resposne: AxiosResponse<AngelAPIResponse<Type>> =
+                await firstValueFrom(observableRequest);
+            this.logger.log(
+                `${AngelRequestHandler.name}: ${this.execute.name}
+            response: ${resposne.data.data}`,
+                `route: ${route}`,
+            );
             return resposne.data.data;
         } catch (error) {
-            this.logger.error(`Error occured while hitting the ${route} request from Angel apis`,error,);
+            this.logger.error(
+                `Error occured while hitting the ${route} request from Angel apis`,
+                error,
+            );
         }
     }
 }

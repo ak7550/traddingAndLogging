@@ -9,7 +9,7 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-  
+
   @Get("/testing")
   getTesting(): string {
     return "for testing only";

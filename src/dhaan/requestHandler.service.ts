@@ -1,10 +1,9 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import axios from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import axiosRateLimit, { RateLimitedAxiosInstance } from "axios-rate-limit";
-import { ApiType, DhaanConstants } from "./config/dhaan.constant";
-import { AxiosInstance, AxiosResponse, AxiosError } from "axios";
-import { Observable, catchError, from, firstValueFrom } from "rxjs";
+import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import { GlobalConstant } from "src/common/globalConstants.constant";
+import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 
 
 class AxiosFactory {

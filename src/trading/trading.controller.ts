@@ -1,7 +1,7 @@
-import { Get, Controller, Query, DefaultValuePipe, Post } from "@nestjs/common";
-import { TradingInterface } from "./interfaces/trading.interface";
+import { Controller, DefaultValuePipe, Get, Post, Query } from "@nestjs/common";
 import { TradingFactoryService } from "src/trading/trading-factory.service";
 import { StockInfoDTO } from "./dtos/stock-info.dto";
+import { TradingInterface } from "./interfaces/trading.interface";
 
 @Controller("trading")
 export class TradingController {

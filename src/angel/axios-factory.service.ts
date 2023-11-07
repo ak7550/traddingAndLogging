@@ -1,11 +1,8 @@
+import { Injectable } from "@nestjs/common";
+import axios, { AxiosInstance } from "axios";
+import axiosRateLimit from "axios-rate-limit";
 import { GlobalConstant } from "src/common/globalConstants.constant";
 import { AngelConstant, ApiType } from "./config/angel.constant";
-import axiosRateLimit from "axios-rate-limit";
-import { AxiosInstance } from "axios";
-import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import axios from "axios";
-import { getMacAddress, getPrivateIp, getPublicIp } from "src/common/globalUtility.utility";
-
 
 @Injectable()
 export class AxiosFactory {
@@ -20,7 +17,8 @@ export class AxiosFactory {
                 baseURL: process.env.ANGEL_BASE_URL,
                 headers: {
                     [AngelConstant.ACCESS_TOKEN]: `Bearer ${process.env.ANGEL_ACCESS_TOKEN}`,
-                    [GlobalConstant.CONTENT_TYPE]: GlobalConstant.APPLICATION_JSON, // not necessary though
+                    [GlobalConstant.CONTENT_TYPE]:
+                        GlobalConstant.APPLICATION_JSON, // not necessary though
                     [AngelConstant.X_USER_TYPE]: AngelConstant.USER,
                     [AngelConstant.X_SOURCE_ID]: AngelConstant.WEB,
                     [AngelConstant.X_PRIVATE_KEY]: process.env.ANGEL_API_KEY,

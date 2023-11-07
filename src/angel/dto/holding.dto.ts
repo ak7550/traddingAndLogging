@@ -1,5 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+
+/**
+ *docs: [Angel portfolio docs](https://smartapi.angelbroking.com/docs/Portfolio)
+ */
 export class AngelHoldingDTO {
     @ApiProperty({
         type: String,
@@ -21,10 +25,16 @@ export class AngelHoldingDTO {
     })
     isin: string;
 
-    @ApiProperty({
+    @ApiProperty( {
         type: Number,
-    })
-    t1quantity: number;
+    } )
+    private _t1quantity: number;
+    public get t1quantity (): number {
+        return this._t1quantity;
+    }
+    public set t1quantity ( value: number ) {
+        this._t1quantity = value;
+    }
 
     realisedquantity: number;
 
@@ -44,7 +54,13 @@ export class AngelHoldingDTO {
 
     ltp: number;
 
-    symboltoken: string;
+    private _symboltoken: string;
+    public get symboltoken (): string {
+        return this._symboltoken;
+    }
+    public set symboltoken ( value: string ) {
+        this._symboltoken = value;
+    }
 
     close: number;
 
