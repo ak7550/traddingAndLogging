@@ -28,4 +28,4 @@ const getTriggerPrice = (slValue: number, percent: number): number =>
 //todo ==> implement actual methods, that will fetch these data
 export const getPublicIp = (): string => process.env.PUBLIC_IP;
 export const getPrivateIp = (): string => process.env.PRIVATE_IP;
-export const getMacAddress = (): string => process.env.MACC_ADDRESS;
+export const getMacAddress = (): string => process.env.MAC_ADDRESS;

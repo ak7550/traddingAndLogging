@@ -14,7 +14,7 @@ export class AxiosFactory {
     private historicalApi: AxiosInstance;
     private otherApi: AxiosInstance;
 
-    public getAxiosInstanceByMaxRPS(maxRPS: number): AxiosInstance {
+    public getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
         return axiosRateLimit(
             axios.create({
                 baseURL: process.env.ANGEL_BASE_URL,
@@ -24,13 +24,11 @@ export class AxiosFactory {
                     [AngelConstant.X_USER_TYPE]: AngelConstant.USER,
                     [AngelConstant.X_SOURCE_ID]: AngelConstant.WEB,
                     [AngelConstant.X_PRIVATE_KEY]: process.env.ANGEL_API_KEY,
-                    [AngelConstant.X_CLIENT_LOCAL_IP]: getPrivateIp(),
-                    [AngelConstant.X_CLIENT_PUBLIC_IP]: getPublicIp(),
-                    [AngelConstant.X_MACAddress]: getMacAddress(),
+                    [AngelConstant.X_MACAddress]: "process.env.MAC_ADDRESS",
                 },
             }),
             {
-                maxRPS,
+                maxRequests,
             },
         );
     }

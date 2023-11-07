@@ -37,14 +37,14 @@ export class AngelService implements TradingInterface {
     /**
      * it checks if there's any existing sell order present for this particular stock,
      *  if it's present then it modifies the existing order or else it creates the same.
-     * @param stock it holds the stock holding details of any stock which is curently present in Angel trading account
-     * @param slOrderValues an array consisting the value of stopLoss and trigger prices
+     * @param _stock it holds the stock holding details of any stock which is curently present in Angel trading account
+     * @param _slOrderValues an array consisting the value of stopLoss and trigger prices
      */
-    private async placeStopLossOrder ( stock: AngelHoldingDTO, slOrderValues: string[] ): Promise<AngelOrderResponse> {
+    private async placeStopLossOrder ( _stock: AngelHoldingDTO, _slOrderValues: string[] ): Promise<AngelOrderResponse> {
         throw new Error( "Method not implemented." );
     }
 
-    private async getPreviousClosing(tradingsymbol:string, symboltoken: string): Promise<AngelOHLCHistoricalDataDTO[][]> {
+    private async getPreviousClosing(_tradingsymbol:string, _symboltoken: string): Promise<AngelOHLCHistoricalDataDTO[][]> {
         return await null;
     }
 
@@ -52,7 +52,8 @@ export class AngelService implements TradingInterface {
 
     async getAllHoldings(): Promise<AngelHoldingDTO[]> {
         try {
-            const orderResponse: AngelHoldingDTO[] = await this.requestHandler.execute( AngelConstant.HOLDING_ROUTE, RequestMethod.GET, null, ApiType.others );
+            const orderResponse: AngelHoldingDTO[] = await this.requestHandler.execute( AngelConstant.HOLDING_ROUTE,
+                RequestMethod.GET, null, ApiType.others );
             return orderResponse;
         } catch (error) {
             this.logger.error( `${ AngelService.name }:${ this.getAllHoldings.name } error occured while fetching holding information.` , error);

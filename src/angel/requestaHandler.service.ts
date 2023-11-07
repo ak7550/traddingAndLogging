@@ -4,6 +4,7 @@ import { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { Observable, catchError, from, firstValueFrom } from "rxjs";
 import { AngelAPIResponse } from "./dto/generic.response.dto";
 import { AxiosFactory } from "./axios-factory.service";
+import { AngelHoldingDTO } from "./dto/holding.dto";
 
 
 @Injectable()
@@ -52,17 +53,19 @@ export class AngelRequestHandler {
                     break;
             }
 
-            const observableRequest: Observable<AxiosResponse<AngelAPIResponse<Type>>> = from(promise).pipe(
+            const observableRequest: Observable<AxiosResponse<any>> = from(promise).pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error("error that we faced just now", error);
                     throw new Error("An error happened!");
                 }),
             );
 
-            const resposne: AxiosResponse<AngelAPIResponse<Type>> = await firstValueFrom(observableRequest);
-            return resposne.data.$data;
+            const resposne: AxiosResponse<AngelAPIResponse<Type>> = await firstValueFrom( observableRequest );
+            this.logger.log( `${ AngelRequestHandler.name }: ${ this.execute.name }
+            response: ${ resposne.data.data }`, `route: ${ route }` );
+            return resposne.data.data;
         } catch (error) {
-            this.logger.error(`Error occured while hitting the ${route} request from Dhaan apis`,error,);
+            this.logger.error(`Error occured while hitting the ${route} request from Angel apis`,error,);
         }
     }
 }
