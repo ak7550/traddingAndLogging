@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { AngelService } from "src/angel/angel.service";
+import AngelService from "src/angel/angel.service";
 import { AngelConstant } from "src/angel/config/angel.constant";
 import { DhaanConstants } from "src/dhaan/config/dhaan.constant";
-import { DhaanService } from "src/dhaan/dhaan.service";
-import { TradingInterface } from "src/trading/interfaces/trading.interface";
+import DhaanService from "src/dhaan/dhaan.service";
+import TradingInterface from "src/trading/interfaces/trading.interface";
 
 @Injectable()
-export class TradingFactoryService {
+export default class TradingFactoryService {
     //@Inject is doing the constructor dependency injection
     constructor(private readonly dhaanService: DhaanService, private readonly angelService: AngelService) {}
 

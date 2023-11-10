@@ -1,12 +1,12 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { Observable, catchError, firstValueFrom, from } from "rxjs";
-import { AxiosFactory } from "./axios-factory.service";
+import AxiosFactory from "./axios-factory.service";
 import { ApiType } from "./config/angel.constant";
-import { AngelAPIResponse } from "./dto/generic.response.dto";
+import AngelAPIResponse from "./dto/generic.response.dto";
 
 @Injectable()
-export class AngelRequestHandler {
+export default class AngelRequestHandler {
     private readonly logger: Logger = new Logger(AngelRequestHandler.name);
 
     constructor(private readonly axiosFactory: AxiosFactory) {}
@@ -59,11 +59,11 @@ export class AngelRequestHandler {
                 }),
             );
 
-            const resposne: AxiosResponse<AngelAPIResponse<Type>> = await firstValueFrom( observableRequest );
+            const response: AxiosResponse<AngelAPIResponse<Type>> = await firstValueFrom( observableRequest );
 
             this.logger.log( `${ AngelRequestHandler.name }: ${ this.execute.name } => response received:
-                            ${ resposne.data.data }`,`route: ${route}`);
-            return resposne.data.data;
+                            ${ response.data.data }`,`route: ${route}`);
+            return response.data.data;
         } catch (error) {
             this.logger.error(`Error occured while hitting the ${route} request from Angel apis`,error,);
         }

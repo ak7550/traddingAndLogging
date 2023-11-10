@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 //docs: https://dhanhq.co/docs/v1/portfolio/
-export class DhaanHoldingDTO {
+export default class DhaanHoldingDTO {
     @ApiProperty({
         type: String,
     })

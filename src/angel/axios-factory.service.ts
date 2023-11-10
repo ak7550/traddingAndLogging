@@ -5,7 +5,7 @@ import GlobalConstant from "src/common/globalConstants.constant";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 
 @Injectable()
-export class AxiosFactory {
+export default class AxiosFactory {
     private orderApi: AxiosInstance;
     private gttApi: AxiosInstance;
     private historicalApi: AxiosInstance;

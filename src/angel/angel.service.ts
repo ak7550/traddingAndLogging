@@ -1,16 +1,15 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { getTrailingStopLoss } from "src/common/globalUtility.utility";
 import OrderInfoDTO from "src/trading/dtos/order-info.dto";
-import { TradingInterface } from "src/trading/interfaces/trading.interface";
+import TradingInterface from "src/trading/interfaces/trading.interface";
 import { AngelConstant, ApiType } from "./config/angel.constant";
-import { AngelHoldingDTO } from "./dto/holding.dto";
+import AngelHoldingDTO from "./dto/holding.dto";
 import { AngelOHLCHistoricalType } from "./dto/ohlc.historical.reponse.dto";
 import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
-import { AngelOrderResponse } from "./dto/order.response.dto";
-import { AngelRequestHandler } from "./requestaHandler.service";
+import AngelRequestHandler from "./request-handler.service";
 
 @Injectable()
-export class AngelService implements TradingInterface {
+export default class AngelService implements TradingInterface {
     private readonly logger: Logger = new Logger(AngelService.name);
 
     constructor(private readonly requestHandler: AngelRequestHandler) {}
@@ -22,26 +21,38 @@ export class AngelService implements TradingInterface {
             );
 
             const today: Date = new Date();
-            const fromDate: Date = new Date (new Date().setDate( new Date().getDate() - 30 ));
+            const fromDate: Date = new Date(
+                new Date().setDate(new Date().getDate() - 30),
+            );
             this.logger.log(`today: ${today}, previous day: ${fromDate}`);
-            const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings();
+            const holdingStocks: AngelHoldingDTO[] =
+                await this.getAllHoldings();
 
-            const orderResponse: Promise<AngelOrderResponse>[] =
-                holdingStocks.map(async (stock: AngelHoldingDTO) => {
-                    const baseStopLoss: string[] = getTrailingStopLoss(stock.ltp, stock.averageprice);
+            const orderResponse: Promise<any>[] = holdingStocks.map(
+                async (stock: AngelHoldingDTO) => {
+                    const baseStopLoss: string[] = getTrailingStopLoss(
+                        stock.ltp,
+                        stock.averageprice,
+                    );
                     const historicalData: AngelOHLCHistoricalType[] =
-                        await this.getHistoricalData( stock, fromDate, today, AngelConstant.ONE_DAY_INTERVAL );
+                        await this.getHistoricalData(
+                            stock,
+                            fromDate,
+                            today,
+                            AngelConstant.ONE_DAY_INTERVAL,
+                        );
 
                     return await this.placeStopLossOrder(stock, baseStopLoss);
-                });
+                },
+            );
 
             await Promise.resolve(orderResponse);
             this.logger.log(
                 `${AngelService.name}:${this.placeDailyStopLossOrders.name} placed sl order for all the holdings`,
             );
             return null;
-        } catch ( error ) {
-            return
+        } catch (error) {
+            return;
         }
     }
 
@@ -54,7 +65,7 @@ export class AngelService implements TradingInterface {
     private async placeStopLossOrder(
         _stock: AngelHoldingDTO,
         _slOrderValues: string[],
-    ): Promise<AngelOrderResponse> {
+    ): Promise<any> {
         throw new Error("Method not implemented.");
     }
 
@@ -73,7 +84,13 @@ export class AngelService implements TradingInterface {
                 toDate.toISOString().slice(0, 16).replace("T", " "),
             );
 
-        const historicalData: AngelOHLCHistoricalType[] = await this.requestHandler.execute( AngelConstant.HISTORICAL_DATA_ROUTE, RequestMethod.POST, request, ApiType.historical );
+        const historicalData: AngelOHLCHistoricalType[] =
+            await this.requestHandler.execute(
+                AngelConstant.HISTORICAL_DATA_ROUTE,
+                RequestMethod.POST,
+                request,
+                ApiType.historical,
+            );
 
         return historicalData;
     }

@@ -4,7 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 /**
  *docs: [Angel portfolio docs](https://smartapi.angelbroking.com/docs/Portfolio)
  */
-export class AngelHoldingDTO {
+export default class AngelHoldingDTO {
     @ApiProperty({
         type: String,
     })

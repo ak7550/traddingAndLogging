@@ -1,4 +1,4 @@
-export class AngelAPIResponse<Type> {
+export default class AngelAPIResponse<Type> {
     private _status: string;
     public get status (): string {
         return this._status;
