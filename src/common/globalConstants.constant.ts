@@ -1,4 +1,4 @@
-export class GlobalConstant {
+export default class GlobalConstant {
     public static readonly APPLICATION_JSON: string = "application/json";
     public static readonly CONTENT_TYPE: string = "Content-Type";
     public static readonly GET = "get";
@@ -12,6 +12,7 @@ export class GlobalConstant {
     public static readonly equity = "EQUITY";
     public static readonly expiryCode = "expiryCode";
 
+    public static readonly BROKER = "broker";
     public static readonly transactionType = "transactionType";
     public static readonly sell = "SELL";
     public static readonly productType = "productType";

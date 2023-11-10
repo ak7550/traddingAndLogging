@@ -9,8 +9,10 @@ export class AngelConstant {
     public static readonly X_CLIENT_PUBLIC_IP: string = "X-ClientPublicIP";
     public static readonly X_MACAddress: string = "X-MACAddress";
     public static readonly X_PRIVATE_KEY: string = "X-PrivateKey";
+    public static readonly ONE_DAY_INTERVAL: string = "ONE_DAY";
 
-    public static HOLDING_ROUTE: string = "/portfolio/v1/getHolding";
+    public static readonly HOLDING_ROUTE: string = "/portfolio/v1/getHolding";
+    public static readonly HISTORICAL_DATA_ROUTE: string = "/historical/v1/getCandleData";
 }
 
 export enum ApiType {
