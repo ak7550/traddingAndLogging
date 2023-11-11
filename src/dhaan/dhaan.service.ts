@@ -39,10 +39,8 @@ export default class DhaanService implements TradingInterface {
                             ApiType.historical,
                         );
 
-                    const [price, triggerPrice]: string[] = getTrailingStopLoss(
-                        response.close[response.close.length - 1],
-                        stockInfo.avgCostPrice,
-                    );
+                    // todo: needs to work a lot in these integrations
+                    const [price, triggerPrice]: string[] = getTrailingStopLoss(stockInfo.closingPrice, stockInfo.avgCostPrice, );
 
                     return await this.placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
                 },

@@ -13,6 +13,7 @@ export class AngelConstant {
 
     public static readonly HOLDING_ROUTE: string = "/portfolio/v1/getHolding";
     public static readonly HISTORICAL_DATA_ROUTE: string = "/historical/v1/getCandleData";
+    public static readonly ORDER_PLACE_ROUTE: string = "/order/v1/placeOrder";
 }
 
 export enum ApiType {

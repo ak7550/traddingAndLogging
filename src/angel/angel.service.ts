@@ -1,5 +1,5 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import { getTrailingStopLoss } from "src/common/globalUtility.utility";
+import { getBaseStopLoss, getTrailingStopLoss } from 'src/common/globalUtility.utility';
 import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { AngelConstant, ApiType } from "./config/angel.constant";
@@ -7,6 +7,9 @@ import AngelHoldingDTO from "./dto/holding.dto";
 import { AngelOHLCHistoricalType } from "./dto/ohlc.historical.reponse.dto";
 import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
 import AngelRequestHandler from "./request-handler.service";
+import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
+import AngelOrderRequestDTO from './dto/order.request.dto';
+import AngelOrderResponseDTO from "./dto/order.response.dto";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -30,20 +33,21 @@ export default class AngelService implements TradingInterface {
 
             const orderResponse: Promise<any>[] = holdingStocks.map(
                 async (stock: AngelHoldingDTO) => {
-                    const baseStopLoss: string[] = getTrailingStopLoss(
+                    const baseStopLoss: string = getBaseStopLoss(
                         stock.ltp,
                         stock.averageprice,
                     );
-                    const historicalData: AngelOHLCHistoricalType[] =
+                    const historicalData: OhlcvDataDTO[] =
                         await this.getHistoricalData(
                             stock,
                             fromDate,
                             today,
                             AngelConstant.ONE_DAY_INTERVAL,
                         );
+                    const stopLoss: string[] = getTrailingStopLoss( stock.ltp, Number.parseFloat(baseStopLoss), historicalData );
 
-                    return await this.placeStopLossOrder(stock, baseStopLoss);
-                },
+                    return await this.placeStopLossOrder(stock, stopLoss);
+                }
             );
 
             await Promise.resolve(orderResponse);
@@ -66,6 +70,17 @@ export default class AngelService implements TradingInterface {
         _stock: AngelHoldingDTO,
         _slOrderValues: string[],
     ): Promise<any> {
+        try {
+            this.logger.log( `inside ${ AngelService.name }: ${ this.placeStopLossOrder.name } method` );
+            const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
+            const response: AngelOrderResponseDTO = await this.requestHandler.execute( AngelConstant.ORDER_PLACE_ROUTE, RequestMethod.POST, orderRequestDTO, ApiType.order );
+
+            this.logger.log( `stop loss order for ${ _stock.tradingsymbol } is successful.` );
+            // todo: code to response into universal order-dto
+            return response;
+        } catch (error) {
+
+        }
         throw new Error("Method not implemented.");
     }
 
@@ -74,7 +89,7 @@ export default class AngelService implements TradingInterface {
         fromDate: Date,
         toDate: Date,
         interval: string,
-    ): Promise<AngelOHLCHistoricalType[]> {
+    ): Promise<OhlcvDataDTO[]> {
         const request: AngelOHLCHistoricalRequestDTO =
             new AngelOHLCHistoricalRequestDTO(
                 stock.exchange,
@@ -92,7 +107,7 @@ export default class AngelService implements TradingInterface {
                 ApiType.historical,
             );
 
-        return historicalData;
+        return historicalData.map(([timeStamp, open, high, low, close, vol]: AngelOHLCHistoricalType):OhlcvDataDTO => new OhlcvDataDTO(open, high, low, close, vol));
     }
 
     async getAllHoldings(): Promise<AngelHoldingDTO[]> {
