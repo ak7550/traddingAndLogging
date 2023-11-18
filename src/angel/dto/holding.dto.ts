@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { ExchangeType } from '../../common/globalConstants.constant';
 
 
 /**
@@ -8,7 +9,7 @@ export default class AngelHoldingDTO {
     @ApiProperty({
         type: String,
     })
-    exchange: string;
+    exchange: ExchangeType;
 
     @ApiProperty({
         type: String,

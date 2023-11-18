@@ -5,6 +5,7 @@ import TradingFactoryService from "src/trading/trading-factory.service";
 import StockInfoDTO from "./dtos/stock-info.dto";
 import TradingInterface from "./interfaces/trading.interface";
 
+//docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
 export default class TradingController {
     constructor(private readonly tradingFactory: TradingFactoryService) {}

@@ -14,12 +14,19 @@ export default class GlobalConstant {
 
     public static readonly BROKER = "broker";
     public static readonly transactionType = "transactionType";
-    public static readonly sell = "SELL";
+    public static readonly SELL = "SELL";
+    public static readonly BUY = "BUY";
     public static readonly productType = "productType";
-    public static readonly cnc = "CNC";
+    public static readonly CNC = "CNC";
     public static readonly orderType = "orderType";
-    public static readonly stopLoss = "STOP_LOSS";
+    public static readonly STOP_LOSS = "STOPLOSS";
+    public static readonly NORMAL = "NORMAL";
     public static readonly validity = "validity";
-    public static readonly day = "DAY";
+    public static readonly DAY = "DAY";
+    public static readonly IOC = "IOC";
     public static readonly afterMarketOrder = "afterMarketOrder";
+    public static readonly FULFILLED = "fulfilled";
+    public static readonly REJECTED = "rejected";
 }
+
+export type ExchangeType = "NSE" | "BSE" | "NFO";

@@ -1,13 +1,13 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
 import { getTrailingStopLoss } from "src/common/globalUtility.utility";
-import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import StockInfoDTO from "src/trading/dtos/stock-info.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
 import OhlcDTO from "./dto/ohlc.dto";
 import DhaanRequestHandler from "./requestHandler.service";
+import OrderResponseDTO from "src/trading/dtos/order.response.dto";
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
@@ -24,7 +24,7 @@ export default class DhaanService implements TradingInterface {
      * It checks the buying and current price of a particular stock, and figures out what should be the stoploss value for it, accordingly it places stoploss orders.
      * @returns
      */
-    async placeDailyStopLossOrders(): Promise<OrderInfoDTO[]> {
+    async placeDailyStopLossOrders(): Promise<OrderResponseDTO[]> {
         try {
             const stockInfos: StockInfoDTO[] = await this.getAllHoldings();
 
@@ -40,7 +40,7 @@ export default class DhaanService implements TradingInterface {
                         );
 
                     // todo: needs to work a lot in these integrations
-                    const [price, triggerPrice]: string[] = getTrailingStopLoss(stockInfo.closingPrice, stockInfo.avgCostPrice, );
+                    const [price, triggerPrice]: number[] = getTrailingStopLoss(stockInfo.closingPrice, stockInfo.avgCostPrice, );
 
                     return await this.placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
                 },

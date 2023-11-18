@@ -1,6 +1,5 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { getBaseStopLoss, getTrailingStopLoss } from 'src/common/globalUtility.utility';
-import OrderInfoDTO from "src/trading/dtos/order-info.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import AngelHoldingDTO from "./dto/holding.dto";
@@ -10,6 +9,10 @@ import AngelRequestHandler from "./request-handler.service";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import AngelOrderRequestDTO from './dto/order.request.dto';
 import AngelOrderResponseDTO from "./dto/order.response.dto";
+import { Cron } from "@nestjs/schedule";
+import GlobalConstant from "src/common/globalConstants.constant";
+import OrderResponseDTO from "src/trading/dtos/order.response.dto";
+import { mapToOrderResponseDTO } from "./config/angel.utils";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -17,71 +20,123 @@ export default class AngelService implements TradingInterface {
 
     constructor(private readonly requestHandler: AngelRequestHandler) {}
 
-    async placeDailyStopLossOrders(): Promise<OrderInfoDTO[]> {
+    // check properly, if this cron expression works, then save it inside the global constant file.
+    async placeDailyStopLossOrders(): Promise<OrderResponseDTO[]> {
         try {
-            this.logger.log(
-                `${AngelService.name}:${this.placeDailyStopLossOrders.name} method is called`,
-            );
+            this.logger.log(`${AngelService.name}:${this.placeDailyStopLossOrders.name} method is called`);
 
-            const today: Date = new Date();
-            const fromDate: Date = new Date(
-                new Date().setDate(new Date().getDate() - 30),
-            );
-            this.logger.log(`today: ${today}, previous day: ${fromDate}`);
-            const holdingStocks: AngelHoldingDTO[] =
-                await this.getAllHoldings();
+            const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings();
 
-            const orderResponse: Promise<any>[] = holdingStocks.map(
-                async (stock: AngelHoldingDTO) => {
-                    const baseStopLoss: string = getBaseStopLoss(
-                        stock.ltp,
-                        stock.averageprice,
-                    );
-                    const historicalData: OhlcvDataDTO[] =
-                        await this.getHistoricalData(
-                            stock,
-                            fromDate,
-                            today,
-                            AngelConstant.ONE_DAY_INTERVAL,
-                        );
-                    const stopLoss: string[] = getTrailingStopLoss( stock.ltp, Number.parseFloat(baseStopLoss), historicalData );
+            const settledResults: OrderResponseDTO[] = this.processStocksAndPlaceStoplossOrder(holdingStocks);
 
-                    return await this.placeStopLossOrder(stock, stopLoss);
-                }
-            );
-
-            await Promise.resolve(orderResponse);
             this.logger.log(
                 `${AngelService.name}:${this.placeDailyStopLossOrders.name} placed sl order for all the holdings`,
             );
-            return null;
+            return settledResults;
         } catch (error) {
-            return;
+            this.logger.error( `${ AngelService.name }:${ this.placeDailyStopLossOrders.name } error occured at some point`, error );
         }
+
+        return null;
+    }
+
+    /**
+     * it iterates over the stocks that are currently in Angel's portfolio, figures out what should be the stoploss value and place stoploss order for each of those stocks
+     * @param holdingStocks contains an array holding all the stocks information which are currently present in angel portfolio
+     * @returns {PromiseSettledResult<OrderResponseDTO>[]} an array of orderResponseDTO after placing the orders
+     */
+    private processStocksAndPlaceStoplossOrder(
+        holdingStocks: AngelHoldingDTO[],
+    ): OrderResponseDTO[] {
+        const today: Date = new Date();
+        //taking 90days previous data, to make a precious data
+        const fromDate: Date = new Date(
+            new Date().setDate(new Date().getDate() - 90),
+        );
+
+        this.logger.log( `today: ${ today }, previous day: ${ fromDate }` );
+
+        const orderResponses: OrderResponseDTO[] = [];
+
+        holdingStocks.forEach(async (stock: AngelHoldingDTO) => {
+            try {
+                const baseStopLoss: string = getBaseStopLoss(
+                    stock.ltp,
+                    stock.averageprice,
+                );
+                const historicalData: OhlcvDataDTO[] =
+                    await this.getHistoricalData(
+                        stock,
+                        fromDate,
+                        today,
+                        AngelConstant.ONE_DAY_INTERVAL,
+                    );
+
+                const stopLoss: number[] = getTrailingStopLoss(
+                    stock.ltp,
+                    Number.parseFloat(baseStopLoss),
+                    historicalData,
+                );
+
+                const orderResponse: OrderResponseDTO = await this.placeStopLossOrder(stock, stopLoss);
+
+                orderResponses.push(orderResponse);
+            } catch ( error ) {
+                this.logger.error( `error occured while dealing with ${ stock.tradingsymbol }`, error );
+                orderResponses.push(mapToOrderResponseDTO(null, stock, null, error));
+            }
+        });
+
+        return orderResponses;
     }
 
     /**
      * it checks if there's any existing sell order present for this particular stock,
      *  if it's present then it modifies the existing order or else it creates the same.
+     * docs: [Angel api docs for orders](https://smartapi.angelbroking.com/docs/Orders)
      * @param _stock it holds the stock holding details of any stock which is curently present in Angel trading account
      * @param _slOrderValues an array consisting the value of stopLoss and trigger prices
      */
     private async placeStopLossOrder(
         _stock: AngelHoldingDTO,
-        _slOrderValues: string[],
-    ): Promise<any> {
+        _slOrderValues: number[],
+    ): Promise<OrderResponseDTO> {
+        let orderResponse: OrderResponseDTO = null;
         try {
-            this.logger.log( `inside ${ AngelService.name }: ${ this.placeStopLossOrder.name } method` );
+            this.logger.log(
+                `inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`,
+            );
             const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
-            const response: AngelOrderResponseDTO = await this.requestHandler.execute( AngelConstant.ORDER_PLACE_ROUTE, RequestMethod.POST, orderRequestDTO, ApiType.order );
+            orderRequestDTO.mapData( _stock, _slOrderValues, GlobalConstant.STOP_LOSS, GlobalConstant.SELL, "STOPLOSS_MARKET" );
 
-            this.logger.log( `stop loss order for ${ _stock.tradingsymbol } is successful.` );
-            // todo: code to response into universal order-dto
-            return response;
-        } catch (error) {
+            const response: AngelOrderResponseDTO =
+                await this.requestHandler.execute(
+                    AngelConstant.ORDER_PLACE_ROUTE,
+                    RequestMethod.POST,
+                    orderRequestDTO,
+                    ApiType.order,
+                );
 
+            this.logger.log(
+                `receive a successful response stoploss order of ${_stock.tradingsymbol}`,
+            );
+
+            //code to response into universal order-dto
+            //todo: talk with angel, there must be an api to find a status of an individual order
+            // using that response, we will be able to map a lot of data
+            orderResponse = mapToOrderResponseDTO(
+                response,
+                _stock,
+                orderRequestDTO,
+            );
+        } catch (error: unknown) {
+            this.logger.error(
+                `encountered an error, while creating the stoploss order of ${_stock.tradingsymbol}`,
+                error,
+            );
+            orderResponse = mapToOrderResponseDTO(null, _stock, null, error);
         }
-        throw new Error("Method not implemented.");
+        return orderResponse;
     }
 
     private async getHistoricalData(
@@ -107,7 +162,17 @@ export default class AngelService implements TradingInterface {
                 ApiType.historical,
             );
 
-        return historicalData.map(([timeStamp, open, high, low, close, vol]: AngelOHLCHistoricalType):OhlcvDataDTO => new OhlcvDataDTO(open, high, low, close, vol));
+        return historicalData.map(
+            ([
+                timeStamp,
+                open,
+                high,
+                low,
+                close,
+                vol,
+            ]: AngelOHLCHistoricalType): OhlcvDataDTO =>
+                new OhlcvDataDTO(timeStamp, open, high, low, close, vol),
+        );
     }
 
     async getAllHoldings(): Promise<AngelHoldingDTO[]> {

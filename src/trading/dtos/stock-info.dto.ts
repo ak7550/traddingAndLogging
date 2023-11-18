@@ -1,8 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
 import { IsAlphanumeric, IsNotEmpty, Min, ValidateIf } from "class-validator";
+import { AngelConstant } from "src/angel/config/angel.constant";
 import { DhaanConstants } from "src/dhaan/config/dhaan.constant";
 
+/**
+ * docs: [class-validator, class-transformer stackoverflow](https://stackoverflow.com/questions/69084933/nestjs-dto-class-set-class-validator-and-class-transformer-execution-order)
+ */
 export default class StockInfoDTO {
     constructor(data: Partial<StockInfoDTO>) {
         // this.securityId = undefined;
@@ -23,7 +27,7 @@ export default class StockInfoDTO {
             case DhaanConstants.brokerName:
             case "zerodha":
             case "fyers":
-            case "angel":
+            case AngelConstant.brokerName:
                 flag = true;
                 break;
             default:
