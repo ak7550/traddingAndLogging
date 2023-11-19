@@ -20,21 +20,33 @@ export default class AngelService implements TradingInterface {
 
     constructor(private readonly requestHandler: AngelRequestHandler) {}
 
-    // check properly, if this cron expression works, then save it inside the global constant file.
+    /**
+     * this method fetches all the holdings in current portoflio and sets trailing stoploss order for each one of them
+     * docs: [cron-declarative job in nest](https://docs.nestjs.com/techniques/task-scheduling#declarative-cron-jobs)
+     * @returns {OrderResponseDTO[]} an array of all the order responnses
+     */
+    @Cron("15 21 11 * * 1-5")
     async placeDailyStopLossOrders(): Promise<OrderResponseDTO[]> {
         try {
-            this.logger.log(`${AngelService.name}:${this.placeDailyStopLossOrders.name} method is called`);
+            this.logger.log(
+                `${AngelService.name}:${this.placeDailyStopLossOrders.name} method is called`,
+            );
 
-            const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings();
+            const holdingStocks: AngelHoldingDTO[] =
+                await this.getAllHoldings();
 
-            const settledResults: OrderResponseDTO[] = this.processStocksAndPlaceStoplossOrder(holdingStocks);
+            const settledResults: OrderResponseDTO[] =
+                this.processStocksAndPlaceStoplossOrder(holdingStocks);
 
             this.logger.log(
                 `${AngelService.name}:${this.placeDailyStopLossOrders.name} placed sl order for all the holdings`,
             );
             return settledResults;
         } catch (error) {
-            this.logger.error( `${ AngelService.name }:${ this.placeDailyStopLossOrders.name } error occured at some point`, error );
+            this.logger.error(
+                `${AngelService.name}:${this.placeDailyStopLossOrders.name} error occured at some point`,
+                error,
+            );
         }
 
         return null;
@@ -54,7 +66,7 @@ export default class AngelService implements TradingInterface {
             new Date().setDate(new Date().getDate() - 90),
         );
 
-        this.logger.log( `today: ${ today }, previous day: ${ fromDate }` );
+        this.logger.log(`today: ${today}, previous day: ${fromDate}`);
 
         const orderResponses: OrderResponseDTO[] = [];
 
@@ -78,12 +90,18 @@ export default class AngelService implements TradingInterface {
                     historicalData,
                 );
 
-                const orderResponse: OrderResponseDTO = await this.placeStopLossOrder(stock, stopLoss);
+                const orderResponse: OrderResponseDTO =
+                    await this.placeStopLossOrder(stock, stopLoss);
 
                 orderResponses.push(orderResponse);
-            } catch ( error ) {
-                this.logger.error( `error occured while dealing with ${ stock.tradingsymbol }`, error );
-                orderResponses.push(mapToOrderResponseDTO(null, stock, null, error));
+            } catch (error) {
+                this.logger.error(
+                    `error occured while dealing with ${stock.tradingsymbol}`,
+                    error,
+                );
+                orderResponses.push(
+                    mapToOrderResponseDTO(null, stock, null, error),
+                );
             }
         });
 
@@ -106,8 +124,15 @@ export default class AngelService implements TradingInterface {
             this.logger.log(
                 `inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`,
             );
-            const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
-            orderRequestDTO.mapData( _stock, _slOrderValues, GlobalConstant.STOP_LOSS, GlobalConstant.SELL, "STOPLOSS_MARKET" );
+            const orderRequestDTO: AngelOrderRequestDTO =
+                new AngelOrderRequestDTO();
+            orderRequestDTO.mapData(
+                _stock,
+                _slOrderValues,
+                GlobalConstant.STOP_LOSS,
+                GlobalConstant.SELL,
+                "STOPLOSS_MARKET",
+            );
 
             const response: AngelOrderResponseDTO =
                 await this.requestHandler.execute(
