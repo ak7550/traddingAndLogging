@@ -1,9 +1,7 @@
-a cron task must be there to figure out, if there is a stop loss order present or not for all the holdings 
+think about storing the expiry time of accesstoken
+write a logic to refresh accesstoken when the expiry time is closer
 
-but the question si how to hanfle this cron task
+think of using a sql db (postgres, mysql) to store credential table
 
-Method name: putStopLossForAllTheholdings()
--> fetch the data of all the holdings
--> loop through all the holding info
--> for each of the holding -> figure out the exact sl value using specific algo
--> put the sl order
+think about implementing an authentication mechanism, to authenticate and store the accesstoken once the user is signup
+to implement this feature we may need a frontend, which will redirect us to our backend

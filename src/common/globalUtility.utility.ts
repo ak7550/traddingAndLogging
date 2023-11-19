@@ -108,6 +108,26 @@ const getEmaValue = (
     return ema;
 };
 
+const getVwap = ( data: OhlcvDataDTO[] ): number[] => {
+    const vwapArray: number[] = [];
+
+    let cumulativeSumPriceVolume = 0;
+    let cumulativeSumVolume = 0;
+
+    for (const item of data) {
+        const typicalPrice = (item.high + item.low + item.close) / 3;
+        const priceVolume = typicalPrice * item.volume;
+
+        cumulativeSumPriceVolume += priceVolume;
+        cumulativeSumVolume += item.volume;
+
+        const vwap = cumulativeSumPriceVolume / cumulativeSumVolume;
+        vwapArray.push(vwap);
+    }
+
+    return vwapArray;
+}
+
 //todo ==> implement actual methods, that will fetch these data
 export const getPublicIp = (): string => process.env.PUBLIC_IP;
 export const getPrivateIp = (): string => process.env.PRIVATE_IP;
