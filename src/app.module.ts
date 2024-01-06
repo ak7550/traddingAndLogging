@@ -6,9 +6,8 @@ import { SheetModule } from "./sheet/sheet.module";
 import TradingModule from "./trading/trading.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DataSource } from "typeorm";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Credential } from "./credential/entities/credential.entity";
 import { CredentialModule } from "./credential/credential.module";
+import { DataBaseModule } from "./database/database.module";
 
 @Module({
     imports: [
@@ -19,18 +18,7 @@ import { CredentialModule } from "./credential/credential.module";
         SheetModule,
         TradingModule,
         ScheduleModule.forRoot(),
-        TypeOrmModule.forRootAsync({
-            useFactory: () => ({
-                type: "mysql",
-                host: process.env.DB_HOST,
-                port: parseInt(process.env.DB_PORT) || 3306,
-                username: process.env.DB_USER,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME,
-                entities: [Credential],
-                synchronize: false,
-            }),
-        }),
+        DataBaseModule,
         CredentialModule,
     ],
     controllers: [AppController],

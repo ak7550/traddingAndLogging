@@ -5,3 +5,24 @@ think of using a sql db (postgres, mysql) to store credential table
 
 think about implementing an authentication mechanism, to authenticate and store the accesstoken once the user is signup
 to implement this feature we may need a frontend, which will redirect us to our backend
+
+
+=> what's diff between hashing and encryption ? // password security thing
+
+### database_design ==> normalization is good in terms of scalability, but query will take longer time to execute
+
+
+credential_table
+id(pk), key_name, key_value, broker_name, user_id (foreign_key to user db)
+
+user_table -> independant table
+user_id, user_name, connected_brokers(foreign_key), PAN_no, address, password (just keeping it basic as of now)
+
+user-broker_table -> one to many relation
+id(pk), user_id, demat_account_no, account_no, dp_id, client_id, CDSL_tpin
+
+broker_names tables -> independant table
+-> list of all integrated broker_names
+
+
+// how to design a optimised database
