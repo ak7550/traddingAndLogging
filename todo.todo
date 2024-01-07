@@ -26,3 +26,5 @@ broker_names tables -> independant table
 
 
 // how to design a optimised database
+
+=> create an enum of broker_name
