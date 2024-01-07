@@ -33,6 +33,6 @@ export type ExchangeType = "NSE" | "BSE" | "NFO";
 
 //this will be considered as the single source of truth for all the integrated brokers
 export enum IntegratedBroker {
-    angel = "angel",
-    dhaan = "dhaan"
+    Angel = "angel",
+    Dhaan = "dhaan"
 }
