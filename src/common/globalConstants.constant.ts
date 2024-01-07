@@ -1,3 +1,5 @@
+import { AngelConstant } from "src/angel/config/angel.constant";
+
 export default class GlobalConstant {
     public static readonly APPLICATION_JSON: string = "application/json";
     public static readonly CONTENT_TYPE: string = "Content-Type";
@@ -30,3 +32,9 @@ export default class GlobalConstant {
 }
 
 export type ExchangeType = "NSE" | "BSE" | "NFO";
+
+//todo: take the values from constants
+export enum IntegratedBroker {
+    angel = "angel",
+    dhaan = "dhaan"
+}

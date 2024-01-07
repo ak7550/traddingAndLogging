@@ -1,5 +1,7 @@
+import { IntegratedBroker } from "src/common/globalConstants.constant";
+
 export class AngelConstant {
-    public static readonly brokerName: string = "angel";
+    public static readonly brokerName: string = IntegratedBroker.angel;
     public static readonly ACCESS_TOKEN: string = "Authorization";
     public static readonly X_USER_TYPE: string = "X-UserType";
     public static readonly USER: string = "USER";
