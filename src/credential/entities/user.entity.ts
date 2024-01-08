@@ -7,8 +7,38 @@ import { UserBroker } from "./userBroker.entity";
     name: "user",
 })
 export class User extends AbstractEntity<User> {
-    @Column()
-    name: string;
+    @Column({
+        name: "first_name",
+    })
+    firstName: string;
+
+    @Column( {
+        name: "middle_name",
+        nullable: true
+    } )
+    middleName: string;
+
+    @Column( {
+        name: "last_name",
+        nullable: true
+    } )
+    lastName: string;
+
+    @Column( {
+        name: "pan_card_no"
+    } )
+    panCardNumber: string;
+
+    @Column( {
+        nullable: true // make it false in prod
+    })
+    address: string;
+
+    @Column( {
+        name: "encrypted_password",
+        nullable: true // make it false in prod
+    } )
+    encryptedPassword: string;
 
     @ManyToMany(() => Broker, broker => broker.users, { cascade: true })
     @JoinTable({
@@ -17,6 +47,7 @@ export class User extends AbstractEntity<User> {
         inverseJoinColumn: {
             name: "broker_name",
             referencedColumnName: "name",
+            foreignKeyConstraintName: "custom_user_broker_fk",
         },
     })
     brokers: Broker[];
