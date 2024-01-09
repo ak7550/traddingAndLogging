@@ -8,6 +8,7 @@ import {
 import { Broker } from "./broker.entity";
 import { User } from "./user.entity";
 
+//docs: https://typeorm.biunav.com/en/many-to-many-relations.html
 @Entity({
     name: "demat_account",
 })
