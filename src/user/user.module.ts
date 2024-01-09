@@ -5,10 +5,11 @@ import { Credential } from "./entities/credential.entity";
 import { User } from "./entities/user.entity";
 import { UserBroker } from "./entities/userBroker.entity";
 import { UserService } from "./user.service";
+import { UserController } from "./user.controller";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Credential, User, Broker, UserBroker])],
-    controllers: [],
+    controllers: [UserController],
     providers: [UserService],
 })
 export class UserModule {}
