@@ -1,11 +1,11 @@
 import AbstractEntity from "src/database/abstract.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
-import { UserBroker } from "./userBroker.entity";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { DematAccount } from "./demat-account";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
 @Entity("credential")
 export class Credential extends AbstractEntity<Credential> {
-        @Column({
+    @Column({
         name: "key_name",
     })
     keyName: string;
@@ -17,6 +17,9 @@ export class Credential extends AbstractEntity<Credential> {
 
     //_. this will generate accountId table, which will work as foreign key for this table, referencing to User table
 
-    @ManyToOne( () => UserBroker, demat => demat.id)
-    account: UserBroker
+    @ManyToOne(() => DematAccount, demat => demat.id)
+    @JoinColumn({
+        name: "account_id",
+    })
+    account: DematAccount;
 }

@@ -1,7 +1,7 @@
 import AbstractEntity from "src/database/abstract.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
 import { Broker } from "./broker.entity";
-import { UserBroker } from "./userBroker.entity";
+import { DematAccount } from "./demat-account";
 
 @Entity({
     name: "user",
@@ -12,46 +12,46 @@ export class User extends AbstractEntity<User> {
     })
     firstName: string;
 
-    @Column( {
+    @Column({
         name: "middle_name",
-        nullable: true
-    } )
+        nullable: true,
+    })
     middleName: string;
 
-    @Column( {
+    @Column({
         name: "last_name",
-        nullable: true
-    } )
+        nullable: true,
+    })
     lastName: string;
 
-    @Column( {
-        name: "pan_card_no"
-    } )
+    @Column({
+        name: "pan_card_no",
+    })
     panCardNumber: string;
 
-    @Column( {
-        nullable: true // make it false in prod
+    @Column({
+        nullable: true, // make it false in prod
     })
     address: string;
 
-    @Column( {
+    @Column({
         name: "encrypted_password",
-        nullable: true // make it false in prod
-    } )
+        nullable: true, // make it false in prod
+    })
     encryptedPassword: string;
 
-    @ManyToMany(() => Broker, broker => broker.users, { cascade: true })
-    @JoinTable({
-        name: "user_broker",
-        joinColumn: { name: "user_id", referencedColumnName: "id" },
-        inverseJoinColumn: {
-            name: "broker_name",
-            referencedColumnName: "name",
-            foreignKeyConstraintName: "custom_user_broker_fk",
-        },
-    })
-    brokers: Broker[];
+    // @ManyToMany(() => Broker, broker => broker.name, { cascade: true })
+    // @JoinTable({
+    //     name: "user_broker",
+    //     joinColumn: { name: "user_id", referencedColumnName: "id" },
+    //     inverseJoinColumn: {
+    //         name: "broker_name",
+    //         referencedColumnName: "name",
+    //         // foreignKeyConstraintName: "custom_user_broker_fk",
+    //     },
+    // })
+    // brokers: Broker[];
 
-    @OneToMany(() => UserBroker, userBroker => userBroker.user)
-    userBrokers: UserBroker[];
+    // @OneToMany(() => UserBroker, userBroker => userBroker.user)
+    // userBrokers: UserBroker[];
 }

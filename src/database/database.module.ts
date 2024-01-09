@@ -4,7 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Broker } from "src/user/entities/broker.entity";
 import { Credential } from "src/user/entities/credential.entity";
 import { User } from "src/user/entities/user.entity";
-import { UserBroker } from "src/user/entities/userBroker.entity";
+import { DematAccount } from "src/user/entities/demat-account";
 
 @Module({
     imports: [
@@ -16,11 +16,11 @@ import { UserBroker } from "src/user/entities/userBroker.entity";
                 username: configService.getOrThrow(`DB_USER`),
                 password: configService.getOrThrow(`DB_PASSWORD`),
                 database: configService.getOrThrow(`DB_NAME`),
-                entities: [ Credential, User, UserBroker, Broker ],
+                entities: [Credential, User, DematAccount, Broker],
                 autoLoadEntities: true,
                 synchronize: configService.getOrThrow(`DB_SYNCHRONIZE`),
-            } ),
-            inject: [ConfigService]
+            }),
+            inject: [ConfigService],
         }),
     ],
 })
