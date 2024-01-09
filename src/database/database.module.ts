@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Credential } from "src/credential/entities/credential.entity";
+import { Credential } from "src/user/entities/credential.entity";
 
 @Module({
     imports: [

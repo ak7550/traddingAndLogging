@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { SheetModule } from "./sheet/sheet.module";
-import TradingModule from "./trading/trading.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DataSource } from "typeorm";
-import { CredentialModule } from "./credential/credential.module";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 import { DataBaseModule } from "./database/database.module";
+import { SheetModule } from "./sheet/sheet.module";
+import TradingModule from "./trading/trading.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
     imports: [
@@ -19,7 +19,7 @@ import { DataBaseModule } from "./database/database.module";
         TradingModule,
         ScheduleModule.forRoot(),
         DataBaseModule,
-        CredentialModule,
+        UserModule,
     ],
     controllers: [AppController],
     providers: [AppService],
