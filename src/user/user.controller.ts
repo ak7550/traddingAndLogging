@@ -11,6 +11,8 @@ import CreateBrokerDto from "./dto/create-broker.dto";
 import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
 import { UserService } from "./user.service";
+import { CreateCredentialDto } from "./dto/create-credential.dto";
+import { Http2ServerResponse } from "http2";
 
 @Controller("user")
 export class UserController {
@@ -22,6 +24,19 @@ export class UserController {
     ): Promise<CreateUserDto> {
         try {
             return await this.userService.createUser(createUserDTO);
+        } catch (error) {
+            throw new HttpException(
+                HttpStatusCode.Forbidden.toString(),
+                HttpStatus.FORBIDDEN,
+            );
+        }
+    }
+
+    @Post( "credential" )
+    async createCredential ( @Body() CreateCredentialDto: CreateCredentialDto ): Promise<HttpStatus> {
+        try {
+            await this.userService.createCredential( CreateCredentialDto );
+            return HttpStatus.ACCEPTED;
         } catch (error) {
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),

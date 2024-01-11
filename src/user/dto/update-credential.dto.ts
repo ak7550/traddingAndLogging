@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateCredentialDto } from './create-credential.dto';
+import { IntegratedBroker } from "src/common/globalConstants.constant";
 
-export class UpdateCredentialDto extends PartialType(CreateCredentialDto) {}
+export class UpdateCredentialDto {
+    userId?: number;
+    panCardNumber?: string;
+    brokerName: IntegratedBroker;
+    keyName: string;
+    keyValue: string;
+}

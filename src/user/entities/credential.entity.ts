@@ -12,6 +12,7 @@ export class Credential extends AbstractEntity<Credential> {
 
     @Column({
         name: "key_value",
+        length: 4000 // max size of a jwt token can be 7kb
     })
     keyValue: string;
 

@@ -5,18 +5,116 @@ import CreateBrokerDto from "./dto/create-broker.dto";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
-import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import { Broker } from "./entities/broker.entity";
 import { DematAccount } from "./entities/demat-account";
 import { User } from "./entities/user.entity";
+import { Credential } from "./entities/credential.entity";
+import { UpdateCredentialDto } from "./dto/update-credential.dto";
 
 @Injectable()
 export class UserService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly entityManager: EntityManager,
-        private readonly logger: Logger = new Logger(UserService.name)
+        private readonly logger: Logger = new Logger(UserService.name),
     ) {}
+
+    async createCredential(
+        createCredentialDto: CreateCredentialDto,
+    ): Promise<void> {
+        try {
+            this.logger.log(
+                `Inside createCredential method`,
+                createCredentialDto,
+            );
+            const account: DematAccount = await this.entityManager.findOneBy(
+                DematAccount,
+                {
+                    id: createCredentialDto.dematAccountId,
+                },
+            );
+
+            await this.entityManager.save(
+                new Credential({
+                    keyName: createCredentialDto.keyName,
+                    keyValue: createCredentialDto.keyValue,
+                    account,
+                }),
+            );
+        } catch (error) {
+            this.logger.error(
+                `error occured while saving credential info`,
+                error,
+            );
+            throw new HttpException(
+                HttpStatusCode.Forbidden.toString(),
+                HttpStatus.FORBIDDEN,
+            );
+        }
+    }
+
+    //_ when it comes on updating a cred, things that we will be having => userid / user_detail (pancard), broker_name, key_name
+    async updateCredential(
+        updateCredentialDto: UpdateCredentialDto,
+    ): Promise<void> {
+        try {
+            this.logger.log(
+                `Inside updateCredential method`,
+                updateCredentialDto,
+            );
+
+            let user: User;
+            const {
+                userId: uId,
+                panCardNumber,
+                brokerName,
+                keyName,
+                keyValue,
+            } = updateCredentialDto;
+
+            if (uId == undefined) {
+                user = await this.entityManager.findOneBy(User, {
+                    panCardNumber,
+                });
+            } else {
+                user = await this.entityManager.findOneBy(User, {
+                    id: uId,
+                });
+            }
+
+            const broker: Broker = await this.entityManager.findOneBy(Broker, {
+                name: brokerName,
+            });
+
+            const demat: DematAccount = await this.entityManager.findOneBy(
+                DematAccount,
+                {
+                    user,
+                    broker,
+                },
+            );
+
+            const credential: Credential = await this.entityManager.findOneBy(
+                Credential,
+                {
+                    account: demat,
+                    keyName,
+                },
+            );
+
+            credential.keyValue = keyValue;
+            await this.entityManager.save(credential);
+        } catch (error) {
+            this.logger.error(
+                `error occured while saving new broker info`,
+                error,
+            );
+            throw new HttpException(
+                HttpStatusCode.Forbidden.toString(),
+                HttpStatus.FORBIDDEN,
+            );
+        }
+    }
 
     async createUser(createUserDTO: CreateUserDto): Promise<CreateUserDto> {
         try {
@@ -85,13 +183,16 @@ export class UserService {
             this.logger.log(`Inside createDemat method`, createDematDto);
             const user: User = await this.entityManager.findOneBy(User, {
                 id: createDematDto.userId,
-            } );
-            const broker: Broker = await this.entityManager.findOneBy( Broker, {
-                name: createDematDto.dematAccount
-            })
-            await this.entityManager.save( new DematAccount( {
-                user, broker
-            }));
+            });
+            const broker: Broker = await this.entityManager.findOneBy(Broker, {
+                name: createDematDto.dematAccount,
+            });
+            await this.entityManager.save(
+                new DematAccount({
+                    user,
+                    broker,
+                }),
+            );
 
             return createDematDto;
         } catch (error) {
