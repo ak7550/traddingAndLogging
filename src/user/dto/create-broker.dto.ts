@@ -1,4 +1,4 @@
-import { Transform } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { IsString, isString } from "class-validator";
 import { IntegratedBroker } from "src/common/globalConstants.constant";
 

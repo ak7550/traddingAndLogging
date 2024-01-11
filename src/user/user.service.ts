@@ -1,18 +1,25 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import CreateBrokerDto from "./dto/create-broker.dto";
 import { DataSource, EntityManager } from "typeorm";
 import { Broker } from "./entities/broker.entity";
+import { User } from "./entities/user.entity";
+import { classToClassFromExist } from "class-transformer";
+import { HttpStatusCode } from "axios";
 
 @Injectable()
 export class UserService {
-    constructor (
+    constructor(
         private readonly dataSource: DataSource,
-        private readonly entityManager: EntityManager
-    ) { }
+        private readonly entityManager: EntityManager,
+        private readonly logger: Logger = new Logger(UserService.name)
+    ) {}
 
-    createBroker(createBrokerDTO: CreateBrokerDto) {
+    async createBroker(
+        createBrokerDTO: CreateBrokerDto,
+    ): Promise<CreateBrokerDto> {
+        this.logger.log(`Inside createBroker method`, createBrokerDTO);
         // const queryRunner = this.dataSource.createQueryRunner();
         // queryRunner.connect();
 
@@ -21,14 +28,32 @@ export class UserService {
         //     queryRunner.manager.save(createBrokerDTO);
         //     queryRunner.commitTransaction();
         // } catch (error) {
+        //     this.logger.error(
+        //         `error occured while saving new broker info`,
+        //         error,
+        //     );
         //     queryRunner.rollbackTransaction();
+        //     throw new HttpException(
+        //         HttpStatusCode.Forbidden.toString(),
+        //         HttpStatus.FORBIDDEN,
+        //     );
+
         // }
 
-        const broker = new Broker( createBrokerDTO );
-        this.entityManager.save( broker );
+        try {
+            const broker = new Broker(createBrokerDTO);
+            await this.entityManager.save(broker);
+            return broker;
+        } catch ( error ) {
+            this.logger.error( `error occured while saving new broker info`, error );
+            throw new HttpException(
+                HttpStatusCode.Forbidden.toString(),
+                HttpStatus.FORBIDDEN,
+            );
+        }
+        return null;
     }
 
-    
     create(createCredentialDto: CreateCredentialDto) {
         return "This action adds a new credential";
     }
