@@ -24,33 +24,39 @@ export class DematAccount extends AbstractEntity<DematAccount> {
 
     @Column({
         name: "demat_account_number",
+        nullable: true,
     })
     dematAccountNumber: string;
 
     @Column({
         name: "dp_id",
+        nullable: true,
     })
     dpId: string;
 
     @Column({
         name: "client_id",
+        nullable: true,
     })
     clientId: string;
 
     @Column({
         name: "encrypted_cdsl_tpin",
+        nullable: true,
     })
     encryptedCDSLTpin: string;
 
     @Column({
         name: "shares_bought",
         comment: "total amount of shares currently present in this account",
+        nullable: true,
     })
     sharesBought: number;
 
     @Column({
         name: "remaining_amount",
         comment: "it says the amount remaining into the demat account wallet",
+        nullable: true,
     })
     remainingAmount: number;
 
@@ -58,6 +64,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         name: "total_fund",
         comment:
             "total fund present into the demat account ==> holding shares + remaining account balance",
+        nullable: true,
     })
     totalFund: number;
 }

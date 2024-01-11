@@ -1,14 +1,8 @@
 import { IntegratedBroker } from "src/common/globalConstants.constant";
 import {
     Entity,
-    JoinTable,
-    ManyToMany,
-    OneToMany,
-    PrimaryColumn,
+    PrimaryColumn
 } from "typeorm";
-import { DematAccount } from "./demat-account";
-import { User } from "./user.entity";
-import { PartialType } from '@nestjs/swagger';
 
 @Entity({
     name: "broker",

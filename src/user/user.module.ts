@@ -9,7 +9,7 @@ import { UserController } from "./user.controller";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature( [ Credential, User, Broker, DematAccount ] ),
+        TypeOrmModule.forFeature([Credential, User, Broker, DematAccount]),
     ],
     controllers: [UserController],
     providers: [UserService, Logger],

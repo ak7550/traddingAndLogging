@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
-import { CreateCredentialDto } from "./dto/create-credential.dto";
-import { UpdateCredentialDto } from "./dto/update-credential.dto";
-import CreateBrokerDto from "./dto/create-broker.dto";
-import { DataSource, EntityManager } from "typeorm";
-import { Broker } from "./entities/broker.entity";
-import { User } from "./entities/user.entity";
-import { classToClassFromExist } from "class-transformer";
 import { HttpStatusCode } from "axios";
+import { DataSource, EntityManager } from "typeorm";
+import CreateBrokerDto from "./dto/create-broker.dto";
+import { CreateCredentialDto } from "./dto/create-credential.dto";
+import CreateDematAccountDto from "./dto/create-demat-account.dto";
+import CreateUserDto from "./dto/create-user.dto";
+import { UpdateCredentialDto } from "./dto/update-credential.dto";
+import { Broker } from "./entities/broker.entity";
+import { DematAccount } from "./entities/demat-account";
+import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UserService {
@@ -15,6 +17,25 @@ export class UserService {
         private readonly entityManager: EntityManager,
         private readonly logger: Logger = new Logger(UserService.name)
     ) {}
+
+    async createUser(createUserDTO: CreateUserDto): Promise<CreateUserDto> {
+        try {
+            this.logger.log(`Inside createUser method`, createUserDTO);
+            const user: User = await this.entityManager.save(
+                new User(createUserDTO),
+            );
+            return createUserDTO;
+        } catch (error) {
+            this.logger.error(
+                `error occured while saving new user info`,
+                error,
+            );
+            throw new HttpException(
+                HttpStatusCode.Forbidden.toString(),
+                HttpStatus.FORBIDDEN,
+            );
+        }
+    }
 
     async createBroker(
         createBrokerDTO: CreateBrokerDto,
@@ -44,14 +65,45 @@ export class UserService {
             const broker = new Broker(createBrokerDTO);
             await this.entityManager.save(broker);
             return broker;
-        } catch ( error ) {
-            this.logger.error( `error occured while saving new broker info`, error );
+        } catch (error) {
+            this.logger.error(
+                `error occured while saving new broker info`,
+                error,
+            );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),
                 HttpStatus.FORBIDDEN,
             );
         }
         return null;
+    }
+
+    async createDemat(
+        createDematDto: CreateDematAccountDto,
+    ): Promise<CreateDematAccountDto> {
+        try {
+            this.logger.log(`Inside createDemat method`, createDematDto);
+            const user: User = await this.entityManager.findOneBy(User, {
+                id: createDematDto.userId,
+            } );
+            const broker: Broker = await this.entityManager.findOneBy( Broker, {
+                name: createDematDto.dematAccount
+            })
+            await this.entityManager.save( new DematAccount( {
+                user, broker
+            }));
+
+            return createDematDto;
+        } catch (error) {
+            this.logger.error(
+                `error occured while saving new demat account info`,
+                error,
+            );
+            throw new HttpException(
+                HttpStatusCode.Forbidden.toString(),
+                HttpStatus.FORBIDDEN,
+            );
+        }
     }
 
     create(createCredentialDto: CreateCredentialDto) {
