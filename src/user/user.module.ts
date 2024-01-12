@@ -12,6 +12,7 @@ import { UserController } from "./user.controller";
         TypeOrmModule.forFeature([Credential, User, Broker, DematAccount]),
     ],
     controllers: [UserController],
-    providers: [UserService, Logger],
+    providers: [ UserService, Logger ],
+    exports: [UserService]
 })
 export class UserModule {}

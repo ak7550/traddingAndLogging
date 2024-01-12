@@ -1,24 +1,41 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import { getBaseStopLoss, getTrailingStopLoss } from 'src/common/globalUtility.utility';
+import { Cron } from "@nestjs/schedule";
+import GlobalConstant, {
+    IntegratedBroker,
+} from "src/common/globalConstants.constant";
+import {
+    getBaseStopLoss,
+    getTrailingStopLoss,
+} from "src/common/globalUtility.utility";
+import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
+import OrderResponseDTO from "src/trading/dtos/order.response.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
+import { Broker } from "src/user/entities/broker.entity";
+import { Credential } from "src/user/entities/credential.entity";
+import { DematAccount } from "src/user/entities/demat-account";
+import { EntityManager } from "typeorm";
+import { UserService } from "../user/user.service";
 import { AngelConstant, ApiType } from "./config/angel.constant";
+import { mapToOrderResponseDTO } from "./config/angel.utils";
+import GenerateTokenDto from "./dto/generate-token.request.dto.";
+import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelHoldingDTO from "./dto/holding.dto";
 import { AngelOHLCHistoricalType } from "./dto/ohlc.historical.reponse.dto";
 import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
-import AngelRequestHandler from "./request-handler.service";
-import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
-import AngelOrderRequestDTO from './dto/order.request.dto';
+import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
-import { Cron } from "@nestjs/schedule";
-import GlobalConstant from "src/common/globalConstants.constant";
-import OrderResponseDTO from "src/trading/dtos/order.response.dto";
-import { mapToOrderResponseDTO } from "./config/angel.utils";
+import AngelRequestHandler from "./request-handler.service";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
-    private readonly logger: Logger = new Logger(AngelService.name);
+    private broker: Broker;
 
-    constructor(private readonly requestHandler: AngelRequestHandler) {}
+    constructor(
+        private readonly requestHandler: AngelRequestHandler,
+        private readonly entityManager: EntityManager,
+        private readonly userService: UserService,
+        private readonly logger: Logger = new Logger(AngelService.name),
+    ) {}
 
     /**
      * this method fetches all the holdings in current portoflio and sets trailing stoploss order for each one of them
@@ -50,6 +67,84 @@ export default class AngelService implements TradingInterface {
         }
 
         return null;
+    }
+
+    @Cron("15 51 1 * * 1-6")
+    private cronTester() {
+        this.logger.log(`cron is working properly`);
+    }
+    
+    /**
+     * this module is responsible for updating the credentials of each users Who has a demat account in Angel
+     */
+    @Cron("15 50 8 * * 1-5")
+    async updateCredentials(): Promise<void> {
+        try {
+            this.logger.log(`Inside updateCredential method`);
+
+            if (this.broker == undefined) {
+                this.broker = await this.userService.findBroker(
+                    IntegratedBroker.Angel,
+                );
+            }
+            const dematAccounts: DematAccount[] =
+                await this.userService.findDemats(this.broker);
+
+            dematAccounts.forEach(async (dematAccount: DematAccount) => {
+                await this.updateCredential(dematAccount);
+            });
+        } catch (error) {
+            this.logger.error(`failed to update credentials`, error);
+        }
+    }
+
+    private async updateCredential(account: DematAccount): Promise<void> {
+        try {
+            this.logger.log(`updating credentials for account`, account);
+            const credentials: Credential[] =
+                await this.userService.findCredentials(account);
+
+            const refreshToken: Credential = credentials.filter(
+                credential =>
+                    credential.keyName === GlobalConstant.REFRESH_TOKEN,
+            )[0];
+            const jwtToken: Credential = credentials.filter(
+                credential => credential.keyName === AngelConstant.JWT_TOKEN,
+            )[0];
+            const feedToken: Credential = credentials.filter(
+                credential => credential.keyName === AngelConstant.FEED_TOKEN,
+            )[0];
+            const expiresAt: Credential = credentials.filter(
+                credential => credential.keyName === GlobalConstant.EXPIRES_AT,
+            )[0];
+
+            const request: GenerateTokenDto = new GenerateTokenDto({
+                refreshToken: refreshToken.keyValue,
+            });
+            const response: GenerateTokenResponseDto =
+                await this.requestHandler.refreshToken(request);
+
+            //updating the values
+            refreshToken.keyValue = response.refreshToken;
+            jwtToken.keyValue = response.jwtToken;
+            feedToken.keyValue = response.feedToken;
+            const expiryTime: number = Date.now() + 24 * 60 * 60 * 1000;
+            expiresAt.keyValue = String(expiryTime);
+
+            await this.userService.saveCredentials([
+                refreshToken,
+                jwtToken,
+                feedToken,
+                expiresAt,
+            ]);
+
+            this.logger.log(`new credentials are saved successfully`, account);
+        } catch (error) {
+            this.logger.error(
+                `error occured while generating a new accessTokens for ${account.accountNumber}`,
+                error,
+            );
+        }
     }
 
     /**
@@ -131,7 +226,7 @@ export default class AngelService implements TradingInterface {
                 _slOrderValues,
                 GlobalConstant.STOP_LOSS,
                 GlobalConstant.SELL,
-                "STOPLOSS_MARKET",
+                GlobalConstant.STOP_LOSS_MARKET,
             );
 
             const response: AngelOrderResponseDTO =

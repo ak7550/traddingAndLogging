@@ -10,14 +10,40 @@ import { DematAccount } from "./entities/demat-account";
 import { User } from "./entities/user.entity";
 import { Credential } from "./entities/credential.entity";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
+import { IntegratedBroker } from "src/common/globalConstants.constant";
 
 @Injectable()
 export class UserService {
+    async saveCredentials ( credentials: Credential[] ) {
+        await this.entityManager.save( credentials );
+    }
+    async findCredential ( account: DematAccount, keyName: string ): Promise<Credential> {
+        return await this.entityManager.findOneBy(Credential, {
+            account,
+            keyName
+        });
+    }
+    async findCredentials(account: DematAccount): Promise<Credential[]> {
+        return await this.entityManager.findBy(Credential, {
+            account,
+        });
+    }
+    async findDemats(broker: Broker): Promise<DematAccount[]> {
+        return await this.entityManager.findBy(DematAccount, {
+            broker,
+        });
+    }
     constructor(
         private readonly dataSource: DataSource,
         private readonly entityManager: EntityManager,
         private readonly logger: Logger = new Logger(UserService.name),
     ) {}
+
+    async findBroker(name: IntegratedBroker): Promise<Broker> {
+        return await this.entityManager.findOneBy(Broker, {
+            name,
+        });
+    }
 
     async createCredential(
         createCredentialDto: CreateCredentialDto,
@@ -34,13 +60,17 @@ export class UserService {
                 },
             );
 
-            await this.entityManager.save(
-                new Credential({
-                    keyName: createCredentialDto.keyName,
-                    keyValue: createCredentialDto.keyValue,
-                    account,
-                }),
-            );
+            let credential: Credential = await this.findCredential( account, createCredentialDto.keyName );
+
+            if ( credential == null ) {
+                credential = new Credential({});
+            }
+
+            credential.keyName = createCredentialDto.keyName;
+            credential.keyValue = createCredentialDto.keyValue;
+            credential.account = account;
+
+            await this.entityManager.save(credential);
         } catch (error) {
             this.logger.error(
                 `error occured while saving credential info`,
