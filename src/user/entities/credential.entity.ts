@@ -1,5 +1,5 @@
 import AbstractEntity from "src/database/abstract.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { DematAccount } from "./demat-account";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
@@ -24,14 +24,19 @@ export class Credential extends AbstractEntity<Credential> {
     })
     account: DematAccount;
 
-    // Add these columns for automatic timestamp tracking
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    @Column({ type: "date", default: null })
     createdAt: Date;
 
-    @UpdateDateColumn({
-        type: "timestamp",
-        default: () => "CURRENT_TIMESTAMP(6)",
-        onUpdate: "CURRENT_TIMESTAMP(6)",
-    })
+    @Column({ type: "date", default: null })
     updatedAt: Date;
+
+    @BeforeInsert()
+    setCreatedAt() {
+        this.createdAt = new Date();
+    }
+
+    @BeforeUpdate()
+    setUpdatedAt() {
+        this.updatedAt = new Date();
+    }
 }
