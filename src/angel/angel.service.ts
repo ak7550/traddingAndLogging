@@ -39,11 +39,9 @@ export default class AngelService implements TradingInterface {
 
     /**
      * this method fetches all the holdings in current portoflio and sets trailing stoploss order for each one of them
-     * docs: [cron-declarative job in nest](https://docs.nestjs.com/techniques/task-scheduling#declarative-cron-jobs)
      * @returns {OrderResponseDTO[]} an array of all the order responnses
      */
-    @Cron("15 21 11 * * 1-5")
-    async placeDailyStopLossOrders(): Promise<OrderResponseDTO[]> {
+    async placeDailyStopLossOrders(jwtToken: string): Promise<OrderResponseDTO[]> {
         try {
             this.logger.log(
                 `${AngelService.name}:${this.placeDailyStopLossOrders.name} method is called`,
@@ -74,78 +72,6 @@ export default class AngelService implements TradingInterface {
         this.logger.log(`cron is working properly`);
     }
 
-    /**
-     * this module is responsible for updating the credentials of each users Who has a demat account in Angel
-     */
-    @Cron("15 50 8 * * 1-5")
-    async updateCredentials(): Promise<void> {
-        try {
-            this.logger.log(`Inside updateCredential method`);
-
-            if (this.broker == undefined) {
-                this.broker = await this.userService.findBroker(
-                    IntegratedBroker.Angel,
-                );
-            }
-            const dematAccounts: DematAccount[] =
-                await this.userService.findDemats(this.broker);
-
-            dematAccounts.forEach(async (dematAccount: DematAccount) => {
-                await this.updateCredential(dematAccount);
-            });
-        } catch (error) {
-            this.logger.error(`failed to update credentials`, error);
-        }
-    }
-
-    private async updateCredential(account: DematAccount): Promise<void> {
-        try {
-            this.logger.log(`updating credentials for account`, account);
-            const credentials: Credential[] =
-                await this.userService.findCredentials(account);
-
-            const refreshToken: Credential = credentials.filter(
-                credential =>
-                    credential.keyName === GlobalConstant.REFRESH_TOKEN,
-            )[0];
-            const jwtToken: Credential = credentials.filter(
-                credential => credential.keyName === AngelConstant.JWT_TOKEN,
-            )[0];
-            const feedToken: Credential = credentials.filter(
-                credential => credential.keyName === AngelConstant.FEED_TOKEN,
-            )[0];
-            const expiresAt: Credential = credentials.filter(
-                credential => credential.keyName === GlobalConstant.EXPIRES_AT,
-            )[0];
-
-            const request: GenerateTokenDto = new GenerateTokenDto({
-                refreshToken: refreshToken.keyValue,
-            });
-            const response: GenerateTokenResponseDto =
-                await this.requestHandler.refreshToken(request);
-
-            //updating the values
-            refreshToken.keyValue = response.refreshToken;
-            jwtToken.keyValue = response.jwtToken;
-            feedToken.keyValue = response.feedToken;
-            const expiryTime: number = Date.now() + 24 * 60 * 60 * 1000;
-            expiresAt.keyValue = String(expiryTime);
-
-            await this.userService.saveCredentials([
-                refreshToken,
-                jwtToken,
-                feedToken,
-                expiresAt,
-            ]);
-
-            this.logger.log(`new credentials are saved successfully`, account);
-        } catch (error) {
-            this.logger.error(
-                `error occured while generating a new accessTokens for ${account.accountNumber}`,
-                error,
-            );
-        }
-    }
 
     /**
      * it iterates over the stocks that are currently in Angel's portfolio, figures out what should be the stoploss value and place stoploss order for each of those stocks

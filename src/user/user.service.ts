@@ -17,12 +17,14 @@ export class UserService {
     async saveCredentials ( credentials: Credential[] ) {
         await this.entityManager.save( credentials );
     }
-    async findCredential ( account: DematAccount, keyName: string ): Promise<Credential> {
+    async findCredential ( account: DematAccount, keyName?: string ): Promise<Credential> {
         return await this.entityManager.findOneBy(Credential, {
             account,
             keyName
         });
     }
+
+    //todo: remove this method, rename above findCredential as findCredentials and it will do the job
     async findCredentials(account: DematAccount): Promise<Credential[]> {
         return await this.entityManager.findBy(Credential, {
             account,
