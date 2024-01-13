@@ -15,7 +15,7 @@ export default class DhaanService implements TradingInterface {
 
     constructor(private readonly requestHandler: DhaanRequestHandler) {}
 
-    async placeOrders(): Promise<any> {
+    async placeOrders(accessToken: string): Promise<any> {
         throw new Error("Method not implemented.");
     }
 
@@ -24,9 +24,11 @@ export default class DhaanService implements TradingInterface {
      * It checks the buying and current price of a particular stock, and figures out what should be the stoploss value for it, accordingly it places stoploss orders.
      * @returns
      */
-    async placeDailyStopLossOrders(): Promise<OrderResponseDTO[]> {
+    async placeDailyStopLossOrders(
+        accessToken: string,
+    ): Promise<OrderResponseDTO[]> {
         try {
-            const stockInfos: StockInfoDTO[] = await this.getAllHoldings();
+            const stockInfos: StockInfoDTO[] = await this.getAllHoldings(accessToken);
 
             //todo
             const orderResponses: Promise<any>[] = stockInfos.map(
@@ -40,7 +42,10 @@ export default class DhaanService implements TradingInterface {
                         );
 
                     // todo: needs to work a lot in these integrations
-                    const [price, triggerPrice]: number[] = getTrailingStopLoss(stockInfo.closingPrice, stockInfo.avgCostPrice, );
+                    const [price, triggerPrice]: number[] = getTrailingStopLoss(
+                        stockInfo.closingPrice,
+                        stockInfo.avgCostPrice,
+                    );
 
                     return await this.placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
                 },
@@ -59,7 +64,7 @@ export default class DhaanService implements TradingInterface {
         return await null;
     }
 
-    public async getAllHoldings(): Promise<StockInfoDTO[]> {
+    public async getAllHoldings(accessToken: string): Promise<StockInfoDTO[]> {
         try {
             this.logger.log("Inside getAllHoldings method", DhaanService.name);
 

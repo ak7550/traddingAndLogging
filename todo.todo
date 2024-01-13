@@ -1,7 +1,9 @@
-think about storing the expiry time of accesstoken
-write a logic to refresh accesstoken when the expiry time is closer
-
-think of using a sql db (postgres, mysql) to store credential table
-
 think about implementing an authentication mechanism, to authenticate and store the accesstoken once the user is signup
 to implement this feature we may need a frontend, which will redirect us to our backend
+
+
+=> what's diff between hashing and encryption ? // password security thing
+
+### database_design ==> normalization is good in terms of scalability, but query will take longer time to execute
+
+

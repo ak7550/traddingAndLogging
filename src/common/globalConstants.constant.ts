@@ -20,6 +20,7 @@ export default class GlobalConstant {
     public static readonly CNC = "CNC";
     public static readonly orderType = "orderType";
     public static readonly STOP_LOSS = "STOPLOSS";
+    public static readonly STOP_LOSS_MARKET = "STOPLOSS_MARKET";
     public static readonly NORMAL = "NORMAL";
     public static readonly validity = "validity";
     public static readonly DAY = "DAY";
@@ -27,6 +28,14 @@ export default class GlobalConstant {
     public static readonly afterMarketOrder = "afterMarketOrder";
     public static readonly FULFILLED = "fulfilled";
     public static readonly REJECTED = "rejected";
+    public static readonly REFRESH_TOKEN = "refreshToken";
+    public static readonly EXPIRES_AT: string = "expiresAt";
 }
 
 export type ExchangeType = "NSE" | "BSE" | "NFO";
+
+//this will be considered as the single source of truth for all the integrated brokers
+export enum IntegratedBroker {
+    Angel = "angel",
+    Dhaan = "dhaan",
+}

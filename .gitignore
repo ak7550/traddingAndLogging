@@ -35,6 +35,12 @@ lerna-debug.log*
 !.vscode/extensions.json
 /.vscode
 
-.env
+.env.*
 credentails.json
 netst js middleware architechture.jpg
+
+# database design files
+trading and logging schema design.drawio
+trading and logging schema design.drawio.pdf
+trading and logging schema design.drawio.png
+trading and logging schema design.drawio.svg

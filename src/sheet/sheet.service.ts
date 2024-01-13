@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
     GoogleAuth,
     JSONClient,
@@ -12,9 +13,9 @@ export class SheetService {
     private readonly sheets: sheets_v4.Sheets;
     private readonly logger: Logger = new Logger(SheetService.name);
 
-    constructor() {
+    constructor(private readonly configService: ConfigService) {
         this.sheets = google.sheets("v4");
-        this.spreadsheetId = process.env.SPREAD_SHEET_ID;
+        this.spreadsheetId = this.configService.getOrThrow<string>("SPREAD_SHEET_ID");
         this.auth = new google.auth.GoogleAuth({
             keyFile: "credentails.json",
             scopes: "https://www.googleapis.com/auth/spreadsheets",
