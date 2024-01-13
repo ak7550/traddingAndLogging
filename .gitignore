@@ -35,6 +35,12 @@ lerna-debug.log*
 !.vscode/extensions.json
 /.vscode
 
-.env
+*.env
 credentails.json
 netst js middleware architechture.jpg
+
+# database design files
+*.drawio
+*.pdf
+*.png
+*.svg
