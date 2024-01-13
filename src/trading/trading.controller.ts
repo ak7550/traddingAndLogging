@@ -3,22 +3,20 @@ import {
     DefaultValuePipe,
     Get,
     Post,
-    Put,
-    Query,
+    Query
 } from "@nestjs/common";
 import { AngelConstant } from "src/angel/config/angel.constant";
 import GlobalConstant from "src/common/globalConstants.constant";
 import TradingFactoryService from "src/trading/trading-factory.service";
 import StockInfoDTO from "./dtos/stock-info.dto";
 import TradingInterface from "./interfaces/trading.interface";
-import AngelService from "src/angel/angel.service";
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
 export default class TradingController {
     constructor(
         private readonly tradingFactory: TradingFactoryService,
-        private readonly angelService: AngelService,
+        // private readonly schedular: AngelScheduler,
     ) {}
 
     @Get("holdings")
@@ -31,12 +29,12 @@ export default class TradingController {
     ): Promise<StockInfoDTO[]> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.getAllHoldings();
+        return await tradingService.getAllHoldings("");
     }
 
     // @Put("update-credentials")
     async updateCredentials () : Promise<string>{
-        await this.angelService.updateCredentials();
+        // await this.schedular.updateCredentials();
         return "credentials updated successfully for all the existing users of Angel";
     }
 
@@ -55,7 +53,7 @@ export default class TradingController {
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.placeDailyStopLossOrders();
+        return await tradingService.placeDailyStopLossOrders("");
     }
 
     @Get("placeOrders")
@@ -68,6 +66,6 @@ export default class TradingController {
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.placeOrders();
+        return await tradingService.placeOrders("");
     }
 }

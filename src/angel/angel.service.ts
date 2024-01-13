@@ -1,8 +1,6 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
-import GlobalConstant, {
-    IntegratedBroker,
-} from "src/common/globalConstants.constant";
+import GlobalConstant from "src/common/globalConstants.constant";
 import {
     getBaseStopLoss,
     getTrailingStopLoss,
@@ -11,14 +9,8 @@ import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { Broker } from "src/user/entities/broker.entity";
-import { Credential } from "src/user/entities/credential.entity";
-import { DematAccount } from "src/user/entities/demat-account";
-import { EntityManager } from "typeorm";
-import { UserService } from "../user/user.service";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { mapToOrderResponseDTO } from "./config/angel.utils";
-import GenerateTokenDto from "./dto/generate-token.request.dto.";
-import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelHoldingDTO from "./dto/holding.dto";
 import { AngelOHLCHistoricalType } from "./dto/ohlc.historical.reponse.dto";
 import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
@@ -32,8 +24,6 @@ export default class AngelService implements TradingInterface {
 
     constructor(
         private readonly requestHandler: AngelRequestHandler,
-        private readonly entityManager: EntityManager,
-        private readonly userService: UserService,
         private readonly logger: Logger = new Logger(AngelService.name),
     ) {}
 
@@ -48,7 +38,7 @@ export default class AngelService implements TradingInterface {
             );
 
             const holdingStocks: AngelHoldingDTO[] =
-                await this.getAllHoldings();
+                await this.getAllHoldings(jwtToken);
 
             const settledResults: OrderResponseDTO[] =
                 this.processStocksAndPlaceStoplossOrder(holdingStocks);
@@ -221,7 +211,7 @@ export default class AngelService implements TradingInterface {
         );
     }
 
-    async getAllHoldings(): Promise<AngelHoldingDTO[]> {
+    async getAllHoldings(jwtToken: string): Promise<AngelHoldingDTO[]> {
         try {
             const orderResponse: AngelHoldingDTO[] =
                 await this.requestHandler.execute(
@@ -229,6 +219,7 @@ export default class AngelService implements TradingInterface {
                     RequestMethod.GET,
                     null,
                     ApiType.others,
+                    jwtToken
                 );
             return orderResponse;
         } catch (error) {
@@ -239,7 +230,7 @@ export default class AngelService implements TradingInterface {
         }
     }
 
-    placeOrders(): Promise<any> {
+    placeOrders(jwtToken: string): Promise<any> {
         throw new Error("Method not implemented.");
     }
 }
