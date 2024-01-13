@@ -2,7 +2,7 @@ import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import AxiosFactory from "./axios-factory.service";
-import { ApiType } from "./config/angel.constant";
+import { AngelConstant, ApiType } from "./config/angel.constant";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
@@ -29,6 +29,7 @@ export default class AngelRequestHandler {
         requestMethod: RequestMethod,
         requestBody: Object,
         apiType: ApiType,
+        jwtToken?: string,
     ): Promise<Type> {
         try {
             this.logger.log(
@@ -40,12 +41,21 @@ export default class AngelRequestHandler {
 
             switch (requestMethod) {
                 case RequestMethod.GET:
-                    promise = http.get<AngelAPIResponse<Type>>(route);
+                    promise = http.get<AngelAPIResponse<Type>>( route, {
+                        headers: {
+                            [ AngelConstant.ACCESS_TOKEN ]: `Bearer ${jwtToken}`,
+                        }
+                    });
                     break;
                 case RequestMethod.POST:
                     promise = http.post<AngelAPIResponse<Type>>(
                         route,
                         requestBody,
+                        {
+                            headers: {
+                                [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                            },
+                        },
                     );
                     break;
                 case RequestMethod.PUT:
@@ -93,12 +103,10 @@ export default class AngelRequestHandler {
             this.logger.log(
                 `Inside refreshToken method: ${AngelRequestHandler.name}, route ${request}`,
             );
-            const http: AxiosInstance =
-                this.axiosFactory.getAxiosInstanceByApiType( ApiType.others );
-            
-            const response: AxiosResponse<
-                AngelAPIResponse<GenerateTokenResponseDto>
-            > = await http.post(process.env.ANGEL_REFRESH_TOKEN_URL, request);
+            const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+
+            const response: AxiosResponse<AngelAPIResponse<GenerateTokenResponseDto>> =
+                await http.post( process.env.ANGEL_REFRESH_TOKEN_URL, request );
 
             this.logger.log(
                 `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:

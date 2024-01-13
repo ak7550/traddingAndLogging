@@ -16,7 +16,6 @@ export default class AxiosFactory {
             axios.create({
                 baseURL: process.env.ANGEL_BASE_URL,
                 headers: {
-                    [AngelConstant.ACCESS_TOKEN]: `Bearer ${process.env.ANGEL_ACCESS_TOKEN}`,
                     [GlobalConstant.CONTENT_TYPE]:
                         GlobalConstant.APPLICATION_JSON, // not necessary though
                     [AngelConstant.X_USER_TYPE]: AngelConstant.USER,

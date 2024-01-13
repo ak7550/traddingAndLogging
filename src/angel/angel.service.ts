@@ -69,11 +69,11 @@ export default class AngelService implements TradingInterface {
         return null;
     }
 
-    @Cron("15 51 1 * * 1-6")
+    @Cron("15 59 1 * * 1-6")
     private cronTester() {
         this.logger.log(`cron is working properly`);
     }
-    
+
     /**
      * this module is responsible for updating the credentials of each users Who has a demat account in Angel
      */
