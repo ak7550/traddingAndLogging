@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from "axios";
 import axiosRateLimit from "axios-rate-limit";
 import GlobalConstant from "src/common/globalConstants.constant";
 import { AngelConstant, ApiType } from "./config/angel.constant";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export default class AxiosFactory {
@@ -14,13 +15,13 @@ export default class AxiosFactory {
     public getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
         return axiosRateLimit(
             axios.create({
-                baseURL: process.env.ANGEL_BASE_URL,
+                baseURL: this.configService.getOrThrow<string>("ANGEL_BASE_URL"),
                 headers: {
                     [GlobalConstant.CONTENT_TYPE]:
                         GlobalConstant.APPLICATION_JSON, // not necessary though
                     [AngelConstant.X_USER_TYPE]: AngelConstant.USER,
                     [AngelConstant.X_SOURCE_ID]: AngelConstant.WEB,
-                    [AngelConstant.X_PRIVATE_KEY]: process.env.ANGEL_API_KEY,
+                    [AngelConstant.X_PRIVATE_KEY]: this.configService.getOrThrow<string>("ANGEL_API_KEY"),
                     [AngelConstant.X_MACAddress]: "process.env.MAC_ADDRESS",
                 },
             }),
@@ -30,7 +31,9 @@ export default class AxiosFactory {
         );
     }
 
-    constructor() {
+    constructor (
+        private readonly configService: ConfigService
+    ) {
         this.orderApi = this.getAxiosInstanceByMaxRPS(20);
         this.gttApi = this.getAxiosInstanceByMaxRPS(10);
         this.historicalApi = this.getAxiosInstanceByMaxRPS(3);

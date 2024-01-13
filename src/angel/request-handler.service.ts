@@ -6,10 +6,12 @@ import { AngelConstant, ApiType } from "./config/angel.constant";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export default class AngelRequestHandler {
     constructor(
+        private readonly configService: ConfigService,
         private readonly axiosFactory: AxiosFactory,
         private readonly logger: Logger = new Logger(AngelRequestHandler.name),
     ) {}
@@ -41,10 +43,10 @@ export default class AngelRequestHandler {
 
             switch (requestMethod) {
                 case RequestMethod.GET:
-                    promise = http.get<AngelAPIResponse<Type>>( route, {
+                    promise = http.get<AngelAPIResponse<Type>>(route, {
                         headers: {
-                            [ AngelConstant.ACCESS_TOKEN ]: `Bearer ${jwtToken}`,
-                        }
+                            [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                        },
                     });
                     break;
                 case RequestMethod.POST:
@@ -103,10 +105,12 @@ export default class AngelRequestHandler {
             this.logger.log(
                 `Inside refreshToken method: ${AngelRequestHandler.name}, route ${request}`,
             );
-            const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+            const http: AxiosInstance =
+                this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
 
-            const response: AxiosResponse<AngelAPIResponse<GenerateTokenResponseDto>> =
-                await http.post( process.env.ANGEL_REFRESH_TOKEN_URL, request );
+            const response: AxiosResponse<
+                AngelAPIResponse<GenerateTokenResponseDto>
+            > = await http.post(this.configService.getOrThrow<string>("ANGEL_REFRESH_TOKEN_URL"), request);
 
             this.logger.log(
                 `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:

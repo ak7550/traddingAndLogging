@@ -14,6 +14,7 @@ import { UserModule } from "./user/user.module";
         ConfigModule.forRoot({
             cache: true,
             isGlobal: true,
+            envFilePath: `.env.${process.env.NODE_ENV}`
         }),
         SheetModule,
         TradingModule,
@@ -25,5 +26,4 @@ import { UserModule } from "./user/user.module";
     providers: [AppService],
 })
 export class AppModule {
-    constructor(private readonly dataSource: DataSource) {}
 }

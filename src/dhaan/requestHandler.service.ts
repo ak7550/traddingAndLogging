@@ -4,6 +4,7 @@ import axiosRateLimit, { RateLimitedAxiosInstance } from "axios-rate-limit";
 import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import GlobalConstant from "src/common/globalConstants.constant";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
+import { ConfigService } from "@nestjs/config";
 
 
 class AxiosFactory {
@@ -11,13 +12,15 @@ class AxiosFactory {
     private static nonTradingAxios: AxiosInstance;
     private static historicalAxios: AxiosInstance;
 
-    private getAxiosInstance(maxRPS: number) : RateLimitedAxiosInstance {
+    private getAxiosInstance(maxRPS: number): RateLimitedAxiosInstance {
         return axiosRateLimit(
             axios.create({
-                baseURL: process.env.DHAAN_BASE_URL,
+                baseURL: this.configService.getOrThrow<string>("DHAAN_BASE_URL"),
                 headers: {
-                    [DhaanConstants.ACCESS_TOKEN]: process.env.DHAAN_ACCESS_TOKEN,
-                    [GlobalConstant.CONTENT_TYPE]: GlobalConstant.APPLICATION_JSON, // not necessary though
+                    [DhaanConstants.ACCESS_TOKEN]:
+                        this.configService.getOrThrow<string>("DHAAN_ACCESS_TOKEN"),
+                    [GlobalConstant.CONTENT_TYPE]:
+                        GlobalConstant.APPLICATION_JSON, // not necessary though
                 },
             }),
             {
@@ -26,10 +29,10 @@ class AxiosFactory {
         );
     }
 
-    constructor() {
-        AxiosFactory.tradingAxios = this.getAxiosInstance( 25 );
-        AxiosFactory.nonTradingAxios = this.getAxiosInstance( 100 );
-        AxiosFactory.historicalAxios = this.getAxiosInstance( 10 );
+    constructor(private readonly configService: ConfigService) {
+        AxiosFactory.tradingAxios = this.getAxiosInstance(25);
+        AxiosFactory.nonTradingAxios = this.getAxiosInstance(100);
+        AxiosFactory.historicalAxios = this.getAxiosInstance(10);
     }
 
     static getAxiosInstance(apiType: ApiType): AxiosInstance {
