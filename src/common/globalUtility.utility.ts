@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 
 export const getBaseStopLoss = (
@@ -132,3 +133,31 @@ const getVwap = ( data: OhlcvDataDTO[] ): number[] => {
 export const getPublicIp = (): string => "123.121.2.1.1";
 export const getPrivateIp = (): string => "121.121.1.1.1";
 export const getMacAddress = (): string => "process.env.MAC_ADDRESS";
+
+export type SaltType = "userDetials" | "accessToken" | "refreshToken";
+
+export const excryptData = ( data: string, saltType: SaltType ): string => {
+    const algorithm = "aes-256-cbc";
+    const key:string = process.env[ `${ saltType.toUpperCase() }_KEY` ];
+    const keyBuffer: Buffer = Buffer.from( key, "hex" );
+    const iv: string = process.env[ `${ saltType.toUpperCase() }_IV` ];
+    const ivBuffer: Buffer = Buffer.from( iv, "hex" );
+
+    const cipher = crypto.createCipheriv(algorithm, keyBuffer, ivBuffer);
+    let encrypted = cipher.update(data);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return encrypted.toString("hex");
+}
+
+export const decryptData = ( encryptedMessage: string, saltType: SaltType ): string => {
+    const algorithm = "aes-256-cbc";
+    const key = process.env[`${saltType.toUpperCase()}_KEY`];
+    const iv = process.env[ `${ saltType.toUpperCase() }_IV` ];
+    const keyBuffer: Buffer = Buffer.from(key, "hex");
+    const ivBuffer: Buffer = Buffer.from(iv, "hex");
+    const encryptedText = Buffer.from(encryptedMessage, "hex");
+    const decipher = crypto.createDecipheriv(algorithm, keyBuffer, ivBuffer);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+}
