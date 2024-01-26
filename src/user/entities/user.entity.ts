@@ -1,8 +1,7 @@
 import AbstractEntity from "src/database/abstract.entity";
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
-import { Broker } from "./broker.entity";
-import { DematAccount } from "./demat-account";
+import { Column, Entity } from "typeorm";
 
+//todo: put encryption
 @Entity({
     name: "user",
 })
