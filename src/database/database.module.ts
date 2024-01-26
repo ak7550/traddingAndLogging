@@ -8,9 +8,10 @@ import { DematAccount } from "src/user/entities/demat-account";
 
 @Module({
     imports: [
-        TypeOrmModule.forRootAsync({
+        TypeOrmModule.forRootAsync( {
+            //@ts-ignore => just to avoid userFactory type error
             useFactory: (configService: ConfigService) => ({
-                type: "mysql",
+                type: configService.getOrThrow(`DB_TYPE`),
                 host: configService.getOrThrow(`DB_HOST`),
                 port: parseInt(configService.getOrThrow(`DB_PORT`)) || 3306,
                 username: configService.getOrThrow(`DB_USER`),
@@ -19,6 +20,8 @@ import { DematAccount } from "src/user/entities/demat-account";
                 entities: [Credential, User, DematAccount, Broker],
                 autoLoadEntities: true,
                 synchronize: configService.getOrThrow(`DB_SYNCHRONIZE`),
+                retryAttempts: 5,
+                retryDelay: 1000,
             }),
             inject: [ConfigService],
         }),
