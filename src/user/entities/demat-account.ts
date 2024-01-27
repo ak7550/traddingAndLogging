@@ -17,8 +17,10 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     @JoinColumn({ name: "broker_name", referencedColumnName: "name" })
     broker: Broker;
 
+    //todo: finally make it false
     @Column({
         name: "account_number",
+        comment: "associated_bank_account_number",
         nullable: true, // false
     })
     private _accountNumber: string;
@@ -31,6 +33,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         this._accountNumber = encryptData(value, "demat");
     }
 
+    //todo: finally make it false
     @Column({
         name: "demat_account_number",
         nullable: true,
@@ -45,43 +48,46 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         this._dematAccountNumber = encryptData(value, "demat");
     }
 
-    @Column( {
+    //todo: finally make it false
+    @Column({
         name: "dp_id",
         nullable: true,
-    } )
+    })
     private _dpId: string;
 
-    public get dpId (): string {
+    public get dpId(): string {
         return decryptData(this._dpId, "demat");
     }
-    public set dpId ( value: string ) {
+    public set dpId(value: string) {
         this._dpId = encryptData(value, "demat");
     }
 
-    @Column( {
+    //todo: finally make it false
+    @Column({
         name: "client_id",
         nullable: true,
-    } )
+    })
     private _clientId: string;
 
-    public get clientId (): string {
+    public get clientId(): string {
         return decryptData(this._clientId, "demat");
     }
 
-    public set clientId ( value: string ) {
+    public set clientId(value: string) {
         this._clientId = encryptData(value, "demat");
     }
 
-    @Column( {
+    //todo: finally make it false
+    @Column({
         name: "cdsl_tpin",
         nullable: true,
-    } )
+    })
     private _CDSLTpin: string;
 
-    public get CDSLTpin (): string {
+    public get CDSLTpin(): string {
         return decryptData(this._CDSLTpin, "demat");
     }
-    public set CDSLTpin ( value: string ) {
+    public set CDSLTpin(value: string) {
         this._CDSLTpin = encryptData(value, "demat");
     }
 
@@ -89,6 +95,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         name: "shares_bought",
         comment: "total amount of shares currently present in this account",
         nullable: true,
+        default: 0
     })
     sharesBought: number;
 
@@ -104,6 +111,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         comment:
             "total fund present into the demat account ==> holding shares + remaining account balance",
         nullable: true,
+        default: 0
     })
     totalFund: number;
 }

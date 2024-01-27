@@ -38,6 +38,7 @@ export class User extends AbstractEntity<User> {
 
     @Column( {
         nullable: true, // make it false in prod
+        name: "address"
     } )
     private _address: string;
 
