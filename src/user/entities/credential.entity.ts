@@ -1,6 +1,7 @@
 import AbstractEntity from "src/database/abstract.entity";
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { DematAccount } from "./demat-account";
+import { decryptData, encryptData } from "src/common/globalUtility.utility";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
 @Entity("credential")
@@ -14,7 +15,16 @@ export class Credential extends AbstractEntity<Credential> {
         name: "key_value",
         length: 4000, // max size of a jwt token can be 7kb
     })
-    keyValue: string;
+    private _keyValue: string;
+
+    public get keyValue (): string {
+        return decryptData( this._keyValue, "token" );
+    }
+
+    public set keyValue(value : string) {
+        this._keyValue = encryptData(value, "token");
+    }
+
 
     //_. this will generate accountId table, which will work as foreign key for this table, referencing to User table
 

@@ -1,3 +1,4 @@
+import { decryptData, encryptData } from "src/common/globalUtility.utility";
 import AbstractEntity from "src/database/abstract.entity";
 import { Column, Entity } from "typeorm";
 
@@ -23,21 +24,42 @@ export class User extends AbstractEntity<User> {
     })
     lastName: string;
 
-    @Column({
+    @Column( {
         name: "pan_card_no",
-    })
-    panCardNumber: string;
+    } )
+    private _panCardNumber: string;
 
-    @Column({
+    public get panCardNumber (): string {
+        return decryptData(this._panCardNumber, "user");
+    }
+    public set panCardNumber ( value: string ) {
+        this._panCardNumber = encryptData(value, "user");
+    }
+
+    @Column( {
         nullable: true, // make it false in prod
-    })
-    address: string;
+    } )
+    private _address: string;
 
-    @Column({
+    public get address (): string {
+        return decryptData(this._address, "user");
+    }
+    public set address ( value: string ) {
+        this._address = encryptData(value, "user");
+    }
+
+    @Column( {
         name: "encrypted_password",
         nullable: true, // make it false in prod
-    })
-    encryptedPassword: string;
+    } )
+    private _password: string;
+
+    public get password (): string {
+        return decryptData(this._password, "user");
+    }
+    public set password ( value: string ) {
+        this._password = encryptData(value, "user");
+    }
 
     // @ManyToMany(() => Broker, broker => broker.name, { cascade: true })
     // @JoinTable({

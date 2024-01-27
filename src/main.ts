@@ -7,10 +7,10 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.useGlobalPipes( new ValidationPipe( {
         transform: true,
-        disableErrorMessages: process.env.NODE_ENV === 'prod',
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        forbidUnknownValues: true
+        // disableErrorMessages: process.env.NODE_ENV === 'prod',
+        // whitelist: true,
+        // forbidNonWhitelisted: true,
+        // forbidUnknownValues: true
     }))
         .enableVersioning();
 

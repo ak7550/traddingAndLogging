@@ -134,7 +134,7 @@ export const getPublicIp = (): string => "123.121.2.1.1";
 export const getPrivateIp = (): string => "121.121.1.1.1";
 export const getMacAddress = (): string => "process.env.MAC_ADDRESS";
 
-export type SaltType = "userDetials" | "accessToken" | "refreshToken";
+type SaltType = "user" | "token" | "demat";
 
 export const encryptData = ( data: string, saltType: SaltType ): string => {
     const algorithm = "aes-256-cbc";

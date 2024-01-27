@@ -1,15 +1,21 @@
-import { Exclude, Expose } from "class-transformer";
+import { Expose } from "class-transformer";
+import { IsOptional } from "class-validator";
 
 @Expose()
-    //todo: put more and more important criteria, so that no such altu faltu thing can be put into User entity
-export default class CreateUserDto{
+export default class CreateUserDto {
     firstName: string;
-    middleName?: string;
-    lastName?: string;
-    panCardNumber: string;
-    address?: string;
 
-    //todo: make it nullable and must
-    @Exclude()
-    encryptedPassword?: string;
+    @IsOptional()
+    middleName: string;
+
+    @IsOptional()
+    lastName: string;
+
+    panCardNumber: string;
+
+    @IsOptional()
+    address: string;
+
+    @IsOptional()
+    password: string;
 }

@@ -2,6 +2,7 @@ import AbstractEntity from "src/database/abstract.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Broker } from "./broker.entity";
 import { User } from "./user.entity";
+import { decryptData, encryptData } from "src/common/globalUtility.utility";
 
 //docs: https://typeorm.biunav.com/en/many-to-many-relations.html
 @Entity({
@@ -20,31 +21,69 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         name: "account_number",
         nullable: true, // false
     })
-    accountNumber: string;
+    private _accountNumber: string;
+
+    public get accountNumber(): string {
+        return decryptData(this._accountNumber, "demat");
+    }
+
+    public set accountNumber(value: string) {
+        this._accountNumber = encryptData(value, "demat");
+    }
 
     @Column({
         name: "demat_account_number",
         nullable: true,
     })
-    dematAccountNumber: string;
+    private _dematAccountNumber: string;
 
-    @Column({
+    public get dematAccountNumber(): string {
+        return decryptData(this._dematAccountNumber, "demat");
+    }
+
+    public set dematAccountNumber(value: string) {
+        this._dematAccountNumber = encryptData(value, "demat");
+    }
+
+    @Column( {
         name: "dp_id",
         nullable: true,
-    })
-    dpId: string;
+    } )
+    private _dpId: string;
 
-    @Column({
+    public get dpId (): string {
+        return decryptData(this._dpId, "demat");
+    }
+    public set dpId ( value: string ) {
+        this._dpId = encryptData(value, "demat");
+    }
+
+    @Column( {
         name: "client_id",
         nullable: true,
-    })
-    clientId: string;
+    } )
+    private _clientId: string;
 
-    @Column({
-        name: "encrypted_cdsl_tpin",
+    public get clientId (): string {
+        return decryptData(this._clientId, "demat");
+    }
+
+    public set clientId ( value: string ) {
+        this._clientId = encryptData(value, "demat");
+    }
+
+    @Column( {
+        name: "cdsl_tpin",
         nullable: true,
-    })
-    encryptedCDSLTpin: string;
+    } )
+    private _CDSLTpin: string;
+
+    public get CDSLTpin (): string {
+        return decryptData(this._CDSLTpin, "demat");
+    }
+    public set CDSLTpin ( value: string ) {
+        this._CDSLTpin = encryptData(value, "demat");
+    }
 
     @Column({
         name: "shares_bought",
