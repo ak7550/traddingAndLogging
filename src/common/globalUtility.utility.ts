@@ -136,7 +136,7 @@ export const getMacAddress = (): string => "process.env.MAC_ADDRESS";
 
 export type SaltType = "userDetials" | "accessToken" | "refreshToken";
 
-export const excryptData = ( data: string, saltType: SaltType ): string => {
+export const encryptData = ( data: string, saltType: SaltType ): string => {
     const algorithm = "aes-256-cbc";
     const key:string = process.env[ `${ saltType.toUpperCase() }_KEY` ];
     const keyBuffer: Buffer = Buffer.from( key, "hex" );
