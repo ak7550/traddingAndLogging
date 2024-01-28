@@ -1,7 +1,16 @@
+version: '1'
 services:
-  mysql:
-    image: mysql
+  my-app:
+    image: ak-trading-and-logging
     env_file:
-      - .env
+      - .env.prod
     ports:
-      -"3306:3306"
+      -3001:3001
+  # mysql:
+  #   image: mysql
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     -"3306:3306"
+  #   volumes:
+      # -
