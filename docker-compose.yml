@@ -3,7 +3,7 @@ services:
   my-app:
     image: ak-trading-and-logging
     env_file:
-      - .env.prod
+      - .env.local
     ports:
       -3001:3001
   # mysql:
