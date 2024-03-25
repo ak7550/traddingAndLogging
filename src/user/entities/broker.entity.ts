@@ -9,7 +9,7 @@ import {
 })
 export class Broker {
     @PrimaryColumn({
-        type: "varchar",
+        type: "enum",
         enum: IntegratedBroker,
         default: IntegratedBroker.Angel,
     })

@@ -65,6 +65,7 @@ export class UserController {
     }
 
     //todo: need code to handle error like scenarios, if there's any problem, the server is not supposed to stop, but handle it properly with an error response
+    //todo: create some middlewares who'll be checking if this routes should be open or not dynamically as per the environments
     // @Post("broker")
     async createBroker(
         @Body() createBrokerDTO: CreateBrokerDto,
