@@ -4,11 +4,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Broker } from "src/user/entities/broker.entity";
 import { Credential } from "src/user/entities/credential.entity";
 import { User } from "src/user/entities/user.entity";
-import { DematAccount } from "src/user/entities/demat-account";
+import { DematAccount } from "src/user/entities/demat-account.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forRootAsync( {
+        TypeOrmModule.forRootAsync({
             //@ts-ignore => just to avoid userFactory type error
             useFactory: (configService: ConfigService) => ({
                 type: configService.getOrThrow(`DB_TYPE`),

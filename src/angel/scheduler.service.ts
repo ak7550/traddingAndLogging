@@ -4,7 +4,7 @@ import GlobalConstant, {
     IntegratedBroker,
 } from "src/common/globalConstants.constant";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
-import { DematAccount } from "src/user/entities/demat-account";
+import { DematAccount } from "src/user/entities/demat-account.entity";
 import { UserService } from "src/user/user.service";
 import { AngelConstant } from "./config/angel.constant";
 import { Credential } from "src/user/entities/credential.entity";
@@ -22,7 +22,7 @@ export default class AngelScheduler {
         private readonly logger: Logger = new Logger(AngelScheduler.name),
         private readonly userService: UserService,
         private readonly requestHandler: AngelRequestHandler,
-        private readonly angelService: AngelService
+        private readonly angelService: AngelService,
     ) {}
 
     /**
@@ -44,9 +44,18 @@ export default class AngelScheduler {
                 await this.userService.findDemats(this.broker);
 
             dematAccounts.forEach(async (dematAccount: DematAccount) => {
-                const jwtToken: Credential = await this.userService.findCredential( dematAccount, AngelConstant.JWT_TOKEN );
-                const orderResponses: OrderResponseDTO[] = await this.angelService.placeDailyStopLossOrders( jwtToken.keyValue );
-                this.logger.log( `stoploss order placed for demat ${ dematAccount }\n order details: ${ orderResponses }` );
+                const jwtToken: Credential =
+                    await this.userService.findCredential(
+                        dematAccount,
+                        AngelConstant.JWT_TOKEN,
+                    );
+                const orderResponses: OrderResponseDTO[] =
+                    await this.angelService.placeDailyStopLossOrders(
+                        jwtToken.keyValue,
+                    );
+                this.logger.log(
+                    `stoploss order placed for demat ${dematAccount}\n order details: ${orderResponses}`,
+                );
             });
         } catch (error) {
             this.logger.error(`failed to place dailyStoplossOrders`, error);
@@ -77,7 +86,9 @@ export default class AngelScheduler {
         }
     }
 
-    private async updateCredential(account: DematAccount): Promise<Credential[]> {
+    private async updateCredential(
+        account: DematAccount,
+    ): Promise<Credential[]> {
         try {
             this.logger.log(`updating credentials for account`, account);
             const credentials: Credential[] =
@@ -118,7 +129,7 @@ export default class AngelScheduler {
             ];
             await this.userService.saveCredentials(updatedCredentials);
 
-            this.logger.log( `new credentials are saved successfully`, account );
+            this.logger.log(`new credentials are saved successfully`, account);
             return updatedCredentials;
         } catch (error) {
             this.logger.error(

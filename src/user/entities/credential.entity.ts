@@ -1,6 +1,15 @@
 import AbstractEntity from "src/database/abstract.entity";
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
-import { DematAccount } from "./demat-account";
+import {
+    BeforeInsert,
+    BeforeUpdate,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    UpdateDateColumn,
+} from "typeorm";
+import { DematAccount } from "./demat-account.entity";
 import { decryptData, encryptData } from "src/common/globalUtility.utility";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
@@ -17,14 +26,13 @@ export class Credential extends AbstractEntity<Credential> {
     })
     private _keyValue: string;
 
-    public get keyValue (): string {
-        return decryptData( this._keyValue, "token" );
+    public get keyValue(): string {
+        return decryptData(this._keyValue, "token");
     }
 
-    public set keyValue(value : string) {
+    public set keyValue(value: string) {
         this._keyValue = encryptData(value, "token");
     }
-
 
     //_. this will generate accountId table, which will work as foreign key for this table, referencing to User table
 

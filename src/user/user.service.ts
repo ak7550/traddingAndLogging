@@ -6,7 +6,7 @@ import { CreateCredentialDto } from "./dto/create-credential.dto";
 import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
 import { Broker } from "./entities/broker.entity";
-import { DematAccount } from "./entities/demat-account";
+import { DematAccount } from "./entities/demat-account.entity";
 import { User } from "./entities/user.entity";
 import { Credential } from "./entities/credential.entity";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
@@ -14,13 +14,16 @@ import { IntegratedBroker } from "src/common/globalConstants.constant";
 
 @Injectable()
 export class UserService {
-    async saveCredentials ( credentials: Credential[] ) {
-        await this.entityManager.save( credentials );
+    async saveCredentials(credentials: Credential[]) {
+        await this.entityManager.save(credentials);
     }
-    async findCredential ( account: DematAccount, keyName?: string ): Promise<Credential> {
+    async findCredential(
+        account: DematAccount,
+        keyName?: string,
+    ): Promise<Credential> {
         return await this.entityManager.findOneBy(Credential, {
             account,
-            keyName
+            keyName,
         });
     }
 
@@ -62,9 +65,12 @@ export class UserService {
                 },
             );
 
-            let credential: Credential = await this.findCredential( account, createCredentialDto.keyName );
+            let credential: Credential = await this.findCredential(
+                account,
+                createCredentialDto.keyName,
+            );
 
-            if ( credential == null ) {
+            if (credential == null) {
                 credential = new Credential({});
             }
 

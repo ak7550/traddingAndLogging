@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Broker } from "./entities/broker.entity";
 import { Credential } from "./entities/credential.entity";
 import { User } from "./entities/user.entity";
-import { DematAccount } from "./entities/demat-account";
+import { DematAccount } from "./entities/demat-account.entity";
 import { UserService } from "./user.service";
 import { UserController } from "./user.controller";
 
@@ -12,7 +12,7 @@ import { UserController } from "./user.controller";
         TypeOrmModule.forFeature([Credential, User, Broker, DematAccount]),
     ],
     controllers: [UserController],
-    providers: [ UserService, Logger ],
-    exports: [UserService]
+    providers: [UserService, Logger],
+    exports: [UserService],
 })
 export class UserModule {}
