@@ -12,7 +12,6 @@ import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
 import { UserService } from "./user.service";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
-import { Http2ServerResponse } from "http2";
 
 @Controller("user")
 export class UserController {

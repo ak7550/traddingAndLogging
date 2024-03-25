@@ -1,16 +1,14 @@
+import { decryptData, encryptData } from "src/common/globalUtility.utility";
 import AbstractEntity from "src/database/abstract.entity";
 import {
     BeforeInsert,
     BeforeUpdate,
     Column,
-    CreateDateColumn,
     Entity,
     JoinColumn,
-    ManyToOne,
-    UpdateDateColumn,
+    ManyToOne
 } from "typeorm";
 import { DematAccount } from "./demat-account.entity";
-import { decryptData, encryptData } from "src/common/globalUtility.utility";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
 @Entity("credential")
