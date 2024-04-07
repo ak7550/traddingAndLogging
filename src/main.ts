@@ -2,6 +2,7 @@ import { HttpException, ValidationPipe, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { text, urlencoded, json } from "express";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -13,6 +14,10 @@ async function bootstrap() {
         // forbidUnknownValues: true
     }))
         .enableVersioning();
+
+    // app.use(json());
+    // app.use(urlencoded({ extended: true }));
+    // app.use(text());
 
     const config = new DocumentBuilder()
         .setTitle("Api Examples")

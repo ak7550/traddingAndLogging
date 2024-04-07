@@ -2,9 +2,11 @@ import {
     Body,
     Controller,
     Get,
+    Headers,
     HttpException,
     HttpStatus,
-    Post
+    Post,
+    Req,
 } from "@nestjs/common";
 import { HttpStatusCode } from "axios";
 import CreateBrokerDto from "./dto/create-broker.dto";
@@ -12,6 +14,8 @@ import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
 import { UserService } from "./user.service";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
+import { Request } from "express";
+// import { Request } from "express";
 
 @Controller("user")
 export class UserController {
@@ -31,10 +35,12 @@ export class UserController {
         }
     }
 
-    @Post( "credential" )
-    async createCredential ( @Body() CreateCredentialDto: CreateCredentialDto ): Promise<HttpStatus> {
+    @Post("credential")
+    async createCredential(
+        @Body() CreateCredentialDto: CreateCredentialDto,
+    ): Promise<HttpStatus> {
         try {
-            await this.userService.createCredential( CreateCredentialDto );
+            await this.userService.createCredential(CreateCredentialDto);
             return HttpStatus.ACCEPTED;
         } catch (error) {
             throw new HttpException(
@@ -45,7 +51,8 @@ export class UserController {
     }
 
     @Post("demat")
-    async createUserBrokerRelationShip(@Body()
+    async createUserBrokerRelationShip(
+        @Body()
         dematAccountDto: CreateDematAccountDto,
     ): Promise<CreateDematAccountDto> {
         try {
@@ -78,5 +85,15 @@ export class UserController {
                 HttpStatus.FORBIDDEN,
             );
         }
+    }
+
+    @Post("tradingview")
+    async tradingviewAlert(
+        @Body() payload: any,
+        @Headers("content-type") contentType: string,
+    ) {
+        console.dir(`${payload}`);
+        console.dir(`${JSON.stringify(payload)}`);
+        return "thanks";
     }
 }
