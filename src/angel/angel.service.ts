@@ -37,15 +37,14 @@ export default class AngelService implements TradingInterface {
                 `${AngelService.name}:${this.placeDailyStopLossOrders.name} method is called`,
             );
 
-            const holdingStocks: AngelHoldingDTO[] =
-                await this.getAllHoldings(jwtToken);
+            const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings(jwtToken);
 
-            const settledResults: OrderResponseDTO[] =
-                this.processStocksAndPlaceStoplossOrder(holdingStocks);
+            const settledResults: OrderResponseDTO[] = this.processStocksAndPlaceStoplossOrder(holdingStocks);
 
             this.logger.log(
                 `${AngelService.name}:${this.placeDailyStopLossOrders.name} placed sl order for all the holdings`,
             );
+
             return settledResults;
         } catch (error) {
             this.logger.error(
@@ -68,19 +67,12 @@ export default class AngelService implements TradingInterface {
      * @param holdingStocks contains an array holding all the stocks information which are currently present in angel portfolio
      * @returns {PromiseSettledResult<OrderResponseDTO>[]} an array of orderResponseDTO after placing the orders
      */
-    private processStocksAndPlaceStoplossOrder(
-        holdingStocks: AngelHoldingDTO[],
-    ): OrderResponseDTO[] {
+    private processStocksAndPlaceStoplossOrder(holdingStocks: AngelHoldingDTO[]): OrderResponseDTO[] {
         const today: Date = new Date();
         //taking 90days previous data, to make a precious data
-        const fromDate: Date = new Date(
-            new Date().setDate(new Date().getDate() - 90),
-        );
-
+        const fromDate: Date = new Date(new Date().setDate(new Date().getDate() - 90));
         this.logger.log(`today: ${today}, previous day: ${fromDate}`);
-
         const orderResponses: OrderResponseDTO[] = [];
-
         holdingStocks.forEach(async (stock: AngelHoldingDTO) => {
             try {
                 const baseStopLoss: string = getBaseStopLoss(

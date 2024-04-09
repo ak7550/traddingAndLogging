@@ -9,13 +9,12 @@ import {
     Req,
 } from "@nestjs/common";
 import { HttpStatusCode } from "axios";
+import { Request } from "express";
 import CreateBrokerDto from "./dto/create-broker.dto";
+import { CreateCredentialDto } from "./dto/create-credential.dto";
 import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
 import { UserService } from "./user.service";
-import { CreateCredentialDto } from "./dto/create-credential.dto";
-import { Request } from "express";
-// import { Request } from "express";
 
 @Controller("user")
 export class UserController {
@@ -89,11 +88,29 @@ export class UserController {
 
     @Post("tradingview")
     async tradingviewAlert(
-        @Body() payload: any,
+        @Req() request: Request,
         @Headers("content-type") contentType: string,
     ) {
-        console.dir(`${payload}`);
-        console.dir(`${JSON.stringify(payload)}`);
+        const payload = await this.getRawBody(request);
+        console.log(`${payload}`);
+        console.log(contentType);
+        console.log(payload);
+        console.log(`${JSON.stringify(payload)}`);
         return "thanks";
+    }
+
+    private async getRawBody(rawContent: any): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            let buffer: Buffer = Buffer.from("");
+            rawContent.on("data", (chunk: Buffer) => {
+                buffer = Buffer.concat([buffer, chunk]);
+            });
+            rawContent.on("end", () => {
+                resolve(buffer.toString("utf-8"));
+            });
+            rawContent.on("error", (err: any) => {
+                reject(err);
+            });
+        });
     }
 }
