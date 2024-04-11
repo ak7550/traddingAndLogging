@@ -3,6 +3,7 @@ import {
     DefaultValuePipe,
     Get,
     Post,
+    Put,
     Query
 } from "@nestjs/common";
 import { AngelConstant } from "src/angel/config/angel.constant";
@@ -15,25 +16,24 @@ import TradingInterface from "./interfaces/trading.interface";
 @Controller("trading")
 export default class TradingController {
     constructor(
-        private readonly tradingFactory: TradingFactoryService,
-        // private readonly schedular: AngelScheduler,
+        private readonly tradingFactory: TradingFactoryService // private readonly schedular: AngelScheduler,
     ) {}
 
     @Get("holdings")
     async getAllHoldings(
         @Query(
             GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName),
+            new DefaultValuePipe(AngelConstant.brokerName)
         )
-        broker: string,
+        broker: string
     ): Promise<StockInfoDTO[]> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
         return await tradingService.getAllHoldings("");
     }
 
-    // @Put("update-credentials")
-    async updateCredentials () : Promise<string>{
+    @Put("update-credentials")
+    async updateCredentials(): Promise<string> {
         // await this.schedular.updateCredentials();
         return "credentials updated successfully for all the existing users of Angel";
     }
@@ -47,22 +47,22 @@ export default class TradingController {
     async placeDailyStopLossOrders(
         @Query(
             GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName),
+            new DefaultValuePipe(AngelConstant.brokerName)
         )
-        broker: string,
+        broker: string
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.placeDailyStopLossOrders("");
+        return await tradingService.placeStopLossOrders("", []);
     }
 
     @Get("placeOrders")
     async placeOrders(
         @Query(
             GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName),
+            new DefaultValuePipe(AngelConstant.brokerName)
         )
-        broker: string,
+        broker: string
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);

@@ -24,11 +24,12 @@ export default class DhaanService implements TradingInterface {
      * It checks the buying and current price of a particular stock, and figures out what should be the stoploss value for it, accordingly it places stoploss orders.
      * @returns
      */
-    async placeDailyStopLossOrders(
-        accessToken: string,
+    async placeStopLossOrders(
+        accessToken: string
     ): Promise<OrderResponseDTO[]> {
         try {
-            const stockInfos: StockInfoDTO[] = await this.getAllHoldings(accessToken);
+            const stockInfos: StockInfoDTO[] =
+                await this.getAllHoldings(accessToken);
 
             //todo
             const orderResponses: Promise<any>[] = stockInfos.map(
@@ -38,22 +39,22 @@ export default class DhaanService implements TradingInterface {
                             DhaanConstants.historicalDataRoute,
                             RequestMethod.POST,
                             null, //todo
-                            ApiType.historical,
+                            ApiType.historical
                         );
 
                     // todo: needs to work a lot in these integrations
                     const [price, triggerPrice]: number[] = getTrailingStopLoss(
                         stockInfo.closingPrice,
-                        stockInfo.avgCostPrice,
+                        stockInfo.avgCostPrice
                     );
 
                     return await this.placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
-                },
+                }
             );
         } catch (error) {
             this.logger.error(
                 "Error occured while fetching the holdings data using Dhaan apis",
-                error,
+                error
             );
         }
         return null;
@@ -73,7 +74,7 @@ export default class DhaanService implements TradingInterface {
                     DhaanConstants.holdingDataRoute,
                     RequestMethod.GET,
                     null,
-                    ApiType.nonTrading,
+                    ApiType.nonTrading
                 );
 
             const stockInfos: StockInfoDTO[] = response.map(
@@ -81,14 +82,14 @@ export default class DhaanService implements TradingInterface {
                     plainToClass<StockInfoDTO, DhaanHoldingDTO>(
                         StockInfoDTO,
                         dhaanHoldingData,
-                        { excludeExtraneousValues: true },
-                    ),
+                        { excludeExtraneousValues: true }
+                    )
             );
 
             this.logger.log("converted into stockInfo: ", stockInfos);
             this.logger.log(
                 "trying to convert a single one: ",
-                plainToClass(StockInfoDTO, response[0]),
+                plainToClass(StockInfoDTO, response[0])
             );
 
             return stockInfos;
@@ -96,7 +97,7 @@ export default class DhaanService implements TradingInterface {
             this.logger.error(
                 "Error occured while fetching the holdings data using Dhaan apis",
                 error,
-                DhaanService.name,
+                DhaanService.name
             );
         }
         return null;
