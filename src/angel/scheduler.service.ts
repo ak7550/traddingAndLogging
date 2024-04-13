@@ -13,6 +13,7 @@ import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelRequestHandler from "./request-handler.service";
 import { Broker } from "src/user/entities/broker.entity";
 import AngelService from "./angel.service";
+import Strategy, { openHighSell } from "src/common/strategies";
 
 @Injectable()
 export default class AngelScheduler {
@@ -26,21 +27,22 @@ export default class AngelScheduler {
     ) {}
 
     /**
-     * this method fetches all the holdings in current portoflio and sets trailing stoploss order for each one of them
+     * this method fetches all the holdings in current portoflio and sells if open high sell condition is satisfied
      * docs: [cron-declarative job in nest](https://docs.nestjs.com/techniques/task-scheduling#declarative-cron-jobs)
      * @returns {OrderResponseDTO[]} an array of all the order responnses
      */
     @Cron("15 21 11 * * 1-5")
     async placeMorningStopLoss(): Promise<void> {
-        await this.placeDailyStopLossOrders([]);
+        await this.placeDailyStopLossOrders([openHighSell]);
     }
 
+    //todo: create the strategy that will put trailing stop loss
     @Cron("")
     async placLastHourStopLossOrders(): Promise<void> {
-        await this.placeDailyStopLossOrders([]);
+        // await this.placeDailyStopLossOrders([]);
     }
 
-    async placeDailyStopLossOrders(conditions: Function[]): Promise<void> {
+    async placeDailyStopLossOrders(strategies: Strategy[]): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
 
@@ -62,7 +64,7 @@ export default class AngelScheduler {
                 const orderResponses: OrderResponseDTO[] =
                     await this.angelService.placeStopLossOrders(
                         jwtToken.keyValue,
-                        conditions
+                        strategies
                     );
 
                 this.logger.log(

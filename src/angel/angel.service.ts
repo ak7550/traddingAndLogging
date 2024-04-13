@@ -3,6 +3,7 @@ import { Cron } from "@nestjs/schedule";
 import GlobalConstant from "src/common/globalConstants.constant";
 import {
     getBaseStopLoss,
+    getStopLoss,
     getTrailingStopLoss
 } from "src/common/globalUtility.utility";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
@@ -17,6 +18,7 @@ import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
 import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
+import Strategy, { MinifiedStrategy, OrderDetails } from "src/common/strategies";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -33,18 +35,16 @@ export default class AngelService implements TradingInterface {
      */
     async placeStopLossOrders(
         jwtToken: string,
-        conditions: Function[]
+        strategies: Strategy[]
     ): Promise<OrderResponseDTO[]> {
         try {
             this.logger.log(
                 `${AngelService.name}:${this.placeStopLossOrders.name} method is called`
             );
 
-            const holdingStocks: AngelHoldingDTO[] =
-                await this.getAllHoldings(jwtToken);
+            const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings(jwtToken);
 
-            const settledResults: OrderResponseDTO[] =
-                this.processStocksAndPlaceStoplossOrder(holdingStocks);
+            const settledResults: OrderResponseDTO[] = this.processStocksAndPlaceStoplossOrder(holdingStocks, strategies);
 
             this.logger.log(
                 `${AngelService.name}:${this.placeStopLossOrders.name} placed sl order for all the holdings`
@@ -72,7 +72,8 @@ export default class AngelService implements TradingInterface {
      * @returns {PromiseSettledResult<OrderResponseDTO>[]} an array of orderResponseDTO after placing the orders
      */
     private processStocksAndPlaceStoplossOrder(
-        holdingStocks: AngelHoldingDTO[]
+        holdingStocks: AngelHoldingDTO[],
+        strategies: Strategy[]
     ): OrderResponseDTO[] {
         const today: Date = new Date();
 
@@ -98,14 +99,15 @@ export default class AngelService implements TradingInterface {
                         AngelConstant.ONE_DAY_INTERVAL
                     );
 
-                const stopLoss: number[] = getTrailingStopLoss(
-                    stock.ltp,
-                    Number.parseFloat(baseStopLoss),
-                    historicalData
-                );
+                const orderDetail: OrderDetails = getStopLoss(historicalData, strategies);
+                //  getTrailingStopLoss(
+                //     stock.ltp,
+                //     Number.parseFloat(baseStopLoss),
+                //     historicalData
+                // );
 
                 const orderResponse: OrderResponseDTO =
-                    await this.placeStopLossOrder(stock, stopLoss);
+                    await this.placeStopLossOrder(stock, orderDetail);
 
                 orderResponses.push(orderResponse);
             } catch (error) {
@@ -131,22 +133,15 @@ export default class AngelService implements TradingInterface {
      */
     private async placeStopLossOrder(
         _stock: AngelHoldingDTO,
-        _slOrderValues: number[]
+        orderDetail: OrderDetails
     ): Promise<OrderResponseDTO> {
         let orderResponse: OrderResponseDTO = null;
         try {
             this.logger.log(
                 `inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`
             );
-            const orderRequestDTO: AngelOrderRequestDTO =
-                new AngelOrderRequestDTO();
-            orderRequestDTO.mapData(
-                _stock,
-                _slOrderValues,
-                GlobalConstant.STOP_LOSS,
-                GlobalConstant.SELL,
-                GlobalConstant.STOP_LOSS_MARKET
-            );
+            const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
+            orderRequestDTO.mapData(_stock,orderDetail);
 
             const response: AngelOrderResponseDTO =
                 await this.requestHandler.execute(

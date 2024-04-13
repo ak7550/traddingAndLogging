@@ -1,45 +1,44 @@
 
-import GlobalConstant, { ExchangeType } from 'src/common/globalConstants.constant';
+import GlobalConstant, { DurationType, ExchangeType, OrderType, OrderVariety, ProductType, TransactionType } from 'src/common/globalConstants.constant';
 import AngelHoldingDTO from './holding.dto';
-
-
-type AngelOrderVariety = "NORMAL" | "STOPLOSS";
-type AngelTransactionType = "BUY" | "SELL";
-type AngelOrderType = "MARKET" | "LIMIT" | "STOPLOSS_LIMIT" | "STOPLOSS_MARKET";
-type AngelProductType = "DELIVERY" | "CARRYFOREARD";
-type AngelDurationType = "DAY" | "IOC";
+import { OrderDetails } from 'src/common/strategies';
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
-//todo: implement builder pattern
+//todo: implement builder design pattern
 export default class AngelOrderRequestDTO {
-	mapData ( stock: AngelHoldingDTO, slOrderValues: number[], variety: AngelOrderVariety, transaction: AngelTransactionType, orderType: AngelOrderType) {
-		this.variety = variety;
+	mapData ( stock: AngelHoldingDTO, orderDetail: OrderDetails) {
+		this.variety = orderDetail.variety;
 		this.tradingsymbol = stock.tradingsymbol;
 		this.symboltoken = stock.symboltoken;
-		this.transactiontype = transaction;
+		this.transactiontype = orderDetail.transactionType;
 		this.exchange = stock.exchange;
-		this.producttype = "DELIVERY";
-		this.ordertype = orderType;
+		this.producttype = orderDetail.productType;
+		this.ordertype = orderDetail.orderType;
 		this.quantity = stock.quantity;
-		this.duration = "DAY";
-		this.ordertag = `${ this.ordertype === "STOPLOSS_MARKET" && "SLM" } is placed for ${ stock.tradingsymbol } at ${ new Date() }`;
+		this.duration = orderDetail.duration;
+		this.ordertag = `${ this.ordertype === GlobalConstant.STOP_LOSS_MARKET && "SL-M" } is placed for ${ stock.tradingsymbol } at ${ new Date() }`;
 
-		if ( this.ordertype == "STOPLOSS_MARKET" ) {
+		if ( this.ordertype == GlobalConstant.STOP_LOSS_MARKET ) {
 			// i am making it as a sl-m, as the stock should exit at market price
-			this.triggerprice = slOrderValues[ 0 ].toFixed(2);
+			this.triggerprice = orderDetail?.triggerPrice.toFixed(2);
+		}
+
+		if(this.ordertype == GlobalConstant.LIMIT){
+			// in case of limit orders, we will be needing LIMIT price
+			this.price = orderDetail?.price.toFixed(2);
 		}
 	}
 
-	variety: AngelOrderVariety;
+	variety: OrderVariety;
     tradingsymbol: string;
     symboltoken: string;
-	transactiontype: AngelTransactionType;
+	transactiontype: TransactionType;
 	exchange: ExchangeType;
-    ordertype: AngelOrderType;
-    producttype: AngelProductType;
-	duration: AngelDurationType;
-    price: string | undefined; // The min or max price to execute the order at (for LIMIT orders)
-    triggerprice: string | undefined; // The price at which an order should be triggered (SL, SL-M)
+    ordertype: OrderType;
+    producttype: ProductType;
+	duration: DurationType;
+    price?: string; // The min or max price to execute the order at (for LIMIT orders)
+    triggerprice?: string; // The price at which an order should be triggered (SL, SL-M)
     // stoploss: number;
 	quantity: number;
 	ordertag: string;
