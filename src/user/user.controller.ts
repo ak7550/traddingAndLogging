@@ -36,10 +36,10 @@ export class UserController {
 
     @Post("credential")
     async createCredential(
-        @Body() CreateCredentialDto: CreateCredentialDto,
+        @Body() createCredentialDto: CreateCredentialDto,
     ): Promise<HttpStatus> {
         try {
-            await this.userService.createCredential(CreateCredentialDto);
+            await this.userService.createCredential(createCredentialDto);
             return HttpStatus.ACCEPTED;
         } catch (error) {
             throw new HttpException(

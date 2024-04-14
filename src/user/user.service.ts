@@ -54,10 +54,7 @@ export class UserService {
         createCredentialDto: CreateCredentialDto,
     ): Promise<void> {
         try {
-            this.logger.log(
-                `Inside createCredential method`,
-                createCredentialDto,
-            );
+            this.logger.log(`Inside createCredential method`);
             const account: DematAccount = await this.entityManager.findOneBy(
                 DematAccount,
                 {
@@ -65,10 +62,7 @@ export class UserService {
                 },
             );
 
-            let credential: Credential = await this.findCredential(
-                account,
-                createCredentialDto.keyName,
-            );
+            let credential: Credential = await this.findCredential(account, createCredentialDto.keyName,);
 
             if (credential == null) {
                 credential = new Credential({});
@@ -96,10 +90,7 @@ export class UserService {
         updateCredentialDto: UpdateCredentialDto,
     ): Promise<void> {
         try {
-            this.logger.log(
-                `Inside updateCredential method`,
-                updateCredentialDto,
-            );
+            this.logger.log(`Inside updateCredential method`);
 
             let user: User;
             const {
@@ -156,7 +147,7 @@ export class UserService {
 
     async createUser(createUserDTO: CreateUserDto): Promise<CreateUserDto> {
         try {
-            this.logger.log(`Inside createUser method`, createUserDTO);
+            this.logger.log(`Inside createUser method`, JSON.stringify(createUserDTO));
             const user: User = await this.entityManager.save(
                 new User(createUserDTO),
             );
@@ -176,7 +167,8 @@ export class UserService {
     async createBroker(
         createBrokerDTO: CreateBrokerDto,
     ): Promise<CreateBrokerDto> {
-        this.logger.log(`Inside createBroker method`, createBrokerDTO);
+        this.logger.log( `Inside createBroker method`, createBrokerDTO );
+        //-> just wanna show it can be done by this way as well
         // const queryRunner = this.dataSource.createQueryRunner();
         // queryRunner.connect();
 
@@ -218,7 +210,7 @@ export class UserService {
         createDematDto: CreateDematAccountDto,
     ): Promise<CreateDematAccountDto> {
         try {
-            this.logger.log(`Inside createDemat method`, createDematDto);
+            this.logger.log(`Inside createDemat method`, JSON.stringify(createDematDto));
             const user: User = await this.entityManager.findOneBy(User, {
                 id: createDematDto.userId,
             });

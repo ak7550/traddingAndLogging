@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import GlobalConstant, {
     IntegratedBroker
 } from "src/common/globalConstants.constant";
@@ -37,9 +37,11 @@ export default class AngelScheduler {
     }
 
     //todo: create the strategy that will put trailing stop loss
-    @Cron("")
+    // @Cron("* * * * * 1-5")
+    @Cron(CronExpression.EVERY_10_SECONDS)
     async placLastHourStopLossOrders(): Promise<void> {
         // await this.placeDailyStopLossOrders([]);
+        this.logger.log("log");
     }
 
     async placeDailyStopLossOrders(strategies: Strategy[]): Promise<void> {
@@ -81,7 +83,7 @@ export default class AngelScheduler {
     /**
      * this module is responsible for updating the credentials of each users Who has a demat account in Angel
      */
-    @Cron("15 50 8 * * 1-5")
+    @Cron("15 10 2 * * 1-5")
     async updateCredentials(): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
