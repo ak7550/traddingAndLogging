@@ -1,15 +1,12 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
-import GlobalConstant from "src/common/globalConstants.constant";
 import {
     getBaseStopLoss,
-    getStopLoss,
-    getTrailingStopLoss
+    getStopLoss
 } from "src/common/globalUtility.utility";
+import Strategy, { OrderDetails } from "src/common/strategies";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
-import { Broker } from "src/user/entities/broker.entity";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { mapToOrderResponseDTO } from "./config/angel.utils";
 import AngelHoldingDTO from "./dto/holding.dto";
@@ -18,12 +15,9 @@ import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
 import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
-import Strategy, { MinifiedStrategy, OrderDetails } from "src/common/strategies";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
-    private broker: Broker;
-
     constructor(
         private readonly requestHandler: AngelRequestHandler,
         private readonly logger: Logger = new Logger(AngelService.name)
@@ -59,11 +53,6 @@ export default class AngelService implements TradingInterface {
         }
 
         return null;
-    }
-
-    @Cron("15 59 1 * * 1-6")
-    private cronTester() {
-        this.logger.log(`cron is working properly`);
     }
 
     /**

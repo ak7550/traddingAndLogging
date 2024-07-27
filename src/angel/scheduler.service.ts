@@ -31,17 +31,11 @@ export default class AngelScheduler {
      * docs: [cron-declarative job in nest](https://docs.nestjs.com/techniques/task-scheduling#declarative-cron-jobs)
      * @returns {OrderResponseDTO[]} an array of all the order responnses
      */
-    @Cron("15 21 11 * * 1-5")
+    // @Cron("15 21 11 * * 1-5")
+    @Cron(CronExpression.EVERY_5_HOURS)
     async placeMorningStopLoss(): Promise<void> {
-        await this.placeDailyStopLossOrders([openHighSell]);
-    }
-
-    //todo: create the strategy that will put trailing stop loss
-    // @Cron("* * * * * 1-5")
-    @Cron(CronExpression.EVERY_10_SECONDS)
-    async placLastHourStopLossOrders(): Promise<void> {
-        // await this.placeDailyStopLossOrders([]);
-        this.logger.log("log");
+        this.logger.log(`PlaceMorningStopLoss order triggered via Cron`);
+        // await this.placeDailyStopLossOrders([openHighSell]);
     }
 
     async placeDailyStopLossOrders(strategies: Strategy[]): Promise<void> {
