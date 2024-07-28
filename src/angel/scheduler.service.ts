@@ -32,7 +32,7 @@ export default class AngelScheduler {
      * @returns {OrderResponseDTO[]} an array of all the order responnses
      */
     // @Cron("15 21 11 * * 1-5")
-    @Cron(CronExpression.EVERY_5_HOURS)
+    // @Cron(CronExpression.EVERY_5_SECONDS)
     async placeMorningStopLoss(): Promise<void> {
         this.logger.log(`PlaceMorningStopLoss order triggered via Cron`);
         // await this.placeDailyStopLossOrders([openHighSell]);
@@ -78,7 +78,7 @@ export default class AngelScheduler {
      * this module is responsible for updating the credentials of each users Who has a demat account in Angel
      */
     @Cron("15 10 2 * * 1-5")
-    async updateCredentials(): Promise<void> {
+    private async updateCredentials(): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
 

@@ -88,17 +88,25 @@ export default class AngelService implements TradingInterface {
                         AngelConstant.ONE_DAY_INTERVAL
                     );
 
-                const orderDetail: OrderDetails = getStopLoss(historicalData, strategies);
+                const orderDetail: OrderDetails[] = getStopLoss(historicalData, strategies);
                 //  getTrailingStopLoss(
                 //     stock.ltp,
                 //     Number.parseFloat(baseStopLoss),
                 //     historicalData
                 // );
 
-                const orderResponse: OrderResponseDTO =
-                    await this.placeStopLossOrder(stock, orderDetail);
+                if(orderDetail == null || orderDetail.length == 0){
+                    this.logger.log(`None of the strategies are triggered for ${stock.tradingsymbol}`);
+                    return;
+                }
 
-                orderResponses.push(orderResponse);
+                // as we are calling this method from an array, we need to ensure the quantities
+                orderDetail.forEach( async (detail: OrderDetails) => orderResponses.push(await this.placeStopLossOrder(stock, detail)));
+
+                // const orderResponse: OrderResponseDTO =
+                //     await this.placeStopLossOrder(stock, orderDetail);
+
+                // orderResponses.push(orderResponse);
             } catch (error) {
                 this.logger.error(
                     `error occured while dealing with ${stock.tradingsymbol}`,
@@ -127,7 +135,7 @@ export default class AngelService implements TradingInterface {
         let orderResponse: OrderResponseDTO = null;
         try {
             this.logger.log(
-                `inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`
+                `Inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`
             );
             const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
             orderRequestDTO.mapData(_stock,orderDetail);

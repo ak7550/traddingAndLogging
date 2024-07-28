@@ -1,6 +1,7 @@
 import * as crypto from "crypto";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import Strategy, { OrderDetails } from "./strategies";
+import _ from "lodash";
 
 export const getBaseStopLoss = (
     previousClose: number,
@@ -167,22 +168,33 @@ export const decryptData = ( encryptedMessage: string, saltType: SaltType ): str
 export const getStopLoss = (
     historicalData: OhlcvDataDTO[],
     strategies: Strategy[]
-): OrderDetails => {
+): OrderDetails[] => {
+    const orderDetails: OrderDetails[] = [];
     for (let index = 0; index < strategies.length; index++) {
         const strategy: Strategy = strategies[index];
         let applicable: boolean = true;
-        for (let i2 = 0; i2 < strategy.conditions.length; i2++) {
-            const method: Function = strategy.conditions[i2];
-            const result : number[] | boolean = method(historicalData);
+        const data: number[] = [];
+        const { conditions, decidingFactor, ...rest } = strategy;
+        for (let i2 = 0; i2 < conditions.length; i2++) {
+            const {filter: method, description } = strategy.conditions[i2];
+            const result : number | boolean = method(historicalData);
             if(result == false){
                 applicable = false;
                 break;
+            }else{
+                console.log(description);
+                if(_.isNumber(result)){
+                    data.push(result);
+                }
             }
         }
 
         if(applicable){
-
+            orderDetails.push({
+                ...rest,
+                price: decidingFactor(historicalData, data)
+            });
         }
     }
-    return null;
+    return orderDetails;
 }
