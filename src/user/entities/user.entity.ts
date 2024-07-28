@@ -28,7 +28,7 @@ export class User extends AbstractEntity<User> {
         name: "pan_card_no",
         nullable: true
     } )
-    private _panCardNumber: string; // something is going wrong while setitng pan card no, may be this is the same with all getters and setters
+    private _panCardNumber: string;
 
     public get panCardNumber (): string {
         return decryptData(this._panCardNumber, "user");

@@ -100,6 +100,7 @@ export default class AngelRequestHandler {
 
     async refreshToken(
         request: GenerateTokenDto,
+        jwtToken: string,
     ): Promise<GenerateTokenResponseDto> {
         try {
             this.logger.log(
@@ -110,7 +111,12 @@ export default class AngelRequestHandler {
 
             const response: AxiosResponse<
                 AngelAPIResponse<GenerateTokenResponseDto>
-            > = await http.post(this.configService.getOrThrow<string>("ANGEL_REFRESH_TOKEN_URL"), request);
+            > = await http.post(this.configService.getOrThrow<string>("ANGEL_REFRESH_TOKEN_URL"), request,
+            {
+                headers: {
+                    [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                },
+            },);
 
             this.logger.log(
                 `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:

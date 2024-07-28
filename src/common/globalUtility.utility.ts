@@ -140,9 +140,9 @@ type SaltType = "user" | "token" | "demat";
 
 export const encryptData = ( data: string, saltType: SaltType ): string => {
     const algorithm = "aes-256-cbc";
-    const key:string = process.env[ `${ saltType.toUpperCase() }_KEY` ];
+    const key:string = process.env[ `${ saltType.toUpperCase() }_KEY` ]; //randomBytes(32).toString('hex)
     const keyBuffer: Buffer = Buffer.from( key, "hex" );
-    const iv: string = process.env[ `${ saltType.toUpperCase() }_IV` ];
+    const iv: string = process.env[ `${ saltType.toUpperCase() }_IV` ]; // randomBytes(16).toString('hex) => randomByters form crypto.js
     const ivBuffer: Buffer = Buffer.from( iv, "hex" );
 
     const cipher = crypto.createCipheriv(algorithm, keyBuffer, ivBuffer);

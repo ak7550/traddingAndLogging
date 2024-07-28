@@ -11,7 +11,6 @@ export default class CreateUserDto {
     @IsOptional()
     lastName: string;
     
-    @IsOptional()
     panCardNumber: string;
 
     @IsOptional()

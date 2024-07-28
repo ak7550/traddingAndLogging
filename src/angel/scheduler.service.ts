@@ -77,6 +77,7 @@ export default class AngelScheduler {
     /**
      * this module is responsible for updating the credentials of each users Who has a demat account in Angel
      */
+    // @Cron(CronExpression.EVERY_5_MINUTES) // for testing
     @Cron("15 10 2 * * 1-5")
     private async updateCredentials(): Promise<void> {
         try {
@@ -120,23 +121,30 @@ export default class AngelScheduler {
                 credential => credential.keyName === AngelConstant.FEED_TOKEN
             )[0];
 
-            const expiresAt: Credential = credentials.filter(
+            let expiresAt: Credential = credentials.filter(
                 credential => credential.keyName === GlobalConstant.EXPIRES_AT
             )[0];
+
+            // in case expires_at is null or undefined
+            if(expiresAt == null){
+                expiresAt = new Credential({
+                    keyName: GlobalConstant.EXPIRES_AT
+                });
+            }
 
             const request: GenerateTokenDto = new GenerateTokenDto({
                 refreshToken: refreshToken.keyValue
             });
 
             const response: GenerateTokenResponseDto =
-                await this.requestHandler.refreshToken(request);
+                await this.requestHandler.refreshToken(request, jwtToken.keyValue);
 
             //updating the values
             refreshToken.keyValue = response.refreshToken;
             jwtToken.keyValue = response.jwtToken;
             feedToken.keyValue = response.feedToken;
             const expiryTime: number = Date.now() + 24 * 60 * 60 * 1000;
-            expiresAt.keyValue = String(expiryTime);
+            expiresAt.keyValue = expiryTime.toFixed(0);
 
             const updatedCredentials: Credential[] = [
                 refreshToken,
