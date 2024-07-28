@@ -7,6 +7,7 @@ import AngelAPIResponse from "./dto/generic.response.dto";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import { ConfigService } from "@nestjs/config";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export default class AngelRequestHandler {
@@ -112,11 +113,11 @@ export default class AngelRequestHandler {
             const response: AxiosResponse<
                 AngelAPIResponse<GenerateTokenResponseDto>
             > = await http.post(this.configService.getOrThrow<string>("ANGEL_REFRESH_TOKEN_URL"), request,
-            {
-                headers: {
-                    [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
-                },
-            },);
+                {
+                    headers: {
+                        [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                    },
+                },);
 
             this.logger.log(
                 `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:
@@ -130,5 +131,17 @@ export default class AngelRequestHandler {
                 error,
             );
         }
+    }
+
+    @Cron(CronExpression.EVERY_30_MINUTES)
+    async serviceTester() {
+        const webHookUrl = "https://webhook.site/61274f5c-9719-4fff-8ff8-f278080432e5";
+        const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+
+        const response: AxiosResponse<string> = await http.post(webHookUrl, {
+            message: "service is working well"
+        });
+
+        this.logger.log(`response received from periodic webhook`, response.data);
     }
 }

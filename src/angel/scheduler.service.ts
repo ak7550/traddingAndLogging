@@ -78,7 +78,7 @@ export default class AngelScheduler {
      * this module is responsible for updating the credentials of each users Who has a demat account in Angel
      */
     // @Cron(CronExpression.EVERY_5_MINUTES) // for testing
-    @Cron("15 10 2 * * 1-5")
+    @Cron("15 10 8 * * 1-5")
     private async updateCredentials(): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
