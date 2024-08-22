@@ -30,7 +30,7 @@ const getSl = (percent: number, valueFrom: number): number =>
 const getTriggerPrice = (slValue: number, percent: number): number =>
     slValue * (1 + percent / 100);
 
-//todo ==> this is the ultimate section, where i need to put the logic to find the exact stop loss value
+//TODO ==> this is the ultimate section, where i need to put the logic to find the exact stop loss value
 export const getTrailingStopLoss = (
     previousClose: number,
     baseStopLoss: number,
@@ -40,7 +40,7 @@ export const getTrailingStopLoss = (
     const ema21: number[] = getEmaValue(21, historicalData);
     const dailyRSI: number[] = getRSI(14, historicalData);
     // check for open high system ==> if the 1st hour candle is open high, and the second candle is breaking the low of the previous open-high candle => sell triggers
-    //todo: need to implement all the hi-fi logic here, which will find the stop loss value every single day
+    //TODO: need to implement all the hi-fi logic here, which will find the stop loss value every single day
 
     return [baseStopLoss, getTriggerPrice(baseStopLoss, 0.5)];
 };
@@ -131,7 +131,7 @@ const getVwap = ( data: OhlcvDataDTO[] ): number[] => {
     return vwapArray;
 }
 
-//todo ==> implement actual methods, that will fetch these data
+//TODO ==> implement actual methods, that will fetch these data
 export const getPublicIp = (): string => "123.121.2.1.1";
 export const getPrivateIp = (): string => "121.121.1.1.1";
 export const getMacAddress = (): string => "process.env.MAC_ADDRESS";
@@ -164,7 +164,7 @@ export const decryptData = ( encryptedMessage: string, saltType: SaltType ): str
     return decrypted.toString();
 }
 
-//todo
+//TODO
 export const getStopLoss = (
     historicalData: OhlcvDataDTO[],
     strategies: Strategy[]

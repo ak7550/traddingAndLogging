@@ -14,9 +14,13 @@ import { IntegratedBroker } from "src/common/globalConstants.constant";
 
 @Injectable()
 export class UserService {
+    async findDemat(id: number): Promise<DematAccount> {
+        return await this.entityManager.findOneBy(DematAccount, {id});
+    }
     async saveCredentials(credentials: Credential[]) {
         await this.entityManager.save(credentials);
     }
+
     async findCredential(
         account: DematAccount,
         keyName?: string,
@@ -27,22 +31,31 @@ export class UserService {
         });
     }
 
-    //todo: remove this method, rename above findCredential as findCredentials and it will do the job
+    //TODO: remove this method, rename above findCredential as findCredentials and it will do the job
     async findCredentials(account: DematAccount): Promise<Credential[]> {
         return await this.entityManager.findBy(Credential, {
             account,
         });
     }
+
     async findDemats(broker: Broker): Promise<DematAccount[]> {
         return await this.entityManager.findBy(DematAccount, {
             broker,
         });
     }
+
     constructor(
-        private readonly dataSource: DataSource,
         private readonly entityManager: EntityManager,
         private readonly logger: Logger = new Logger(UserService.name),
     ) {}
+
+    //TEST
+    async deleteCredentials(id: number){
+        const account : DematAccount = await this.findDemat(id);
+        return await this.entityManager.delete(Credential, {
+            account
+        });
+    }
 
     async findBroker(name: IntegratedBroker): Promise<Broker> {
         return await this.entityManager.findOneBy(Broker, {

@@ -17,7 +17,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     @JoinColumn({ name: "broker_name", referencedColumnName: "name" })
     broker: Broker;
 
-    //todo: finally make it false
+    //TODO: finally make it false
     @Column({
         name: "account_number",
         comment: "associated_bank_account_number",
@@ -33,7 +33,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         this._accountNumber = encryptData(value, "demat");
     }
 
-    //todo: finally make it false
+    //TODO: finally make it false
     @Column({
         name: "demat_account_number",
         nullable: true,
@@ -48,7 +48,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         this._dematAccountNumber = encryptData(value, "demat");
     }
 
-    //todo: finally make it false
+    //TODO: finally make it false
     @Column({
         name: "dp_id",
         nullable: true,
@@ -62,7 +62,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         this._dpId = encryptData(value, "demat");
     }
 
-    //todo: finally make it false
+    //TODO: finally make it false
     @Column({
         name: "client_id",
         nullable: true,
@@ -77,7 +77,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         this._clientId = encryptData(value, "demat");
     }
 
-    //todo: finally make it false
+    //TODO: finally make it false
     @Column({
         name: "cdsl_tpin",
         nullable: true,

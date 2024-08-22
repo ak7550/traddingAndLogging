@@ -110,6 +110,6 @@ export const openHighSell: Strategy = {
 
 const s2: Strategy[] = [];
 
-//todo: define the proper strategies with proper conditions, try to optimise the code as much as possible, use function currying
+//TODO: define the proper strategies with proper conditions, try to optimise the code as much as possible, use function currying
 
-//todo: think how to traverse through all of the json codes work accordingly.
+//TODO: think how to traverse through all of the json codes work accordingly.

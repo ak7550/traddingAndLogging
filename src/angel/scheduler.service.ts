@@ -79,7 +79,7 @@ export default class AngelScheduler {
      */
     // @Cron(CronExpression.EVERY_5_MINUTES) // for testing
     @Cron("15 10 8 * * 1-5")
-    private async updateCredentials(): Promise<void> {
+    async updateCredentials(): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
 
@@ -100,7 +100,7 @@ export default class AngelScheduler {
         }
     }
 
-    private async updateCredential(
+    async updateCredential(
         account: DematAccount
     ): Promise<Credential[]> {
         try {
@@ -128,7 +128,8 @@ export default class AngelScheduler {
             // in case expires_at is null or undefined
             if(expiresAt == null){
                 expiresAt = new Credential({
-                    keyName: GlobalConstant.EXPIRES_AT
+                    keyName: GlobalConstant.EXPIRES_AT,
+                    account
                 });
             }
 
@@ -160,6 +161,7 @@ export default class AngelScheduler {
             );
             return updatedCredentials;
         } catch (error) {
+            // TODO: need to handle errors in a proper manner, unable to handle the errors efficiently, crashing the whole service
             this.logger.error(
                 `error occured while generating a new accessTokens for ${account.accountNumber}`,
                 error

@@ -2,7 +2,7 @@ import { decryptData, encryptData } from "src/common/globalUtility.utility";
 import AbstractEntity from "src/database/abstract.entity";
 import { Column, Entity } from "typeorm";
 
-//todo: put encryption
+//TODO: put encryption
 @Entity({
     name: "user",
 })

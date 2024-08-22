@@ -1,10 +1,12 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Headers,
     HttpException,
     HttpStatus,
+    Param,
     Post,
     Req,
 } from "@nestjs/common";
@@ -15,6 +17,7 @@ import { CreateCredentialDto } from "./dto/create-credential.dto";
 import CreateDematAccountDto from "./dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
 import { UserService } from "./user.service";
+import { DematAccount } from "./entities/demat-account.entity";
 
 @Controller("user")
 export class UserController {
@@ -49,6 +52,12 @@ export class UserController {
         }
     }
 
+    @Delete("credential/:id")
+    async deleteCredentials(@Param('id') demataccountId: number){
+        await this.userService.deleteCredentials(demataccountId);
+        return HttpStatus.ACCEPTED;
+    }
+
     @Post("demat")
     async createUserBrokerRelationShip(
         @Body()
@@ -69,8 +78,8 @@ export class UserController {
         return "ping from user controller";
     }
 
-    //todo: need code to handle error like scenarios, if there's any problem, the server is not supposed to stop, but handle it properly with an error response
-    //todo: create some middlewares who'll be checking if this routes should be open or not dynamically as per the environments
+    //TODO: need code to handle error like scenarios, if there's any problem, the server is not supposed to stop, but handle it properly with an error response
+    //TODO: create some middlewares who'll be checking if this routes should be open or not dynamically as per the environments
     @Post("broker")
     async createBroker(
         @Body() createBrokerDTO: CreateBrokerDto,

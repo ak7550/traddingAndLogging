@@ -19,7 +19,7 @@ export default class DhaanService implements TradingInterface {
         throw new Error("Method not implemented.");
     }
 
-    //todo
+    //TODO
     /**
      * It checks the buying and current price of a particular stock, and figures out what should be the stoploss value for it, accordingly it places stoploss orders.
      * @returns
@@ -31,24 +31,24 @@ export default class DhaanService implements TradingInterface {
             const stockInfos: StockInfoDTO[] =
                 await this.getAllHoldings(accessToken);
 
-            //todo
+            //TODO
             const orderResponses: Promise<any>[] = stockInfos.map(
                 async (stockInfo: StockInfoDTO): Promise<any> => {
                     const response: OhlcDTO =
                         await this.requestHandler.execute<OhlcDTO>(
                             DhaanConstants.historicalDataRoute,
                             RequestMethod.POST,
-                            null, //todo
+                            null, //TODO
                             ApiType.historical
                         );
 
-                    // todo: needs to work a lot in these integrations
+                    // TODO: needs to work a lot in these integrations
                     const [price, triggerPrice]: number[] = getTrailingStopLoss(
                         stockInfo.closingPrice,
                         stockInfo.avgCostPrice
                     );
 
-                    return await this.placeStopLossOrder(); //todo ==> put trailing stop loss for dhaan, using axios http requestHandler
+                    return await this.placeStopLossOrder(); //TODO ==> put trailing stop loss for dhaan, using axios http requestHandler
                 }
             );
         } catch (error) {
@@ -60,7 +60,7 @@ export default class DhaanService implements TradingInterface {
         return null;
     }
 
-    //todo
+    //TODO
     private async placeStopLossOrder() {
         return await null;
     }

@@ -4,7 +4,7 @@ import AngelHoldingDTO from './holding.dto';
 import { OrderDetails } from 'src/common/strategies';
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
-//todo: implement builder design pattern
+//TODO: implement builder design pattern
 export default class AngelOrderRequestDTO {
 	mapData ( stock: AngelHoldingDTO, orderDetail: OrderDetails) {
 		this.variety = orderDetail.variety;

@@ -13,7 +13,7 @@ export default class OhlcvDataDTO{
     isWholeBody: boolean;
     timeStamp: string; // this will hold the data of the candle time, in ISO format. Tells u when exactly this candle was made.
 
-    //todo: apply a criteria to find the what is the candle type (doji, dragonfly-doji, hammer, pin bar, whole-body)
+    //TODO: apply a criteria to find the what is the candle type (doji, dragonfly-doji, hammer, pin bar, whole-body)
 
     constructor ( t: string, o: number, high: number, l: number, c: number, vol: number ) {
         this.timeStamp = t;

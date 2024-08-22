@@ -153,7 +153,7 @@ export default class AngelService implements TradingInterface {
             );
 
             //code to response into universal order-dto
-            //todo: talk with angel, there must be an api to find a status of an individual order
+            //TODO: talk with angel, there must be an api to find a status of an individual order
             // using that response, we will be able to map a lot of data
             orderResponse = mapToOrderResponseDTO(
                 response,

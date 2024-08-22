@@ -33,7 +33,6 @@ export class Credential extends AbstractEntity<Credential> {
     }
 
     //_. this will generate accountId table, which will work as foreign key for this table, referencing to User table
-
     @ManyToOne(() => DematAccount, demat => demat.id)
     @JoinColumn({
         name: "account_id",
