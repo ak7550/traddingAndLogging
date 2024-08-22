@@ -7,7 +7,7 @@ import { AppService } from "./app.service";
 import { DataBaseModule } from "./database/database.module";
 import { SheetModule } from "./sheet/sheet.module";
 import TradingModule from "./trading/trading.module";
-import { UserModule } from "./user/user.module";
+import { EntityModule } from "./entities/entity.module";
 
 @Module({
     imports: [
@@ -20,7 +20,7 @@ import { UserModule } from "./user/user.module";
         TradingModule,
         ScheduleModule.forRoot(),
         DataBaseModule,
-        UserModule,
+        EntityModule
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -4,16 +4,19 @@ import GlobalConstant, {
     IntegratedBroker
 } from "src/common/globalConstants.constant";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
-import { DematAccount } from "src/user/entities/demat-account.entity";
-import { UserService } from "src/user/user.service";
 import { AngelConstant } from "./config/angel.constant";
-import { Credential } from "src/user/entities/credential.entity";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelRequestHandler from "./request-handler.service";
-import { Broker } from "src/user/entities/broker.entity";
 import AngelService from "./angel.service";
 import Strategy, { openHighSell } from "src/common/strategies";
+import { Broker } from "src/entities/broker/entities/broker.entity";
+import { UserService } from "src/entities/user/user.service";
+import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
+import { Credential } from "src/entities/credential/credential.entity";
+import { BrokerService } from "src/entities/broker/broker.service";
+import { DematService } from "src/entities/demat/demat.service";
+import { CredentialService } from "src/entities/credential/credential.service";
 
 @Injectable()
 export default class AngelScheduler {
@@ -21,9 +24,11 @@ export default class AngelScheduler {
 
     constructor(
         private readonly logger: Logger = new Logger(AngelScheduler.name),
-        private readonly userService: UserService,
+        private readonly brokerService: BrokerService,
         private readonly requestHandler: AngelRequestHandler,
-        private readonly angelService: AngelService
+        private readonly angelService: AngelService,
+        private readonly dematService: DematService,
+        private readonly credentialService: CredentialService
     ) {}
 
     /**
@@ -43,16 +48,16 @@ export default class AngelScheduler {
             this.logger.log(`Inside updateCredential method`);
 
             if (this.broker == undefined) {
-                this.broker = await this.userService.findBroker(
+                this.broker = await this.brokerService.findOne(
                     IntegratedBroker.Angel
                 );
             }
             const dematAccounts: DematAccount[] =
-                await this.userService.findDemats(this.broker);
+                await this.dematService.findAll(this.broker);
 
             dematAccounts.forEach(async (dematAccount: DematAccount) => {
                 const jwtToken: Credential =
-                    await this.userService.findCredential(
+                    await this.credentialService.findCredential(
                         dematAccount,
                         AngelConstant.JWT_TOKEN
                     );
@@ -84,13 +89,10 @@ export default class AngelScheduler {
             this.logger.log(`Inside updateCredential method`);
 
             if (this.broker == undefined) {
-                this.broker = await this.userService.findBroker(
-                    IntegratedBroker.Angel
-                );
+                this.broker = await this.brokerService.findOne(IntegratedBroker.Angel);
             }
 
-            const dematAccounts: DematAccount[] =
-                await this.userService.findDemats(this.broker);
+            const dematAccounts: DematAccount[] = await this.dematService.findAll(this.broker);
 
             dematAccounts.forEach(async (dematAccount: DematAccount) => {
                 await this.updateCredential(dematAccount);
@@ -106,7 +108,7 @@ export default class AngelScheduler {
         try {
             this.logger.log(`updating credentials for account`, account);
             const credentials: Credential[] =
-                await this.userService.findCredentials(account);
+                await this.credentialService.findAll(account);
 
             const refreshToken: Credential = credentials.filter(
                 credential =>
@@ -153,7 +155,7 @@ export default class AngelScheduler {
                 feedToken,
                 expiresAt
             ];
-            await this.userService.saveCredentials(updatedCredentials);
+            await this.credentialService.save(updatedCredentials);
 
             this.logger.log(
                 `new credentials are saved successfully for`,

@@ -1,7 +1,7 @@
 import AbstractEntity from "src/database/abstract.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { Broker } from "./broker.entity";
-import { User } from "./user.entity";
+import { Broker } from "../../broker/entities/broker.entity";
+import { User } from "../../user/entities/user.entity";
 import { decryptData, encryptData } from "src/common/globalUtility.utility";
 
 //docs: https://typeorm.biunav.com/en/many-to-many-relations.html

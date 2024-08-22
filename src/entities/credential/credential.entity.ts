@@ -8,7 +8,7 @@ import {
     JoinColumn,
     ManyToOne
 } from "typeorm";
-import { DematAccount } from "./demat-account.entity";
+import { DematAccount } from "../demat/entities/demat-account.entity";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
 @Entity("credential")
