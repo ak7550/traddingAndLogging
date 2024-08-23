@@ -1,6 +1,7 @@
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import { DurationType, OrderType, OrderVariety, ProductType, TransactionType } from "./globalConstants.constant";
 import { getCandleData, isGapUp, percentageChange } from "./strategy-util";
+import _ from "lodash";
 
 export interface MinifiedStrategy {
     name: string;
@@ -15,6 +16,7 @@ export interface OrderDetails extends MinifiedStrategy{
     productType: ProductType;
     variety: OrderVariety;
     duration: DurationType;
+    quantity: (totalQuantity: number) => number | number;
 }
 
 export default interface Strategy extends OrderDetails {
@@ -23,18 +25,19 @@ export default interface Strategy extends OrderDetails {
         description: string;
     }>,
 
-    // deciding factor is the final method, which will decide at which price, we need to set the order
+    // deciding factor is to decide at which price, we need to set the order
     decidingFactor: Function
 }
 
 export const openHighSell: Strategy = {
     name: "open high sell strategy",
-    desc: "",
+    desc: "Sell triggers when today's candle is red openhigh opens above previous day high",
     transactionType: "SELL",
+    quantity: totalQuantity => Math.floor(totalQuantity / 2), // I will sell half of my existing quantity
     conditions: [
         {
             filter: (ohlc: OhlcvDataDTO[]): boolean => isGapUp(ohlc, 2),
-            description: `1 day ago open greater than 2 days ago high`
+            description: `1. day ago open greater than 2 days ago high`
         },
 
         {
@@ -97,6 +100,10 @@ export const openHighSell: Strategy = {
     variety: "NORMAL",
     duration: "DAY"
 };
+
+// export const emaRetraceBuy: Strategy = {
+
+// }
 
 
 //TODO: define the proper strategies with proper conditions, try to optimise the code as much as possible, use function currying

@@ -7,3 +7,4 @@ to implement this feature we may need a frontend, which will redirect us to our 
 ### database_design ==> normalization is good in terms of scalability, but query will take longer time to execute
 
 
+configure hashi corp key-vault => user docer container initially

@@ -1,14 +1,19 @@
-import { Controller, Get, HttpStatus, Param, Put, Res } from '@nestjs/common';
-import AngelScheduler from './scheduler.service';
-import { DematAccount } from 'src/entities/demat/entities/demat-account.entity';
+import { Controller, Param, Put } from '@nestjs/common';
 import { DematService } from 'src/entities/demat/demat.service';
+import { DematAccount } from 'src/entities/demat/entities/demat-account.entity';
+import AngelScheduler from './scheduler.service';
 
 @Controller('angel')
 export class AngelController {
     constructor(
         private readonly schedularService : AngelScheduler,
-        private readonly dematService: DematService,
+        private readonly dematService: DematService
     ){}
+
+    @Put("/orders/sl/daily")
+    async placeDailyStopLossOrders(): Promise<any> {
+        return await this.schedularService.placeDailyStopLossOrders([]);
+    }
 
     @Put('refresh-token')
     async refreshTokenForAllUser(){

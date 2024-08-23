@@ -1,6 +1,5 @@
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import Strategy, { OrderDetails } from "./strategies";
-import _ from "lodash";
 
 export const isGapUp = (ohlcdata: OhlcvDataDTO[], candle: number): boolean => {
     const high: number = getCandleData(ohlcdata, candle + 1, "high"),
@@ -160,7 +159,7 @@ export const getStopLoss = (
                 break;
             }else{
                 console.log(description);
-                if(_.isNumber(result)){
+                if(typeof(result) === 'number'){
                     data.push(result);
                 }
             }
