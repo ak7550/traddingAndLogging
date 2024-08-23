@@ -1,5 +1,6 @@
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import { DurationType, OrderType, OrderVariety, ProductType, TransactionType } from "./globalConstants.constant";
+import { getCandleData, isGapUp, percentageChange } from "./strategy-util";
 
 export interface MinifiedStrategy {
     name: string;
@@ -25,17 +26,6 @@ export default interface Strategy extends OrderDetails {
     // deciding factor is the final method, which will decide at which price, we need to set the order
     decidingFactor: Function
 }
-
-const isGapUp = (ohlcdata: OhlcvDataDTO[], candle: number): boolean => {
-    const high: number = getCandleData(ohlcdata, candle + 1, "high"),
-        open: number = getCandleData(ohlcdata, candle, "open");
-    return high > open;
-};
-
-const percentageChange = (a: number, b: number): number => (a / b - 1) * 100;
-
-const getCandleData = (ohlc: OhlcvDataDTO[], index: number, data: string): number =>
-    ohlc[ohlc.length - index][data];
 
 export const openHighSell: Strategy = {
     name: "open high sell strategy",
@@ -108,7 +98,6 @@ export const openHighSell: Strategy = {
     duration: "DAY"
 };
 
-const s2: Strategy[] = [];
 
 //TODO: define the proper strategies with proper conditions, try to optimise the code as much as possible, use function currying
 

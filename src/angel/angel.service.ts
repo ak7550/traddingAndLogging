@@ -1,8 +1,4 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import {
-    getBaseStopLoss,
-    getStopLoss
-} from "src/common/globalUtility.utility";
 import Strategy, { OrderDetails } from "src/common/strategies";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
@@ -15,6 +11,7 @@ import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
 import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
+import { getBaseStopLoss, getStopLoss } from "src/common/strategy-util";
 
 @Injectable()
 export default class AngelService implements TradingInterface {

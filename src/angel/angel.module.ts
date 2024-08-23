@@ -1,12 +1,12 @@
 import { Logger, Module } from "@nestjs/common";
+import { BrokerModule } from "src/entities/broker/broker.module";
+import { CredentialModule } from "src/entities/credential/credential.module";
+import { DematModule } from "src/entities/demat/demat.module";
 import { AngelController } from './angel.controller';
 import AngelService from "./angel.service";
 import AxiosFactory from "./axios-factory.service";
 import AngelRequestHandler from "./request-handler.service";
 import AngelScheduler from "./scheduler.service";
-import { CredentialModule } from "src/entities/credential/credential.module";
-import { DematModule } from "src/entities/demat/demat.module";
-import { BrokerModule } from "src/entities/broker/broker.module";
 
 @Module({
     imports: [

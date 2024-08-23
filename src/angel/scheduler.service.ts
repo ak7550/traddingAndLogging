@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Cron } from "@nestjs/schedule";
 import GlobalConstant, {
     IntegratedBroker
 } from "src/common/globalConstants.constant";
@@ -9,9 +9,8 @@ import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelRequestHandler from "./request-handler.service";
 import AngelService from "./angel.service";
-import Strategy, { openHighSell } from "src/common/strategies";
+import Strategy from "src/common/strategies";
 import { Broker } from "src/entities/broker/entities/broker.entity";
-import { UserService } from "src/entities/user/user.service";
 import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
 import { Credential } from "src/entities/credential/credential.entity";
 import { BrokerService } from "src/entities/broker/broker.service";
@@ -47,11 +46,7 @@ export default class AngelScheduler {
         try {
             this.logger.log(`Inside updateCredential method`);
 
-            if (this.broker == undefined) {
-                this.broker = await this.brokerService.findOne(
-                    IntegratedBroker.Angel
-                );
-            }
+            await this.initiateBroker();
             const dematAccounts: DematAccount[] =
                 await this.dematService.findAll(this.broker);
 
@@ -77,6 +72,12 @@ export default class AngelScheduler {
         }
     }
 
+    private async initiateBroker() {
+        if (this.broker == undefined) {
+            this.broker = await this.brokerService.findOne(IntegratedBroker.Angel);
+        }
+    }
+
     async lastMomentStopLossOrder(): Promise<void> {}
 
     /**
@@ -87,16 +88,14 @@ export default class AngelScheduler {
     async updateCredentials(): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
-
-            if (this.broker == undefined) {
-                this.broker = await this.brokerService.findOne(IntegratedBroker.Angel);
-            }
-
+            this.initiateBroker();
             const dematAccounts: DematAccount[] = await this.dematService.findAll(this.broker);
 
-            dematAccounts.forEach(async (dematAccount: DematAccount) => {
-                await this.updateCredential(dematAccount);
-            });
+            const credentialPromise: Promise<Credential[]>[] = dematAccounts.map((dematAccount: DematAccount) => 
+                this.updateCredential(dematAccount));
+            
+            await Promise.allSettled(credentialPromise);
+            this.logger.log(`All the credentials are refershed for ${this.broker.name}`);
         } catch (error) {
             this.logger.error(`failed to update credentials`, error);
         }

@@ -1,6 +1,5 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
-import { getTrailingStopLoss } from "src/common/globalUtility.utility";
 import StockInfoDTO from "src/trading/dtos/stock-info.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
@@ -8,6 +7,7 @@ import DhaanHoldingDTO from "./dto/holding.dto";
 import OhlcDTO from "./dto/ohlc.dto";
 import DhaanRequestHandler from "./requestHandler.service";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
+import { getTrailingStopLoss } from "src/common/strategy-util";
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
