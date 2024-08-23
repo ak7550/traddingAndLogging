@@ -45,28 +45,29 @@ export default class AngelScheduler {
     async placeDailyStopLossOrders(strategies: Strategy[]): Promise<void> {
         try {
             this.logger.log(`Inside updateCredential method`);
-
             await this.initiateBroker();
             const dematAccounts: DematAccount[] =
                 await this.dematService.findAll(this.broker);
 
-            dematAccounts.forEach(async (dematAccount: DematAccount) => {
+            const orderResponses :PromiseSettledResult<OrderResponseDTO[]>[] = await Promise.allSettled(
+            dematAccounts.map(async (dematAccount: DematAccount) => {
                 const jwtToken: Credential =
                     await this.credentialService.findCredential(
                         dematAccount,
                         AngelConstant.JWT_TOKEN
                     );
 
-                const orderResponses: OrderResponseDTO[] =
-                    await this.angelService.placeStopLossOrders(
+                return this.angelService.placeStopLossOrders(
                         jwtToken.keyValue,
                         strategies
                     );
+            }))
 
-                this.logger.log(
-                    `stoploss order placed for demat ${dematAccount}\n order details: ${orderResponses}`
-                );
-            });
+            orderResponses.forEach(this.logger.log);
+
+            this.logger.log(
+                `stoploss order placed for order details: ${orderResponses}`
+            );
         } catch (error) {
             this.logger.error(`failed to place dailyStoplossOrders`, error);
         }
