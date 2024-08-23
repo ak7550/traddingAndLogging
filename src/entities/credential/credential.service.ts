@@ -12,7 +12,7 @@ import { DematService } from '../demat/demat.service';
 @Injectable()
 export class CredentialService {
     constructor(private readonly entityManager: EntityManager, 
-        private readonly logger: Logger,
+        private readonly logger: Logger = new Logger(CredentialService.name),
         private readonly dematService: DematService
     ){}
 

@@ -8,7 +8,8 @@ import CreateBrokerDto from './dto/create-broker.dto';
 @Injectable()
 export class BrokerService {
 
-  constructor(private readonly logger: Logger,
+  constructor(
+    private readonly logger: Logger = new Logger(BrokerService.name),
     private readonly entityManager: EntityManager
   ){}
 
