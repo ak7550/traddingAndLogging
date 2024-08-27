@@ -35,7 +35,7 @@ export default class AngelService implements TradingInterface {
 
             const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings(jwtToken);
 
-            const settledResults: OrderResponseDTO[] = this.processStocksAndPlaceStoplossOrder(holdingStocks, strategies);
+            const settledResults: OrderResponseDTO[] = await this.processStocksAndPlaceStoplossOrder(holdingStocks, strategies);
 
             this.logger.log(
                 `${AngelService.name}:${this.placeStopLossOrders.name} placed sl order for all the holdings`
@@ -57,10 +57,10 @@ export default class AngelService implements TradingInterface {
      * @param holdingStocks contains an array holding all the stocks information which are currently present in angel portfolio
      * @returns {PromiseSettledResult<OrderResponseDTO>[]} an array of orderResponseDTO after placing the orders
      */
-    private processStocksAndPlaceStoplossOrder(
+    private async processStocksAndPlaceStoplossOrder(
         holdingStocks: AngelHoldingDTO[],
         strategies: Strategy[]
-    ): OrderResponseDTO[] {
+    ): Promise<OrderResponseDTO[]> {
         const today: Date = new Date();
 
         //taking 90days previous data, to make a precious data
@@ -68,15 +68,11 @@ export default class AngelService implements TradingInterface {
             new Date().setDate(new Date().getDate() - 90)
         );
         this.logger.log(`today: ${today}, previous day: ${fromDate}`);
+        const promiseOfOrderResponse: Promise<OrderResponseDTO>[] = [];
         const orderResponses: OrderResponseDTO[] = [];
 
         holdingStocks.forEach(async (stock: AngelHoldingDTO) => {
             try {
-                const baseStopLoss: string = getBaseStopLoss(
-                    stock.ltp,
-                    stock.averageprice
-                );
-
                 const historicalData: OhlcvDataDTO[] =
                     await this.getHistoricalData(
                         stock,
@@ -86,11 +82,6 @@ export default class AngelService implements TradingInterface {
                     );
 
                 const orderDetail: OrderDetails[] = getStopLoss(historicalData, strategies);
-                //  getTrailingStopLoss(
-                //     stock.ltp,
-                //     Number.parseFloat(baseStopLoss),
-                //     historicalData
-                // );
 
                 if(orderDetail == null || orderDetail.length == 0){
                     this.logger.log(`None of the strategies are triggered for ${stock.tradingsymbol}`);
@@ -98,18 +89,14 @@ export default class AngelService implements TradingInterface {
                 }
 
                 // as we are calling this method from an array, we need to ensure the quantities
-                orderDetail.forEach( async (detail: OrderDetails) => orderResponses.push(await this.placeStopLossOrder(stock, detail)));
-
-                // const orderResponse: OrderResponseDTO =
-                //     await this.placeStopLossOrder(stock, orderDetail);
-
-                // orderResponses.push(orderResponse);
+                orderDetail.forEach( async (detail: OrderDetails) => promiseOfOrderResponse.push(this.placeStopLossOrder(stock, detail)));
+                orderResponses.concat(await Promise.all(promiseOfOrderResponse));
             } catch (error) {
                 this.logger.error(
                     `error occured while dealing with ${stock.tradingsymbol}`,
                     error
                 );
-                orderResponses.push(
+                orderResponses.concat(
                     mapToOrderResponseDTO(null, stock, null, error)
                 );
             }

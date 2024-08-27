@@ -6,7 +6,7 @@ import {
     Put,
     Query
 } from "@nestjs/common";
-import { AngelConstant } from "src/angel/config/angel.constant";
+import { AngelConstant } from "src/trading/angel/config/angel.constant";
 import GlobalConstant from "src/common/globalConstants.constant";
 import TradingFactoryService from "src/trading/trading-factory.service";
 import StockInfoDTO from "./dtos/stock-info.dto";

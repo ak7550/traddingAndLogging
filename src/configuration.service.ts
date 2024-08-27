@@ -1,7 +1,8 @@
 // configuration.service.ts
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-// import { KeyVaultService } from "./keyVault.service";
+import { KeyVaultService } from "./keyvault.service";
+
 
 
 
@@ -11,15 +12,15 @@ export class ConfigurationService {
 
     constructor(
         private readonly configService: ConfigService,
-        // private readonly keyVaultService: KeyVaultService,
+        private readonly keyVaultService: KeyVaultService,
     ) {
-        this.isProduction = process.env.NODE_ENV === "prod";
+        this.isProduction = process.env.NODE_ENV === "local";
     }
 
     async getOrThrow(keyName: string): Promise<string> {
         try {
             if (this.isProduction) {
-                // return await this.keyVaultService.getSecret(keyName);
+                return await this.keyVaultService.getSecret(keyName);
             } else {
                 return this.configService.getOrThrow<string>(keyName);
             }

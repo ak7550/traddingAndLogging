@@ -5,6 +5,7 @@ import { CredentialModule } from "./credential/credential.module";
 import { UserModule } from "./user/user.module";
 
 @Module({
-    imports: [BrokerModule, DematModule, CredentialModule, UserModule]
+    imports: [BrokerModule, DematModule, CredentialModule, UserModule],
+    exports: [BrokerModule, DematModule, CredentialModule, UserModule]
 })
 export class EntityModule {}

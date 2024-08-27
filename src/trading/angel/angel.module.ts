@@ -7,12 +7,11 @@ import AngelService from "./angel.service";
 import AxiosFactory from "./axios-factory.service";
 import AngelRequestHandler from "./request-handler.service";
 import AngelScheduler from "./scheduler.service";
+import { EntityModule } from "src/entities/entity.module";
 
 @Module({
     imports: [
-        CredentialModule,
-        DematModule,
-        BrokerModule
+        EntityModule
     ],
     // providers are the classes that can be Injected into this module.
     providers: [ AngelService, AngelScheduler, AngelRequestHandler, AxiosFactory, Logger],

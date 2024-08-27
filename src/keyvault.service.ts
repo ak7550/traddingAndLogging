@@ -10,7 +10,7 @@ export class KeyVaultService {
 
     constructor(private readonly configService: ConfigService) {
         this.secretClient = new SecretClient(
-            this.configService.getOrThrow<string>("AZURE_KEY_VAULT_URL"),
+            this.configService.getOrThrow<string>("AZURE_KEY_VAULT_URL"), 
             new DefaultAzureCredential(),
         );
     }

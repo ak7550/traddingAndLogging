@@ -1,13 +1,14 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
-import { DataSource } from "typeorm";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { DataBaseModule } from "./database/database.module";
-import { SheetModule } from "./sheet/sheet.module";
-import TradingModule from "./trading/trading.module";
 import { EntityModule } from "./entities/entity.module";
+import { SheetModule } from "./sheet/sheet.module";
+import { VaultModule } from './vault/vault.module';
+import TradingModule from "./trading/trading.module";
+import { KeyVaultService } from "./keyvault.service";
 
 @Module({
     imports: [
@@ -20,10 +21,11 @@ import { EntityModule } from "./entities/entity.module";
         TradingModule,
         ScheduleModule.forRoot(),
         DataBaseModule,
-        EntityModule
+        EntityModule,
+        VaultModule
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, KeyVaultService],
 })
 export class AppModule {
 }

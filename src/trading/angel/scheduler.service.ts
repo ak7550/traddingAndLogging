@@ -61,7 +61,7 @@ export default class AngelScheduler {
                         jwtToken.keyValue,
                         strategies
                     );
-            }))
+            }));
 
             orderResponses.forEach(this.logger.log);
 

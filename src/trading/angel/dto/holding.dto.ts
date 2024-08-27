@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ExchangeType } from '../../common/globalConstants.constant';
+import { ExchangeType } from '../../../common/globalConstants.constant';
 
 
 /**
