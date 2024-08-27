@@ -9,7 +9,7 @@ import {
 import { AngelConstant } from "src/trading/angel/config/angel.constant";
 import GlobalConstant from "src/common/globalConstants.constant";
 import TradingFactoryService from "src/trading/trading-factory.service";
-import StockInfoDTO from "./dtos/stock-info.dto";
+import HoldingInfoDTO from "./dtos/holding-info.dto";
 import TradingInterface from "./interfaces/trading.interface";
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
@@ -26,7 +26,7 @@ export default class TradingController {
             new DefaultValuePipe(AngelConstant.brokerName)
         )
         broker: string
-    ): Promise<StockInfoDTO[]> {
+    ): Promise<HoldingInfoDTO[]> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
         return await tradingService.getAllHoldings("");

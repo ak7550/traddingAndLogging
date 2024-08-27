@@ -1,6 +1,6 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
-import StockInfoDTO from "src/trading/dtos/stock-info.dto";
+import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
@@ -28,12 +28,12 @@ export default class DhaanService implements TradingInterface {
         accessToken: string
     ): Promise<OrderResponseDTO[]> {
         try {
-            const stockInfos: StockInfoDTO[] =
+            const stockInfos: HoldingInfoDTO[] =
                 await this.getAllHoldings(accessToken);
 
             //TODO
             const orderResponses: Promise<any>[] = stockInfos.map(
-                async (stockInfo: StockInfoDTO): Promise<any> => {
+                async (stockInfo: HoldingInfoDTO): Promise<any> => {
                     const response: OhlcDTO =
                         await this.requestHandler.execute<OhlcDTO>(
                             DhaanConstants.historicalDataRoute,
@@ -65,7 +65,7 @@ export default class DhaanService implements TradingInterface {
         return await null;
     }
 
-    public async getAllHoldings(accessToken: string): Promise<StockInfoDTO[]> {
+    public async getAllHoldings(accessToken: string): Promise<HoldingInfoDTO[]> {
         try {
             this.logger.log("Inside getAllHoldings method", DhaanService.name);
 
@@ -77,10 +77,10 @@ export default class DhaanService implements TradingInterface {
                     ApiType.nonTrading
                 );
 
-            const stockInfos: StockInfoDTO[] = response.map(
-                (dhaanHoldingData: DhaanHoldingDTO): StockInfoDTO =>
-                    plainToClass<StockInfoDTO, DhaanHoldingDTO>(
-                        StockInfoDTO,
+            const stockInfos: HoldingInfoDTO[] = response.map(
+                (dhaanHoldingData: DhaanHoldingDTO): HoldingInfoDTO =>
+                    plainToClass<HoldingInfoDTO, DhaanHoldingDTO>(
+                        HoldingInfoDTO,
                         dhaanHoldingData,
                         { excludeExtraneousValues: true }
                     )
@@ -89,7 +89,7 @@ export default class DhaanService implements TradingInterface {
             this.logger.log("converted into stockInfo: ", stockInfos);
             this.logger.log(
                 "trying to convert a single one: ",
-                plainToClass(StockInfoDTO, response[0])
+                plainToClass(HoldingInfoDTO, response[0])
             );
 
             return stockInfos;
