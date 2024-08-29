@@ -10,6 +10,8 @@ import { DematAccount } from "../demat/entities/demat-account.entity";
 import { User } from "./entities/user.entity";
 import { UpdateCredentialDto } from "../credential/dto/update-credential.dto";
 import { IntegratedBroker } from "src/common/globalConstants.constant";
+import UpdateUserDto from "./dto/update-user.dto";
+import { classToPlain, instanceToPlain } from "class-transformer";
 
 @Injectable()
 export class UserService {
@@ -83,12 +85,23 @@ export class UserService {
         return `This action returns all credential`;
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} credential`;
+    async findOne(id: number) {
+        return await this.entityManager.findOneBy(User, {
+            id
+        })
     }
 
-    update(id: number, updateCredentialDto: UpdateCredentialDto) {
-        return `This action updates a #${id} credential`;
+    //TODO: remove any from here
+    async update(id: number, updateUserDto: UpdateUserDto):Promise<any> {
+        return await this.entityManager.findOneBy(User, {
+            id
+        }).then((user: User) => {
+            user.panCardNumber = updateUserDto?.panCardNumber;
+            user.password = updateUserDto?.password;
+            user.address = updateUserDto?.address;
+            return this.entityManager.save(user);
+        })
+        // .then((user: User) => instanceToPlain(user));
     }
 
     remove(id: number) {

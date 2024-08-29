@@ -54,4 +54,13 @@ export class Credential extends AbstractEntity<Credential> {
     setUpdatedAt() {
         this.updatedAt = new Date();
     }
+
+    toJSON() {
+        return {
+            keyName: this.keyName,
+            keyValue: this.keyValue,
+            id: this.id,
+            demat: this.account
+        }
+    }
 }

@@ -114,4 +114,10 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         default: 0
     })
     totalFund: number;
+
+    toJSON() {
+        return {
+            message: 'toJSON has not been implemented in demat entity'
+        }
+    }
 }

@@ -1,4 +1,3 @@
 import { CreateCredentialDto } from "./create-credential.dto";
 
-export class UpdateCredentialDto extends CreateCredentialDto {
-}
+export default class GetCredential extends CreateCredentialDto{}

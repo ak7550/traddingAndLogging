@@ -20,9 +20,12 @@ export class DematService {
     });
 }
 
-  findOne(id: number) : DematAccount {
-    return null;
-     `This action returns a #${id} demat`;
+  async findOne(id: number) : Promise<DematAccount> {
+    return await this.entityManager.findOne(DematAccount, {
+      where: {
+        id
+      }
+    });
   }
 
   update(id: number, updateDematDto: UpdateDematDto) {

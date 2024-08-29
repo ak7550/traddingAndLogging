@@ -1,8 +1,5 @@
 import * as crypto from "crypto";
-import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
-import Strategy, { OrderDetails } from "./strategies";
-import _ from "lodash";
-import { getEmaValue, getRSI } from "./strategy-util";
+import { constant } from "lodash";
 
 
 //TODO ==> implement actual methods, that will fetch these data
@@ -20,8 +17,7 @@ export const encryptData = ( data: string, saltType: SaltType ): string => {
     const ivBuffer: Buffer = Buffer.from( iv, "hex" );
 
     const cipher = crypto.createCipheriv(algorithm, keyBuffer, ivBuffer);
-    let encrypted = cipher.update(data);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    const encrypted: Buffer = Buffer.concat([cipher.update(data, 'utf8'), cipher.final()]);
     return encrypted.toString("hex");
 }
 
@@ -35,5 +31,5 @@ export const decryptData = ( encryptedMessage: string, saltType: SaltType ): str
     const decipher = crypto.createDecipheriv(algorithm, keyBuffer, ivBuffer);
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+    return decrypted.toString('utf8');
 }

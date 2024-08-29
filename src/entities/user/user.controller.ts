@@ -1,23 +1,20 @@
 import {
     Body,
     Controller,
-    Delete,
     Get,
     Headers,
     HttpException,
     HttpStatus,
     Param,
     Post,
-    Req,
+    Put,
+    Req
 } from "@nestjs/common";
 import { HttpStatusCode } from "axios";
 import { Request } from "express";
-import CreateBrokerDto from "../broker/dto/create-broker.dto";
-import { CreateCredentialDto } from "../credential/dto/create-credential.dto";
-import CreateDematAccountDto from "../demat/dto/create-demat-account.dto";
 import CreateUserDto from "./dto/create-user.dto";
+import UpdateUserDto from "./dto/update-user.dto";
 import { UserService } from "./user.service";
-import { DematAccount } from "../demat/entities/demat-account.entity";
 
 @Controller("user")
 export class UserController {
@@ -37,7 +34,16 @@ export class UserController {
         }
     }
 
-    
+    @Get(':id')
+    async getUser(@Param('id') id:number) {
+        return await this.userService.findOne(id);
+    }
+
+    @Put(':id')
+    async updateUser(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto): Promise<HttpStatus>{
+       await this.userService.update(id, updateUserDto);
+       return  HttpStatus.ACCEPTED;
+    }
 
     @Get("ping")
     ping(): string {

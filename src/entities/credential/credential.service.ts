@@ -11,6 +11,11 @@ import { DematService } from '../demat/demat.service';
 
 @Injectable()
 export class CredentialService {
+    async getAll() {
+       return await this.entityManager.find(Credential, {
+        
+       });
+    }
     constructor(private readonly entityManager: EntityManager, 
         private readonly logger: Logger = new Logger(CredentialService.name),
         private readonly dematService: DematService
@@ -51,12 +56,7 @@ export class CredentialService {
     ): Promise<void> {
         try {
             this.logger.log(`Inside createCredential method`);
-            const account: DematAccount = await this.entityManager.findOneBy(
-                DematAccount,
-                {
-                    id: createCredentialDto.dematAccountId,
-                },
-            );
+            const account: DematAccount = await this.dematService.findOne(createCredentialDto.dematAccountId);
 
             let credential: Credential = await this.findCredential(account, createCredentialDto.keyName,);
 
@@ -83,52 +83,20 @@ export class CredentialService {
 
     //_ when it comes on updating a cred, things that we will be having => userid / user_detail (pancard), broker_name, key_name
     async updateCredential(
+        id: number,
         updateCredentialDto: UpdateCredentialDto,
-    ): Promise<void> {
+    ): Promise<Credential> {
         try {
             this.logger.log(`Inside updateCredential method`);
-
-            let user: User;
-            const {
-                userId: uId,
-                panCardNumber,
-                brokerName,
-                keyName,
-                keyValue,
-            } = updateCredentialDto;
-
-            if (uId == undefined) {
-                user = await this.entityManager.findOneBy(User, {
-                    panCardNumber,
-                });
-            } else {
-                user = await this.entityManager.findOneBy(User, {
-                    id: uId,
-                });
-            }
-
-            const broker: Broker = await this.entityManager.findOneBy(Broker, {
-                name: brokerName,
-            });
-
-            const demat: DematAccount = await this.entityManager.findOneBy(
-                DematAccount,
-                {
-                    user,
-                    broker,
-                },
-            );
-
-            const credential: Credential = await this.entityManager.findOneBy(
-                Credential,
-                {
-                    account: demat,
-                    keyName,
-                },
-            );
-
-            credential.keyValue = keyValue;
-            await this.entityManager.save(credential);
+            return await Promise.all([this.entityManager.findOneBy(Credential, {
+                id
+            }), this.entityManager.findOneBy(DematAccount, {id: updateCredentialDto.dematAccountId})])
+            .then( ([credential, demat] ) => {
+                credential.keyName = updateCredentialDto?.keyName;
+                credential.keyValue = updateCredentialDto?.keyValue;
+                credential.account = demat;
+                return this.entityManager.save(credential);
+            })
         } catch (error) {
             this.logger.error(
                 `error occured while saving new broker info`,

@@ -38,7 +38,8 @@ export class User extends AbstractEntity<User> {
 
     @Column( {
         nullable: true, // make it false in prod
-        name: "address"
+        name: "address",
+        length: 400
     } )
     private _address: string;
 
@@ -60,6 +61,14 @@ export class User extends AbstractEntity<User> {
     }
     public set password ( value: string ) {
         this._password = encryptData(value, "user");
+    }
+
+    toJSON(){
+        return {
+            id: this.id, 
+            passwrd: this.password,
+            pancard: this.panCardNumber
+        }
     }
 
     // @ManyToMany(() => Broker, broker => broker.name, { cascade: true })
