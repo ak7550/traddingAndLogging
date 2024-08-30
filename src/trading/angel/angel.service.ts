@@ -1,17 +1,19 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import Strategy, { OrderDetails } from "src/common/strategies";
+import { getStopLoss } from "src/common/strategy-util";
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import OrderResponseDTO from "src/trading/dtos/order.response.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { AngelConstant, ApiType } from "./config/angel.constant";
-import { mapToOrderResponseDTO } from "./config/angel.utils";
+import { mapToHoldingDTO, mapToOrderResponseDTO } from "./config/angel.utils";
 import AngelHoldingDTO from "./dto/holding.dto";
 import { AngelOHLCHistoricalType } from "./dto/ohlc.historical.reponse.dto";
 import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
 import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
-import { getBaseStopLoss, getStopLoss } from "src/common/strategy-util";
+import HoldingInfoDTO from "../dtos/holding-info.dto";
+import { instanceToPlain, plainToClass, plainToInstance } from "class-transformer";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -192,15 +194,13 @@ export default class AngelService implements TradingInterface {
 
     async getAllHoldings(jwtToken: string): Promise<AngelHoldingDTO[]> {
         try {
-            const orderResponse: AngelHoldingDTO[] =
-                await this.requestHandler.execute(
+            return await this.requestHandler.execute(
                     AngelConstant.HOLDING_ROUTE,
                     RequestMethod.GET,
                     null,
                     ApiType.others,
                     jwtToken
                 );
-            return orderResponse;
         } catch (error) {
             this.logger.error(
                 `${AngelService.name}:${this.getAllHoldings.name} error occured while fetching holding information.`,

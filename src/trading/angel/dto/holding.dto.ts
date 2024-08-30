@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ExchangeType } from '../../../common/globalConstants.constant';
+import { IsAlphanumeric, IsNotEmpty } from "class-validator";
+import { Exclude } from "class-transformer";
 
 
 /**
@@ -16,6 +18,10 @@ export default class AngelHoldingDTO {
         description: "Name of the stock.",
         examples: ["IDFC-EQ", "VENUSPIPES-EQ"],
     })
+    @IsAlphanumeric()
+    @IsNotEmpty({
+        message: "Trading symbol should not be empty",
+    })
     tradingsymbol: string;
 
     @ApiProperty({
@@ -29,13 +35,7 @@ export default class AngelHoldingDTO {
     @ApiProperty( {
         type: Number,
     } )
-    private _t1quantity: number;
-    public get t1quantity (): number {
-        return this._t1quantity;
-    }
-    public set t1quantity ( value: number ) {
-        this._t1quantity = value;
-    }
+    t1quantity: number;
 
     realisedquantity: number;
 
@@ -55,13 +55,7 @@ export default class AngelHoldingDTO {
 
     ltp: number;
 
-    private _symboltoken: string;
-    public get symboltoken (): string {
-        return this._symboltoken;
-    }
-    public set symboltoken ( value: string ) {
-        this._symboltoken = value;
-    }
+    symboltoken: string;
 
     close: number;
 

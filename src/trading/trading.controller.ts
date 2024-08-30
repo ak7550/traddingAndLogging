@@ -16,6 +16,8 @@ import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
 import { DematService } from "src/entities/demat/demat.service";
 import { CredentialService } from "src/entities/credential/credential.service";
 import { Credential } from "src/entities/credential/credential.entity";
+import AngelHoldingDTO from "./angel/dto/holding.dto";
+import { mapToHoldingDTO } from "./angel/config/angel.utils";
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
@@ -40,6 +42,7 @@ export default class TradingController {
         return await this.dematService.findOne(dematAccountId)
         .then((demat: DematAccount) => this.credentialService.findCredential(demat, AngelConstant.JWT_TOKEN))
         .then((accessToken: Credential) => tradingService.getAllHoldings(accessToken.keyValue))
+        .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO))
     }
 
     @Put("update-credentials")
