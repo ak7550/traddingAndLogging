@@ -13,20 +13,30 @@ import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
 import HoldingInfoDTO from "../dtos/holding-info.dto";
-import { instanceToPlain, plainToClass, plainToInstance } from "class-transformer";
+import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
+import { CredentialService } from "src/entities/credential/credential.service";
+import { Credential } from "src/entities/credential/credential.entity";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
     constructor(
         private readonly requestHandler: AngelRequestHandler,
-        private readonly logger: Logger = new Logger(AngelService.name)
-    ) {}
+        private readonly logger: Logger = new Logger(AngelService.name),
+        private readonly credentialService: CredentialService
+    ) { }
+
+    async placeStopLossOrders(demat: DematAccount, strategies: Strategy[]): Promise<OrderResponseDTO[]> {
+        return await this.credentialService.findCredential(
+            demat,
+            AngelConstant.JWT_TOKEN
+        ).then((jwtToken: Credential) => this._placeStopLossOrders(jwtToken.keyValue, strategies));
+    }
 
     /**
      * this method fetches all the holdings in current portoflio and sets trailing stoploss order for each one of them
      * @returns {OrderResponseDTO[]} an array of all the order responnses
      */
-    async placeStopLossOrders(
+    private async _placeStopLossOrders(
         jwtToken: string,
         strategies: Strategy[]
     ): Promise<OrderResponseDTO[]> {
@@ -35,9 +45,8 @@ export default class AngelService implements TradingInterface {
                 `${AngelService.name}:${this.placeStopLossOrders.name} method is called`
             );
 
-            const holdingStocks: AngelHoldingDTO[] = await this.getAllHoldings(jwtToken);
-
-            const settledResults: OrderResponseDTO[] = await this.processStocksAndPlaceStoplossOrder(holdingStocks, strategies);
+            const settledResults: OrderResponseDTO[] = await this._getAllHoldings(jwtToken)
+                .then((holdingStocks: HoldingInfoDTO[]) => this.processStocksAndPlaceStoplossOrder(holdingStocks, strategies));
 
             this.logger.log(
                 `${AngelService.name}:${this.placeStopLossOrders.name} placed sl order for all the holdings`
@@ -60,7 +69,7 @@ export default class AngelService implements TradingInterface {
      * @returns {PromiseSettledResult<OrderResponseDTO>[]} an array of orderResponseDTO after placing the orders
      */
     private async processStocksAndPlaceStoplossOrder(
-        holdingStocks: AngelHoldingDTO[],
+        holdingStocks: HoldingInfoDTO[],
         strategies: Strategy[]
     ): Promise<OrderResponseDTO[]> {
         const today: Date = new Date();
@@ -73,25 +82,25 @@ export default class AngelService implements TradingInterface {
         const promiseOfOrderResponse: Promise<OrderResponseDTO>[] = [];
         const orderResponses: OrderResponseDTO[] = [];
 
-        holdingStocks.forEach(async (stock: AngelHoldingDTO) => {
+        holdingStocks.forEach(async (stock: HoldingInfoDTO) => {
             try {
-                const historicalData: OhlcvDataDTO[] =
+                const orderDetail: OrderDetails[] =
                     await this.getHistoricalData(
                         stock,
                         fromDate,
                         today,
                         AngelConstant.ONE_DAY_INTERVAL
-                    );
+                    ).then((historicalData: OhlcvDataDTO[]) =>  getStopLoss(historicalData, strategies));
 
-                const orderDetail: OrderDetails[] = getStopLoss(historicalData, strategies);
+                
 
-                if(orderDetail == null || orderDetail.length == 0){
+                if (orderDetail == null || orderDetail.length == 0) {
                     this.logger.log(`None of the strategies are triggered for ${stock.tradingsymbol}`);
                     return;
                 }
 
                 // as we are calling this method from an array, we need to ensure the quantities
-                orderDetail.forEach( async (detail: OrderDetails) => promiseOfOrderResponse.push(this.placeStopLossOrder(stock, detail)));
+                orderDetail.forEach(async (detail: OrderDetails) => promiseOfOrderResponse.push(this.placeStopLossOrder(stock, detail)));
                 orderResponses.concat(await Promise.all(promiseOfOrderResponse));
             } catch (error) {
                 this.logger.error(
@@ -115,7 +124,7 @@ export default class AngelService implements TradingInterface {
      * @param _slOrderValues an array consisting the value of stopLoss and trigger prices
      */
     private async placeStopLossOrder(
-        _stock: AngelHoldingDTO,
+        _stock: HoldingInfoDTO,
         orderDetail: OrderDetails
     ): Promise<OrderResponseDTO> {
         let orderResponse: OrderResponseDTO = null;
@@ -124,7 +133,7 @@ export default class AngelService implements TradingInterface {
                 `Inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`
             );
             const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
-            orderRequestDTO.mapData(_stock,orderDetail);
+            orderRequestDTO.mapData(_stock, orderDetail);
 
             const response: AngelOrderResponseDTO =
                 await this.requestHandler.execute(
@@ -157,7 +166,7 @@ export default class AngelService implements TradingInterface {
     }
 
     private async getHistoricalData(
-        stock: AngelHoldingDTO,
+        stock: HoldingInfoDTO,
         fromDate: Date,
         toDate: Date,
         interval: string
@@ -165,42 +174,45 @@ export default class AngelService implements TradingInterface {
         const request: AngelOHLCHistoricalRequestDTO =
             new AngelOHLCHistoricalRequestDTO(
                 stock.exchange,
-                stock.symboltoken,
+                '', // symbolToken needs to be passed in case of angel historical api
                 interval,
                 fromDate.toISOString().slice(0, 16).replace("T", " "),
                 toDate.toISOString().slice(0, 16).replace("T", " ")
             );
 
-        const historicalData: AngelOHLCHistoricalType[] =
-            await this.requestHandler.execute(
+        
+            return await this.requestHandler.execute<AngelOHLCHistoricalType[]>(
                 AngelConstant.HISTORICAL_DATA_ROUTE,
                 RequestMethod.POST,
                 request,
                 ApiType.historical
-            );
-
-        return historicalData.map(
-            ([
-                timeStamp,
-                open,
-                high,
-                low,
-                close,
-                vol
-            ]: AngelOHLCHistoricalType): OhlcvDataDTO =>
-                new OhlcvDataDTO(timeStamp, open, high, low, close, vol)
-        );
+            ).then((historicalData : AngelOHLCHistoricalType[]) => historicalData.map(
+                ([
+                    timeStamp,
+                    open,
+                    high,
+                    low,
+                    close,
+                    vol
+                ]: AngelOHLCHistoricalType): OhlcvDataDTO =>
+                    new OhlcvDataDTO(timeStamp, open, high, low, close, vol)));
     }
 
-    async getAllHoldings(jwtToken: string): Promise<AngelHoldingDTO[]> {
+    async getAllHoldings(demat: DematAccount): Promise<HoldingInfoDTO[]> {
+        return await this.credentialService.findCredential(demat, AngelConstant.JWT_TOKEN)
+            .then((jwtToken: Credential) => this._getAllHoldings(jwtToken.keyValue));
+    }
+
+    private async _getAllHoldings(jwtToken: string): Promise<HoldingInfoDTO[]> {
         try {
-            return await this.requestHandler.execute(
-                    AngelConstant.HOLDING_ROUTE,
-                    RequestMethod.GET,
-                    null,
-                    ApiType.others,
-                    jwtToken
-                );
+            return await this.requestHandler.execute<AngelHoldingDTO[]>(
+                AngelConstant.HOLDING_ROUTE,
+                RequestMethod.GET,
+                null,
+                ApiType.others,
+                jwtToken
+            )
+                .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO))
         } catch (error) {
             this.logger.error(
                 `${AngelService.name}:${this.getAllHoldings.name} error occured while fetching holding information.`,

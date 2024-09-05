@@ -51,14 +51,8 @@ export default class AngelScheduler {
 
             const orderResponses :PromiseSettledResult<OrderResponseDTO[]>[] = await Promise.allSettled(
             dematAccounts.map(async (dematAccount: DematAccount) => {
-                const jwtToken: Credential =
-                    await this.credentialService.findCredential(
-                        dematAccount,
-                        AngelConstant.JWT_TOKEN
-                    );
-
                 return this.angelService.placeStopLossOrders(
-                        jwtToken.keyValue,
+                        dematAccount,
                         strategies
                     );
             }));

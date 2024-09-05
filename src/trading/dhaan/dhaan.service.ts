@@ -1,13 +1,15 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
+import Strategy from "src/common/strategies";
+import { getTrailingStopLoss } from "src/common/strategy-util";
+import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
 import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
+import OrderResponseDTO from "src/trading/dtos/order.response.dto";
 import TradingInterface from "src/trading/interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
 import OhlcDTO from "./dto/ohlc.dto";
 import DhaanRequestHandler from "./requestHandler.service";
-import OrderResponseDTO from "src/trading/dtos/order.response.dto";
-import { getTrailingStopLoss } from "src/common/strategy-util";
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
@@ -19,13 +21,17 @@ export default class DhaanService implements TradingInterface {
         throw new Error("Method not implemented.");
     }
 
+    async placeStopLossOrders(demat: DematAccount, strategy: Strategy[]): Promise<OrderResponseDTO[]> {
+        return null;
+    }
+
     //TODO
     /**
      * It checks the buying and current price of a particular stock, and figures out what should be the stoploss value for it, accordingly it places stoploss orders.
      * @returns
      */
-    async placeStopLossOrders(
-        accessToken: string
+    private async _placeStopLossOrders(
+        accessToken: string 
     ): Promise<OrderResponseDTO[]> {
         try {
             const stockInfos: HoldingInfoDTO[] =

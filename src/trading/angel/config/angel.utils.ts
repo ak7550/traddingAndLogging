@@ -10,7 +10,7 @@ import AngelOrderResponseDTO from "../dto/order.response.dto";
 //docs: https://medium.com/js-dojo/flexible-entities-with-class-transformer-7f4f0fc43289
 export const mapToOrderResponseDTO = (
     response: AngelOrderResponseDTO = null,
-    stock: AngelHoldingDTO,
+    stock: HoldingInfoDTO,
     orderRequestDTO: AngelOrderRequestDTO = null,
     error: unknown = null
 ): OrderResponseDTO => {

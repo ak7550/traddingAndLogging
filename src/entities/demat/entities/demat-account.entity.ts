@@ -13,7 +13,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     @JoinColumn({ name: "user_id", referencedColumnName: "id" })
     user: User;
 
-    @ManyToOne(() => Broker, broker => broker.name)
+    @ManyToOne(() => Broker, broker => broker.name, {eager: true})
     @JoinColumn({ name: "broker_name", referencedColumnName: "name" })
     broker: Broker;
 

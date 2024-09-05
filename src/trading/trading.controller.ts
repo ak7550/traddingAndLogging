@@ -18,6 +18,7 @@ import { CredentialService } from "src/entities/credential/credential.service";
 import { Credential } from "src/entities/credential/credential.entity";
 import AngelHoldingDTO from "./angel/dto/holding.dto";
 import { mapToHoldingDTO } from "./angel/config/angel.utils";
+import { Broker } from "src/entities/broker/entities/broker.entity";
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
@@ -25,24 +26,15 @@ export default class TradingController {
     constructor(
         private readonly tradingFactory: TradingFactoryService, // private readonly schedular: AngelScheduler,
         private readonly dematService: DematService,
-        private readonly credentialService: CredentialService
     ) {}
 
     @Get("holdings/:id")
     async getAllHoldings(
-        @Query(
-            GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName)
-        )
-        broker: string,
         @Param('id') dematAccountId: number
     ): Promise<HoldingInfoDTO[]> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(broker);
         return await this.dematService.findOne(dematAccountId)
-        .then((demat: DematAccount) => this.credentialService.findCredential(demat, AngelConstant.JWT_TOKEN))
-        .then((accessToken: Credential) => tradingService.getAllHoldings(accessToken.keyValue))
-        .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO))
+        .then((demat: DematAccount) => Promise.resolve(this.tradingFactory.getInstance(demat.broker.name)))
+        .then((tradingService: TradingInterface) => tradingService.getAllHoldings(demat))
     }
 
     @Put("update-credentials")
@@ -66,7 +58,7 @@ export default class TradingController {
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.placeStopLossOrders("", []);
+        return await tradingService.placeStopLossOrders(new DematAccount({}), []);
     }
 
     @Get("placeOrders")

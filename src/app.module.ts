@@ -9,6 +9,7 @@ import { SheetModule } from "./sheet/sheet.module";
 import { VaultModule } from './vault/vault.module';
 import TradingModule from "./trading/trading.module";
 import { KeyVaultService } from "./keyvault.service";
+import { StockDataModule } from './stock-data/stock-data.module';
 
 @Module({
     imports: [
@@ -22,7 +23,8 @@ import { KeyVaultService } from "./keyvault.service";
         ScheduleModule.forRoot(),
         DataBaseModule,
         EntityModule,
-        VaultModule
+        VaultModule,
+        StockDataModule
     ],
     controllers: [AppController],
     providers: [AppService, KeyVaultService],
