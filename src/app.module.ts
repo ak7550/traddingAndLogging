@@ -5,11 +5,11 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { DataBaseModule } from "./database/database.module";
 import { EntityModule } from "./entities/entity.module";
-import { SheetModule } from "./sheet/sheet.module";
-import { VaultModule } from './vault/vault.module';
-import TradingModule from "./trading/trading.module";
 import { KeyVaultService } from "./keyvault.service";
+import { SheetModule } from "./sheet/sheet.module";
 import { StockDataModule } from './stock-data/stock-data.module';
+import TradingModule from "./trading/trading.module";
+import { VaultModule } from './vault/vault.module';
 
 @Module({
     imports: [
