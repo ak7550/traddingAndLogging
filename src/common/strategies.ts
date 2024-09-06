@@ -1,7 +1,6 @@
 import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
 import { DurationType, OrderType, OrderVariety, ProductType, TransactionType } from "./globalConstants.constant";
 import { getCandleData, isGapUp, percentageChange } from "./strategy-util";
-import _ from "lodash";
 
 export interface MinifiedStrategy {
     name: string;

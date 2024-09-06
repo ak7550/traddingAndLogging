@@ -11,3 +11,6 @@ https://www.valentinog.com/blog/jest/
 
 NEST Project structure
 https://dev.to/smolinari/nestjs-and-project-structure-what-to-do-1223
+
+Redis info
+https://dev.to/fikkyman1/exploring-caching-with-nestjs-and-redis-56aj
