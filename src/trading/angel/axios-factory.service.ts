@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import axios, { AxiosInstance } from "axios";
 import axiosRateLimit from "axios-rate-limit";
-import GlobalConstant from "src/common/globalConstants.constant";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { ConfigService } from "@nestjs/config";
+import GlobalConstant from "../../common/globalConstants.constant";
 
 @Injectable()
 export default class AxiosFactory {

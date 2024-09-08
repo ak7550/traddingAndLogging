@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import AngelService from "src/trading/angel/angel.service";
-import { AngelConstant } from "src/trading/angel/config/angel.constant";
-import { DhaanConstants } from "src/trading/dhaan/config/dhaan.constant";
-import DhaanService from "src/trading/dhaan/dhaan.service";
-import TradingInterface from "src/trading/interfaces/trading.interface";
+import DhaanService from "./dhaan/dhaan.service";
+import AngelService from "./angel/angel.service";
+import TradingInterface from "./interfaces/trading.interface";
+import { DhaanConstants } from "./dhaan/config/dhaan.constant";
+import { AngelConstant } from "./angel/config/angel.constant";
 
 @Injectable()
 export default class TradingFactoryService {

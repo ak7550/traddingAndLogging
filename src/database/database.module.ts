@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Broker } from "src/entities/broker/entities/broker.entity";
-import { Credential } from "src/entities/credential/credential.entity";
-import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
-import { User } from "src/entities/user/entities/user.entity";
+import { Broker } from "../entities/broker/entities/broker.entity";
+import { Credential } from "../entities/credential/credential.entity";
+import { DematAccount } from "../entities/demat/entities/demat-account.entity";
+import { User } from "../entities/user/entities/user.entity";
 
 @Module({
     imports: [

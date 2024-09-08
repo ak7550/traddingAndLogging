@@ -1,6 +1,6 @@
-import { decryptData, encryptData } from "src/common/globalUtility.utility";
-import AbstractEntity from "src/database/abstract.entity";
 import { Column, Entity } from "typeorm";
+import { decryptData, encryptData } from "../../../common/globalUtility.utility";
+import AbstractEntity from "../../../database/abstract.entity";
 
 @Entity({
     name: "user",
@@ -65,7 +65,7 @@ export class User extends AbstractEntity<User> {
 
     toJSON(){
         return {
-            id: this.id, 
+            id: this.id,
             passwrd: this.password,
             pancard: this.panCardNumber
         }

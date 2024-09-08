@@ -1,9 +1,4 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import Strategy, { OrderDetails } from "src/common/strategies";
-import { getStopLoss } from "src/common/strategy-util";
-import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
-import OrderResponseDTO from "src/trading/dtos/order.response.dto";
-import TradingInterface from "src/trading/interfaces/trading.interface";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { mapToHoldingDTO, mapToOrderResponseDTO } from "./config/angel.utils";
 import AngelHoldingDTO from "./dto/holding.dto";
@@ -13,9 +8,14 @@ import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
 import HoldingInfoDTO from "../dtos/holding-info.dto";
-import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
-import { CredentialService } from "src/entities/credential/credential.service";
-import { Credential } from "src/entities/credential/credential.entity";
+import TradingInterface from "../interfaces/trading.interface";
+import { CredentialService } from "../../entities/credential/credential.service";
+import Strategy, { OrderDetails } from "../../common/strategies";
+import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
+import OrderResponseDTO from "../dtos/order.response.dto";
+import { Credential } from "../../entities/credential/credential.entity";
+import OhlcvDataDTO from "../dtos/ohlcv-data.dto";
+import { getStopLoss } from "../../common/strategy-util";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -23,13 +23,17 @@ export default class AngelService implements TradingInterface {
         private readonly requestHandler: AngelRequestHandler,
         private readonly logger: Logger = new Logger(AngelService.name),
         private readonly credentialService: CredentialService
-    ) { }
+    ) {}
 
-    async placeStopLossOrders(demat: DematAccount, strategies: Strategy[]): Promise<OrderResponseDTO[]> {
-        return await this.credentialService.findCredential(
-            demat,
-            AngelConstant.JWT_TOKEN
-        ).then((jwtToken: Credential) => this._placeStopLossOrders(jwtToken.keyValue, strategies));
+    async placeStopLossOrders(
+        demat: DematAccount,
+        strategies: Strategy[]
+    ): Promise<OrderResponseDTO[]> {
+        return await this.credentialService
+            .findCredential(demat, AngelConstant.AUTH_TOKEN)
+            .then((jwtToken: Credential) =>
+                this._placeStopLossOrders(jwtToken.keyValue, strategies)
+            );
     }
 
     /**
@@ -45,8 +49,14 @@ export default class AngelService implements TradingInterface {
                 `${AngelService.name}:${this.placeStopLossOrders.name} method is called`
             );
 
-            const settledResults: OrderResponseDTO[] = await this._getAllHoldings(jwtToken)
-                .then((holdingStocks: HoldingInfoDTO[]) => this.processStocksAndPlaceStoplossOrder(holdingStocks, strategies));
+            const settledResults: OrderResponseDTO[] =
+                await this._getAllHoldings(jwtToken).then(
+                    (holdingStocks: HoldingInfoDTO[]) =>
+                        this.processStocksAndPlaceStoplossOrder(
+                            holdingStocks,
+                            strategies
+                        )
+                );
 
             this.logger.log(
                 `${AngelService.name}:${this.placeStopLossOrders.name} placed sl order for all the holdings`
@@ -90,18 +100,26 @@ export default class AngelService implements TradingInterface {
                         fromDate,
                         today,
                         AngelConstant.ONE_DAY_INTERVAL
-                    ).then((historicalData: OhlcvDataDTO[]) =>  getStopLoss(historicalData, strategies));
-
-                
+                    ).then((historicalData: OhlcvDataDTO[]) =>
+                        getStopLoss(historicalData, strategies)
+                    );
 
                 if (orderDetail == null || orderDetail.length == 0) {
-                    this.logger.log(`None of the strategies are triggered for ${stock.tradingsymbol}`);
+                    this.logger.log(
+                        `None of the strategies are triggered for ${stock.tradingsymbol}`
+                    );
                     return;
                 }
 
                 // as we are calling this method from an array, we need to ensure the quantities
-                orderDetail.forEach(async (detail: OrderDetails) => promiseOfOrderResponse.push(this.placeStopLossOrder(stock, detail)));
-                orderResponses.concat(await Promise.all(promiseOfOrderResponse));
+                orderDetail.forEach(async (detail: OrderDetails) =>
+                    promiseOfOrderResponse.push(
+                        this.placeStopLossOrder(stock, detail)
+                    )
+                );
+                orderResponses.concat(
+                    await Promise.all(promiseOfOrderResponse)
+                );
             } catch (error) {
                 this.logger.error(
                     `error occured while dealing with ${stock.tradingsymbol}`,
@@ -132,7 +150,8 @@ export default class AngelService implements TradingInterface {
             this.logger.log(
                 `Inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`
             );
-            const orderRequestDTO: AngelOrderRequestDTO = new AngelOrderRequestDTO();
+            const orderRequestDTO: AngelOrderRequestDTO =
+                new AngelOrderRequestDTO();
             orderRequestDTO.mapData(_stock, orderDetail);
 
             const response: AngelOrderResponseDTO =
@@ -174,45 +193,53 @@ export default class AngelService implements TradingInterface {
         const request: AngelOHLCHistoricalRequestDTO =
             new AngelOHLCHistoricalRequestDTO(
                 stock.exchange,
-                '', // symbolToken needs to be passed in case of angel historical api
+                "", // symbolToken needs to be passed in case of angel historical api
                 interval,
                 fromDate.toISOString().slice(0, 16).replace("T", " "),
                 toDate.toISOString().slice(0, 16).replace("T", " ")
             );
 
-        
-            return await this.requestHandler.execute<AngelOHLCHistoricalType[]>(
+        return await this.requestHandler
+            .execute<AngelOHLCHistoricalType[]>(
                 AngelConstant.HISTORICAL_DATA_ROUTE,
                 RequestMethod.POST,
                 request,
                 ApiType.historical
-            ).then((historicalData : AngelOHLCHistoricalType[]) => historicalData.map(
-                ([
-                    timeStamp,
-                    open,
-                    high,
-                    low,
-                    close,
-                    vol
-                ]: AngelOHLCHistoricalType): OhlcvDataDTO =>
-                    new OhlcvDataDTO(timeStamp, open, high, low, close, vol)));
+            )
+            .then((historicalData: AngelOHLCHistoricalType[]) =>
+                historicalData.map(
+                    ([
+                        timeStamp,
+                        open,
+                        high,
+                        low,
+                        close,
+                        vol
+                    ]: AngelOHLCHistoricalType): OhlcvDataDTO =>
+                        new OhlcvDataDTO(timeStamp, open, high, low, close, vol)
+                )
+            );
     }
 
     async getAllHoldings(demat: DematAccount): Promise<HoldingInfoDTO[]> {
-        return await this.credentialService.findCredential(demat, AngelConstant.JWT_TOKEN)
-            .then((jwtToken: Credential) => this._getAllHoldings(jwtToken.keyValue));
+        return await this.credentialService
+            .findCredential(demat, AngelConstant.AUTH_TOKEN)
+            .then((jwtToken: Credential) =>
+                this._getAllHoldings(jwtToken.keyValue)
+            );
     }
 
     private async _getAllHoldings(jwtToken: string): Promise<HoldingInfoDTO[]> {
         try {
-            return await this.requestHandler.execute<AngelHoldingDTO[]>(
-                AngelConstant.HOLDING_ROUTE,
-                RequestMethod.GET,
-                null,
-                ApiType.others,
-                jwtToken
-            )
-                .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO))
+            return await this.requestHandler
+                .execute<AngelHoldingDTO[]>(
+                    AngelConstant.HOLDING_ROUTE,
+                    RequestMethod.GET,
+                    null,
+                    ApiType.others,
+                    jwtToken
+                )
+                .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO));
         } catch (error) {
             this.logger.error(
                 `${AngelService.name}:${this.getAllHoldings.name} error occured while fetching holding information.`,

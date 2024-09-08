@@ -29,7 +29,7 @@ export default class GlobalConstant {
     public static readonly afterMarketOrder = "afterMarketOrder";
     public static readonly FULFILLED = "fulfilled";
     public static readonly REJECTED = "rejected";
-    public static readonly REFRESH_TOKEN = "refreshToken";
+    public static readonly REFRESH_TOKEN = "refresh_token";
     public static readonly EXPIRES_AT: string = "expiresAt";
 }
 

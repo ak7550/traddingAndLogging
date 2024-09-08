@@ -1,6 +1,6 @@
-import { IntegratedBroker } from "src/common/globalConstants.constant";
-import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
-import OrderResponseDTO from "src/trading/dtos/order.response.dto";
+import { IntegratedBroker } from "../../../common/globalConstants.constant";
+import HoldingInfoDTO from "../../dtos/holding-info.dto";
+import OrderResponseDTO from "../../dtos/order.response.dto";
 import AngelHoldingDTO from "../dto/holding.dto";
 import AngelOrderRequestDTO from "../dto/order.request.dto";
 import AngelOrderResponseDTO from "../dto/order.response.dto";

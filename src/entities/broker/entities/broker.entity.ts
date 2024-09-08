@@ -1,8 +1,9 @@
-import { IntegratedBroker } from "src/common/globalConstants.constant";
+
 import {
     Entity,
     PrimaryColumn
 } from "typeorm";
+import { IntegratedBroker } from "../../../common/globalConstants.constant";
 
 @Entity({
     name: "broker",

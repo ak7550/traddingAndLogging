@@ -1,9 +1,8 @@
 
-import GlobalConstant, { DurationType, ExchangeType, OrderType, OrderVariety, ProductType, TransactionType } from 'src/common/globalConstants.constant';
-import AngelHoldingDTO from './holding.dto';
-import { OrderDetails } from 'src/common/strategies';
 import { isFunction } from 'rxjs/internal/util/isFunction';
+import GlobalConstant, { DurationType, ExchangeType, OrderType, OrderVariety, ProductType, TransactionType } from '../../../common/globalConstants.constant';
 import HoldingInfoDTO from 'src/trading/dtos/holding-info.dto';
+import { OrderDetails } from '../../../common/strategies';
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
 //TODO: implement builder design pattern
@@ -20,7 +19,7 @@ export default class AngelOrderRequestDTO {
 		this.duration = orderDetail.duration;
 		this.ordertag = `${ this.ordertype === GlobalConstant.STOP_LOSS_MARKET && "SL-M" } is placed for ${ stock.tradingsymbol } at ${ new Date() }`;
 		this.quantity = isFunction(orderDetail.quantity) ? orderDetail.quantity(stock.totalQty) : orderDetail.quantity;
-		
+
 		if ( this.ordertype == GlobalConstant.STOP_LOSS_MARKET ) {
 			// i am making it as a sl-m, as the stock should exit at market price
 			this.triggerprice = orderDetail?.triggerPrice.toFixed(2);

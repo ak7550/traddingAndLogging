@@ -1,15 +1,15 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
-import Strategy from "src/common/strategies";
-import { getTrailingStopLoss } from "src/common/strategy-util";
-import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
-import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
-import OrderResponseDTO from "src/trading/dtos/order.response.dto";
-import TradingInterface from "src/trading/interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
 import OhlcDTO from "./dto/ohlc.dto";
 import DhaanRequestHandler from "./requestHandler.service";
+import TradingInterface from "../interfaces/trading.interface";
+import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
+import Strategy from "../../common/strategies";
+import OrderResponseDTO from "../dtos/order.response.dto";
+import HoldingInfoDTO from "../dtos/holding-info.dto";
+import { getTrailingStopLoss } from "../../common/strategy-util";
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
@@ -31,7 +31,7 @@ export default class DhaanService implements TradingInterface {
      * @returns
      */
     private async _placeStopLossOrders(
-        accessToken: string 
+        accessToken: string
     ): Promise<OrderResponseDTO[]> {
         try {
             const stockInfos: HoldingInfoDTO[] =

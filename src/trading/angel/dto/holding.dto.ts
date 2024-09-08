@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ExchangeType } from '../../../common/globalConstants.constant';
 import { IsAlphanumeric, IsNotEmpty } from "class-validator";
-import { Exclude } from "class-transformer";
+import { ExchangeType } from '../../../common/globalConstants.constant';
 
 
 /**

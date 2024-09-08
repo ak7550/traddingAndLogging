@@ -1,7 +1,7 @@
 import { Controller, Param, Put } from '@nestjs/common';
-import { DematService } from 'src/entities/demat/demat.service';
-import { DematAccount } from 'src/entities/demat/entities/demat-account.entity';
 import AngelScheduler from './scheduler.service';
+import { DematService } from '../../entities/demat/demat.service';
+import { DematAccount } from '../../entities/demat/entities/demat-account.entity';
 
 @Controller('angel')
 export class AngelController {

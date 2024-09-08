@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { BrokerService } from './broker.service';
-import { IntegratedBroker } from 'src/common/globalConstants.constant';
 import { HttpStatusCode } from 'axios';
 import CreateBrokerDto from './dto/create-broker.dto';
+import { IntegratedBroker } from '../../common/globalConstants.constant';
 
 @Controller('broker')
 export class BrokerController {

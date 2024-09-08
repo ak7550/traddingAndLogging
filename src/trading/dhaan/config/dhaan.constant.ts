@@ -1,4 +1,5 @@
-import { IntegratedBroker } from "src/common/globalConstants.constant";
+import { IntegratedBroker } from "../../../common/globalConstants.constant";
+
 
 export class DhaanConstants {
     public static readonly ACCESS_TOKEN: string = "access-token";

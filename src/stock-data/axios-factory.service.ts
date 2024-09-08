@@ -12,7 +12,7 @@ export class AxiosFactoryService {
     constructor (
         private readonly configService: ConfigService
     ) {
-        this.historicalApi = this.getAxiosInstanceByMaxRPS(3);
+        this.historicalApi = this.getAxiosInstanceByMaxRPS(10);
     }
 
     public getAxiosInstanceByApiType(apiType: ApiType): AxiosInstance {

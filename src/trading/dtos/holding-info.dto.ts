@@ -1,8 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Exclude, Expose, Type } from "class-transformer";
+import { Exclude, Expose } from "class-transformer";
 import { Min } from "class-validator";
 import StockInfoDTO from "./stock-info.dto";
-import { ExchangeType, IntegratedBroker } from "src/common/globalConstants.constant";
+import { ExchangeType, IntegratedBroker } from "../../common/globalConstants.constant";
+
 
 /**
  * docs: [class-validator, class-transformer stackoverflow](https://stackoverflow.com/questions/69084933/nestjs-dto-class-set-class-validator-and-class-transformer-execution-order)

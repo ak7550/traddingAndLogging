@@ -1,5 +1,3 @@
-import { decryptData, encryptData } from "src/common/globalUtility.utility";
-import AbstractEntity from "src/database/abstract.entity";
 import {
     BeforeInsert,
     BeforeUpdate,
@@ -9,6 +7,8 @@ import {
     ManyToOne
 } from "typeorm";
 import { DematAccount } from "../demat/entities/demat-account.entity";
+import { decryptData, encryptData } from "../../common/globalUtility.utility";
+import AbstractEntity from "../../database/abstract.entity";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
 @Entity("credential")
