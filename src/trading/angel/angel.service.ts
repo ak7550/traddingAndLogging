@@ -184,6 +184,14 @@ export default class AngelService implements TradingInterface {
         return orderResponse;
     }
 
+
+    private async getAnotherHistoricalData (
+        stock: HoldingInfoDTO,
+    ) {
+
+    }
+
+
     private async getHistoricalData(
         stock: HoldingInfoDTO,
         fromDate: Date,

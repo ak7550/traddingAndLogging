@@ -13,7 +13,7 @@ export class OhlcvDataDTO{
     isOpenHigh: boolean;
     isWholeBody: boolean;
     timeStamp: string; // this will hold the data of the candle time, in ISO format. Tells u when exactly this candle was made.
-    candleType: 'DOJI' | 'DRAGON-FLY-DOJI' | 'HAMMER' | 'PIN-BAR' | 'MARUBOZU';
+    candleType?: 'DOJI' | 'DRAGON-FLY-DOJI' | 'HAMMER' | 'PIN-BAR' | 'MARUBOZU';
 
     //TODO: apply a criteria to find the what is the candle type (doji, dragonfly-doji, hammer, pin bar, whole-body)
 
