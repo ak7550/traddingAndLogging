@@ -44,4 +44,5 @@ export type DurationType = "DAY" | "IOC";
 export enum IntegratedBroker {
     Angel = "angel",
     Dhaan = "dhaan",
+    Fyers = "fyers"
 }

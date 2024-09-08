@@ -12,7 +12,8 @@ export class AxiosFactoryService {
     constructor (
         private readonly configService: ConfigService
     ) {
-        this.historicalApi = this.getAxiosInstanceByMaxRPS(10);
+        this.historicalApi = this.getAxiosInstanceByMaxRPS( 3 );
+        // The user will be blocked for the rest of the day if the per minute rate limit is exceeded more than 3 times in the day. -> fyers v3 docs
     }
 
     public getAxiosInstanceByApiType(apiType: ApiType): AxiosInstance {

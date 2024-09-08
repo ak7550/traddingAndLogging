@@ -4,16 +4,26 @@ import { DematAccount } from './entities/demat-account.entity';
 import { Broker } from '../broker/entities/broker.entity';
 import { EntityManager } from 'typeorm';
 import CreateDematAccountDto from './dto/create-demat-account.dto';
+import { UserService } from '../user/user.service';
+import { BrokerService } from '../broker/broker.service';
 
 @Injectable()
 export class DematService {
-  constructor(private readonly entityManager: EntityManager){}
+  constructor ( private readonly entityManager: EntityManager,
+    private readonly userService: UserService,
+    private readonly brokerService: BrokerService
+  ){}
 
-  async create(createDematDto: CreateDematAccountDto): Promise<string> {
-    return 'This action adds a new demat';
+  async create ( createDematDto: CreateDematAccountDto ): Promise<CreateDematAccountDto> {
+    await Promise.all( [this.userService.findOne( createDematDto.userId ), this.brokerService.findOne( createDematDto.dematAccount )] )
+      .then( ( [ user, broker ] ) => this.entityManager.save( new DematAccount( {
+        user,
+        broker
+      } ) ) );
+    return createDematDto;
   }
 
-  
+
   async findAll(broker: Broker): Promise<DematAccount[]> {
     return await this.entityManager.findBy(DematAccount, {
         broker,
