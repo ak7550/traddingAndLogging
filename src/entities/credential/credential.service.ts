@@ -1,22 +1,19 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatusCode } from 'axios';
 import { EntityManager } from 'typeorm';
-import { CreateCredentialDto } from './dto/create-credential.dto';
+import { DematService } from '../demat/demat.service';
 import { DematAccount } from '../demat/entities/demat-account.entity';
 import { Credential } from './credential.entity';
-import { HttpStatusCode } from 'axios';
+import { CreateCredentialDto } from './dto/create-credential.dto';
 import { UpdateCredentialDto } from './dto/update-credential.dto';
-import { User } from '../user/entities/user.entity';
-import { Broker } from '../broker/entities/broker.entity';
-import { DematService } from '../demat/demat.service';
 
 @Injectable()
 export class CredentialService {
     async getAll() {
-       return await this.entityManager.find(Credential, {
-        
-       });
+       return await this.entityManager.find(Credential, {});
     }
-    constructor(private readonly entityManager: EntityManager, 
+
+    constructor(private readonly entityManager: EntityManager,
         private readonly logger: Logger = new Logger(CredentialService.name),
         private readonly dematService: DematService
     ){}
@@ -27,6 +24,11 @@ export class CredentialService {
         return await this.entityManager.delete(Credential, {
             account
         });
+    }
+
+    async findCredentialByDematId ( id: number, keyName: string ) : Promise<Credential>{
+        return await this.dematService.findOne( id )
+            .then( ( demat: DematAccount ) => this.findCredential( demat, keyName ) );
     }
 
     async findCredential(

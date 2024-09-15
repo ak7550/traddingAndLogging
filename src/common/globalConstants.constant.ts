@@ -3,9 +3,11 @@ export default class GlobalConstant {
     public static readonly CONTENT_TYPE: string = "Content-Type";
     public static readonly GET = "get";
     public static readonly POST = "post";
+    public static readonly Authorization: string = "Authorization";
+    public static readonly ACCESS_TOKEN: string = "access_token";
     public static readonly dhaanHistoricalDataRoute = "/charts/historical";
     public static readonly dhaanOrderRoute = "/orders";
-    public static readonly dhaanDateFormat = "YYYY-MM-DD";
+    public static readonly dateFormat = "YYYY-MM-DD";
     public static readonly NSE_EQ = "NSE_EQ";
     public static readonly dhaanExchangeSegment = "exchangeSegment";
     public static readonly instrument = "instrument";

@@ -14,8 +14,8 @@ import Strategy, { OrderDetails } from "../../common/strategies";
 import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
 import OrderResponseDTO from "../dtos/order.response.dto";
 import { Credential } from "../../entities/credential/credential.entity";
-import OhlcvDataDTO from "../dtos/ohlcv-data.dto";
 import { getStopLoss } from "../../common/strategy-util";
+import { OhlcvDataDTO } from "../../stock-data/entities/stock-data.entity";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -224,7 +224,7 @@ export default class AngelService implements TradingInterface {
                         close,
                         vol
                     ]: AngelOHLCHistoricalType): OhlcvDataDTO =>
-                        new OhlcvDataDTO(timeStamp, open, high, low, close, vol)
+                        new OhlcvDataDTO(Number.parseInt(timeStamp), open, high, low, close, vol)
                 )
             );
     }

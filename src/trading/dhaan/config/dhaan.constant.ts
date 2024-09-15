@@ -2,7 +2,6 @@ import { IntegratedBroker } from "../../../common/globalConstants.constant";
 
 
 export class DhaanConstants {
-    public static readonly ACCESS_TOKEN: string = "access-token";
     public static readonly holdingDataRoute: string = "/holdings";
     public static readonly historicalDataRoute: string = "/charts/historical";
     //TODO: i want to deploy the code-base by any way

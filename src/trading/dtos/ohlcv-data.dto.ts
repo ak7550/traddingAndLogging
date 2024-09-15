@@ -1,4 +1,4 @@
-export default class OhlcvDataDTO{
+class OhlcvDataDTO{
     open: number;
     high: number;
     low: number;

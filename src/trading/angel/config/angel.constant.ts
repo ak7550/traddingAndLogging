@@ -2,7 +2,6 @@ import { IntegratedBroker } from "../../../common/globalConstants.constant";
 
 export class AngelConstant {
     public static readonly brokerName: string = IntegratedBroker.Angel;
-    public static readonly ACCESS_TOKEN: string = "Authorization";
     public static readonly X_USER_TYPE: string = "X-UserType";
     public static readonly USER: string = "USER";
     public static readonly X_SOURCE_ID: string = "X-SourceID";
@@ -16,11 +15,9 @@ export class AngelConstant {
     public static readonly FEED_TOKEN: string = "feed_token";
 
     public static readonly HOLDING_ROUTE: string = "/portfolio/v1/getHolding";
-    public static readonly HISTORICAL_DATA_ROUTE: string =
-        "/historical/v1/getCandleData";
+    public static readonly HISTORICAL_DATA_ROUTE: string ="/historical/v1/getCandleData";
     public static readonly ORDER_PLACE_ROUTE: string = "/order/v1/placeOrder";
-    public static readonly GENERATE_TOKEN_ROUTE: string =
-        "/auth/angelbroking/jwt/v1/generateTokens";
+    public static readonly GENERATE_TOKEN_ROUTE: string = "/auth/angelbroking/jwt/v1/generateTokens";
 }
 
 export enum ApiType {

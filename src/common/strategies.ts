@@ -1,4 +1,4 @@
-import OhlcvDataDTO from "src/trading/dtos/ohlcv-data.dto";
+import { OhlcvDataDTO } from "../stock-data/entities/stock-data.entity";
 import { DurationType, OrderType, OrderVariety, ProductType, TransactionType } from "./globalConstants.constant";
 import { getCandleData, isGapUp, percentageChange } from "./strategy-util";
 

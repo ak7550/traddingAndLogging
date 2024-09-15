@@ -1,13 +1,14 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-import { Observable, catchError, firstValueFrom, from } from "rxjs";
-import AxiosFactory from "./axios-factory.service";
-import { AngelConstant, ApiType } from "./config/angel.constant";
-import AngelAPIResponse from "./dto/generic.response.dto";
-import GenerateTokenDto from "./dto/generate-token.request.dto.";
-import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import { Observable, catchError, firstValueFrom, from } from "rxjs";
+import GlobalConstant from "../../common/globalConstants.constant";
+import AxiosFactory from "./axios-factory.service";
+import { ApiType } from "./config/angel.constant";
+import GenerateTokenDto from "./dto/generate-token.request.dto.";
+import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
+import AngelAPIResponse from "./dto/generic.response.dto";
 
 @Injectable()
 export default class AngelRequestHandler {
@@ -46,7 +47,7 @@ export default class AngelRequestHandler {
                 case RequestMethod.GET:
                     promise = http.get<AngelAPIResponse<Type>>(route, {
                         headers: {
-                            [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                            [GlobalConstant.Authorization]: `Bearer ${jwtToken}`,
                         },
                     });
                     break;
@@ -56,7 +57,7 @@ export default class AngelRequestHandler {
                         requestBody,
                         {
                             headers: {
-                                [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                                [GlobalConstant.Authorization]: `Bearer ${jwtToken}`,
                             },
                         },
                     );
@@ -115,7 +116,7 @@ export default class AngelRequestHandler {
             > = await http.post(this.configService.getOrThrow<string>("ANGEL_REFRESH_TOKEN_URL"), request,
                 {
                     headers: {
-                        [AngelConstant.ACCESS_TOKEN]: `Bearer ${jwtToken}`,
+                        [GlobalConstant.Authorization]: `Bearer ${jwtToken}`,
                     },
                 },);
 

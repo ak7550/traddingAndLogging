@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Logger } from '@nestjs/common';
-import { StockDataService } from './stock-data.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateStockDatumDto } from './dto/create-stock-datum.dto';
 import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+import { StockInfoHistorical } from './entities/stock-data.entity';
+import { StockDataService } from './stock-data.service';
 
 @Controller('stock-data')
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 export class StockDataController {
   constructor(
     private readonly stockDataService: StockDataService,
@@ -26,6 +26,11 @@ export class StockDataController {
     //TODO: write here, i will pass the stock name, ex: NSE:SBI-EQ
     // expectation is, service is pull all the data and map it to the expected dto format
     return this.stockDataService.findOne(id);
+  }
+
+  @Get( '/historical/:stockName' )
+  async getHistoricalData ( @Param( 'stockName' ) stockName: string ): Promise<StockInfoHistorical> {
+    return await this.stockDataService.getHistoricalData( stockName );
   }
 
   @Patch(':id')

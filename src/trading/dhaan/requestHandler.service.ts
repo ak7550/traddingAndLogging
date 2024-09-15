@@ -17,7 +17,7 @@ class AxiosFactory {
             axios.create({
                 baseURL: this.configService.getOrThrow<string>("DHAAN_BASE_URL"),
                 headers: {
-                    [DhaanConstants.ACCESS_TOKEN]:
+                    [GlobalConstant.ACCESS_TOKEN]:
                         this.configService.getOrThrow<string>("DHAAN_ACCESS_TOKEN"),
                     [GlobalConstant.CONTENT_TYPE]:
                         GlobalConstant.APPLICATION_JSON, // not necessary though
