@@ -1,6 +1,9 @@
 import _ from 'lodash';
-import { OhlcvDataDTO } from '../stock-data/entities/stock-data.entity';
-import Strategy, { OrderDetails } from "./strategies";
+import { OhlcvDataDTO } from '../stock-data/entities/stock-data.entity.js';
+import Strategy, { OrderDetails } from "./strategies.js";
+import {BollingerBands, EMA, RSI, VWAP} from 'technicalindicators';
+import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands.js';
+
 
 export const isGapUp = (ohlcdata: OhlcvDataDTO[], candle: number): boolean => {
     const high: number = getCandleData(ohlcdata, candle + 1, "high"),
@@ -16,80 +19,23 @@ export const getCandleData = (ohlc: OhlcvDataDTO[], index: number, data: CandleP
     ohlc[ohlc.length - index][data];
 
 /**
- * todo: not working as expected
  * method that helps to find the RSI value from historical data
- * docs: [technical analysis with R](https://bookdown.org/kochiuyu/technical-analysis-with-r-second-edition/relative-strength-index-rsi.html)
  * @param period length of rsi
  * @param historicalData array of historical ohlc data
  * @returns array of consequtive rsi values
  */
 export const getRSI = ( period: number, data: OhlcvDataDTO[], candleData: CandlePropertyType = 'close' ): number[] => {
     const historicalData: number[] = data.flatMap( d => d[ candleData ] );
-    const N: number = historicalData.length;
-    const U: number[] = new Array(N).fill(0);
-    const D: number[] = new Array(N).fill(0);
-    const rsi: number[] = new Array( N ).fill( NaN );
-    const Lprice: number[] = historicalData.map((_, i) => (i > 0 ? historicalData[i - 1] : NaN));
-
-    for (let i = 2; i < N; i++) {
-        if (historicalData[i] >= Lprice[i - 1]) {
-            U[i] = 1;
-        } else {
-            D[i] = 1;
-        }
-
-        if (i > period) {
-            const AvgUp: number = U.slice( i - period + 1, i + 1 )
-                .reduce((sum, val) => sum + val,0) / period;
-
-            const AvgDn: number = D.slice( i - period + 1, i + 1 )
-                .reduce( ( sum, val ) => sum + val, 0 ) / period;
-
-            rsi[i] = (AvgUp / (AvgUp + AvgDn)) * 100;
-        }
-    }
-
-    console.table( rsi );
+    const rsi: number[] = RSI.calculate( { period, values: historicalData } ); // ultimate data, do not change
     return rsi.reverse();
 };
-
-// Helper function to lag the prices (shift array by 1 position)
-function lag(price: number[]): number[] {
-  const lagged = [NaN, ...price.slice(0, price.length - 1)];
-  return lagged;
-}
-//todo: this method is not giving accurate RSI value
-export function myRSI ( n: number, data: OhlcvDataDTO[], candleData: CandlePropertyType = 'close' ): number[] {
-    const price: number[] = data.flatMap( d => d[ candleData ] );
-  const N = price.length;
-  const U = new Array(N).fill(0); // Ups
-  const D = new Array(N).fill(0); // Downs
-  const rsi = new Array(N).fill(null); // RSI initialized with null (equivalent to NA in R)
-  const Lprice = lag(price); // Lagged price
-
-  for (let i = 1; i < N; i++) {
-    if (price[i] >= Lprice[i]) {
-      U[i] = 1;
-    } else {
-      D[i] = 1;
-    }
-
-    if (i >= n) {
-      const AvgUp = U.slice(i - n + 1, i + 1).reduce((acc, val) => acc + val, 0) / n;
-      const AvgDn = D.slice(i - n + 1, i + 1).reduce((acc, val) => acc + val, 0) / n;
-
-      rsi[i] = AvgUp / (AvgUp + AvgDn) * 100; // RSI calculation
-    }
-  }
-
-  return rsi.reverse();
-}
 
 /**
  * this method is responsible to find the ema value from the historical data
  * docs: [Technical analysis with R](https://bookdown.org/kochiuyu/technical-analysis-with-r-second-edition/exponential-moving-average-ema.html)
  * @param emaLength the actual length of EMA indicator
  * @param historicalData an array of historicalData objects, contains the details related to ohlc volume
+ * @param CandlePropertyType which candle property needs to be taken to calculate the value of this indicator, @default close
  * @returns ema value of last day as per the emalength
  */
 export const getEmaValue = (
@@ -109,10 +55,9 @@ export const getEmaValue = (
     const beta: number = 2 / (emaLength + 1);
 
     // Calculate EMA for the remaining values
-    for (let i = emaLength; i < historicalData.length; i++) {
-        ema[i] = beta * historicalData[i] + (1 - beta) * ema[i - 1];
+    for ( let i = emaLength; i < historicalData.length; i++ ) {
+        ema[ i ] = beta * historicalData[ i ] + ( 1 - beta ) * ema[ i - 1 ];
     }
-    console.log(`ema is: ${ema}`);
 
     return ema.reverse();
 };
@@ -134,6 +79,12 @@ export const getVwap = ( data: OhlcvDataDTO[] ): number[] => {
         vwapArray.push(vwap);
     }
 
+    const vwapPack: number[] = VWAP.calculate( {
+        close: _.flatMap(data, "close"),
+        high: _.flatMap(data, "high"),
+        low: _.flatMap(data, "low"),
+        volume: _.flatMap(data, "volume")
+    })
     return vwapArray.reverse();
 }
 
@@ -232,61 +183,22 @@ function calculateSMA(price: number[], n: number): (number | null)[] {
   return sma.reverse();
 }
 
-function std(window: number[]): number {
-  const avg = _.mean(window);
-
-  const variance = window.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / window.length;
-
-  return Math.sqrt(variance); // Standard deviation is the square root of the variance
-}
-
-// Function to calculate rolling standard deviation
-function calculateRollingStd(price: number[], windowSize: number): number[] {
-  let sdev = [];
-  for (let i = 0; i < price.length; i++) {
-    if (i < windowSize - 1) {
-      sdev.push(NaN); // Not enough data to calculate standard deviation
-    } else {
-      const window = price.slice(i - windowSize + 1, i + 1);
-      sdev.push(std(window)); // Standard deviation of the window
-    }
-  }
-  return sdev;
-}
-
-export type BollingerBandData = {
-    bbUpper: number[];
-    bbLower: number[];
-    bbMA: number[];
-    bbPercentage: number[]
+export type BollingerBand = {
+    bbUpper: number;
+    bbLower: number;
+    bbMA: number;
+    bbPercentage: number
 }
 // Function to calculate Bollinger Bands
-export function getBollingerBandData ( ohlc: OhlcvDataDTO[], dataType: CandlePropertyType = 'close', n: number = 13, sd: number = 2 ): BollingerBandData {
-    const price: number[] = ohlc.flatMap(d => d[dataType])
-  const mavg = calculateSMA(price, n); // Simple moving average
-  const sdev = calculateRollingStd(price, n); // Rolling standard deviation
+export function getBollingerBandData ( ohlc: OhlcvDataDTO[], dataType: CandlePropertyType = 'close', n: number = 13, sd: number = 2 ): BollingerBand[] {
+    const bbPackage: BollingerBandsOutput[] = BollingerBands.calculate( { period: n, stdDev: sd, values: _.flatMap( ohlc, "close" ) } );
 
-  const up: number[] = [];
-  const dn: number[] = [];
-  const pctB: number[] = [];
-
-  for (let i = 0; i < price.length; i++) {
-    if (isNaN(mavg[i]) || isNaN(sdev[i])) {
-      up.push(NaN);
-      dn.push(NaN);
-      pctB.push(NaN);
-    } else {
-      up.push(mavg[i] + sd * sdev[i]); // Upper band
-      dn.push(mavg[i] - sd * sdev[i]); // Lower band
-      pctB.push((price[i] - dn[i]) / (up[i] - dn[i])); // %B calculation
-    }
-  }
-
-  // Return results as an object
-  return {
-    bbLower: dn.reverse(),
-    bbMA: mavg.reverse(),
-    bbUpper: up.reverse(),
-    bbPercentage: pctB.reverse()
+    return bbPackage.reverse().map( ( {lower, middle, pb, upper }: BollingerBandsOutput ): BollingerBand => {
+        return {
+            bbUpper: upper,
+            bbPercentage: pb,
+            bbLower: lower,
+            bbMA: middle
+        }
+    });
   };
-}

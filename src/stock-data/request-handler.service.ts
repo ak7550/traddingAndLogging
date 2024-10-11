@@ -67,7 +67,7 @@ export class RequestHandlerService {
       } );
   }
 
-  async getData ( stockName: string, resolution: Resolution, rangeTo: string, rangeFrom: string ) :Promise<FyersHistoricalDataDTO[]> {
+  async getData ( stockName: string, resolution: Resolution, rangeFrom: string, rangeTo: string ) :Promise<FyersHistoricalDataDTO[]> {
     const route: string = `https://api-t1.fyers.in/data/history?symbol=${ stockName }&resolution=${ resolution }&date_format=1&range_from=${ rangeFrom }&range_to=${ rangeTo }&oi_flag=1`;
     const fyersAppId: string = this.configService.getOrThrow<string>('FYERS_APP_ID');
     const accessToken: string = await this.getAccessToken();

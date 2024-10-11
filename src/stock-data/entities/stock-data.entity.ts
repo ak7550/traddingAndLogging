@@ -1,5 +1,7 @@
 import moment from "moment";
-import { BollingerBandData, getBollingerBandData, getEmaValue, getRSI, getVwap, myRSI } from '../../common/strategy-util';
+import { BollingerBand, getBollingerBandData, getEmaValue, getRSI, getVwap } from '../../common/strategy-util';
+import _ from "lodash";
+
 export class OhlcvDataDTO{
     open: number;
     high: number;
@@ -47,15 +49,15 @@ export class TimeWiseData {
     ema51: number[];
     ema200?: number[];
     rsi: number[];
-    vwap: number[];
-    bbData: BollingerBandData;
+    vwap?: number[];
+    bbData: BollingerBand[];
 
     constructor ( c: OhlcvDataDTO[] ) {
         this.candleInfo = c;
         this.ema9 = getEmaValue( 9, c );
         this.ema21 = getEmaValue( 21, c );
         this.ema51 = getEmaValue( 51, c );
-        this.rsi = myRSI( 14, c );
+        this.rsi = getRSI( 14, c );
         this.vwap = getVwap( c );
         this.bbData = getBollingerBandData( c, 'close' );
     }
@@ -77,3 +79,12 @@ export interface StockInfoMarket {
     fifteenMinutes: TimeWiseData;
     oneHour: TimeWiseData;
 }
+
+export const composeDailyData = ( data: OhlcvDataDTO[] ): OhlcvDataDTO => {
+    const { timeStamp, open } = _.minBy( data, 'timeStamp' );
+    const close: number = _.maxBy( data, 'timeStamp' ).close;
+    const volume: number = _.sumBy( data, 'volume' );
+    const high: number = _.maxBy( data, "high" ).high;
+    const low: number = _.minBy( data, 'low' ).low;
+    return new OhlcvDataDTO( timeStamp, open, high, low, close, volume );
+};

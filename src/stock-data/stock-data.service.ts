@@ -3,9 +3,12 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import moment from 'moment';
 import { CreateStockDatumDto } from './dto/create-stock-datum.dto';
 import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
-import { OhlcvDataDTO, StockInfoHistorical, TimeWiseData } from './entities/stock-data.entity';
+import { composeDailyData, OhlcvDataDTO, StockInfoHistorical, TimeWiseData } from './entities/stock-data.entity';
 import { RequestHandlerService } from './request-handler.service';
 import { FyersHistoricalDataDTO } from './dto/fyers-historical-response.dto';
+import ThreeWhiteSoldiers from 'technicalindicators/declarations/candlestick/ThreeWhiteSoldiers';
+import { mapToHoldingDTO } from '../trading/angel/config/angel.utils';
+import _, { constant } from 'lodash';
 
 @Injectable()
 export class StockDataService {
@@ -23,21 +26,50 @@ export class StockDataService {
 
   /**
    * this method will get the tiem wise data individually and create the ultimate response
+   * to get monthly indicator values, we will pull out daily data from last 4 years and then calculate monthly indicator values
+   * Fyers is providing daily data of last 366 days in a single api call
    */
   private async _getHistoricalData ( stockName: string, instance: StockDataService ): Promise<StockInfoHistorical>{
-    const dailyData: Promise<FyersHistoricalDataDTO[]> = instance.requestHandler.getData( stockName, '1D',
-      moment().format( 'YYYY-MM-DD' ),
-      moment().subtract( 100, 'days' ).format( 'YYYY-MM-DD' ) );
+    const today = moment();
+    const oneYrBefore = moment(today).subtract( 365, 'days' );
+    const twoYrBefore = moment(oneYrBefore).subtract( 366, 'days' );
+    const threeYrBefore = moment(twoYrBefore).subtract( 366, 'days' );
+    const fourYrBefore = moment(threeYrBefore).subtract( 366, 'days' );
 
-    //todo: think how can we get monthly and weekly candle information
-    return await Promise.all([dailyData])
-      .then( ([dailyOHLCData]) => {
-        const dailyOHLCV: OhlcvDataDTO[] = dailyOHLCData.map(
+    const last1yrData: Promise<FyersHistoricalDataDTO[]> = instance.requestHandler.getData( stockName, '1D',
+      oneYrBefore.format( 'YYYY-MM-DD' ), today.format( 'YYYY-MM-DD' ));
+
+    const last2yrData: Promise<FyersHistoricalDataDTO[]> = instance.requestHandler.getData( stockName, '1D',
+      twoYrBefore.format( 'YYYY-MM-DD' ), oneYrBefore.subtract(1, 'day').format( 'YYYY-MM-DD' ));
+
+    const last3yrData: Promise<FyersHistoricalDataDTO[]> = instance.requestHandler.getData( stockName, '1D',
+      threeYrBefore.format('YYYY-MM-DD'), twoYrBefore.subtract(1, 'day').format('YYYY-MM-DD'));
+
+    const last4yrData: Promise<FyersHistoricalDataDTO[]> = instance.requestHandler.getData( stockName, '1D',
+      fourYrBefore.format('YYYY-MM-DD'), threeYrBefore.subtract(1, 'day').format('YYYY-MM-DD'));
+
+    return await Promise.all([last1yrData, last2yrData, last3yrData, last4yrData])
+      .then( ( [ oneYrData, twoYrData, threeYrData, fourYrData ] ) => {
+        const dailyOHLCV: OhlcvDataDTO[] = fourYrData.concat( threeYrData, twoYrData, oneYrData ).map(
           ( [ timestamp, open, high, low, close, volume ]: FyersHistoricalDataDTO ) =>
             new OhlcvDataDTO( timestamp, open, high, low, close, volume ) );
 
-        const dailyTimeWiseData: TimeWiseData = new TimeWiseData(dailyOHLCV);
-        const stockInfoHistorical: StockInfoHistorical = new StockInfoHistorical(dailyTimeWiseData);
+        const weeks: any = _.chain( dailyOHLCV )
+          .groupBy(
+            ( { timeStamp } ) => `${ moment.unix( timeStamp ).isoWeek() }-${ moment.unix( timeStamp ).year() }` )
+          .values()
+          .map(composeDailyData)
+          .value();
+
+        const months: OhlcvDataDTO[] = _.chain( dailyOHLCV )
+          .groupBy(
+            ( { timeStamp } ) => `${ moment.unix( timeStamp ).month() }-${ moment.unix( timeStamp ).year() }` )
+          .values()
+          .map(composeDailyData)
+          .value();
+
+        console.log( weeks );
+        const stockInfoHistorical: StockInfoHistorical = new StockInfoHistorical(new TimeWiseData(dailyOHLCV), new TimeWiseData(weeks), new TimeWiseData(months));
         return stockInfoHistorical;
       } );
   }
