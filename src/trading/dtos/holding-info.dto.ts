@@ -63,3 +63,5 @@ export default class HoldingInfoDTO extends StockInfoDTO{
     exchange: ExchangeType;
 }
 // what I am getting is exact dhaanr response, but this stockInfo should be independant of all the broker
+
+//TODO: 2 fields I need to add, timestamp of last time bought and timestamp of last time sold

@@ -35,7 +35,7 @@ export class OhlcvDataDTO{
         this.bodyPercentage = body * 100 / totalCandleSize;
         this.wickPercentage = Math.abs( this.high - Math.max( this.open, this.close ) ) * 100 / body;
         this.tailPercentage = Math.abs( this.low - Math.min( this.open, this.close ) ) * 100 / body;
-        this.isGreen = this.open <= this.close;
+        this.isGreen = this.open < this.close;
         this.isOpenHigh = this.open === this.high;
         this.isOpenLow = this.open === this.low;
         this.isWholeBody = this.bodyPercentage === 100;
@@ -65,19 +65,27 @@ export class TimeWiseData {
 
 export class StockInfoHistorical {
     oneDay: TimeWiseData;
-    oneWeek?: TimeWiseData;
-    oneMonth?: TimeWiseData;
-    constructor ( day: TimeWiseData, week?: TimeWiseData, month?: TimeWiseData ) {
+    oneWeek: TimeWiseData;
+    oneMonth: TimeWiseData;
+    constructor ( day: TimeWiseData, week: TimeWiseData, month: TimeWiseData ) {
         this.oneDay = day;
         this.oneWeek = week;
         this.oneMonth = month;
     }
 }
 
-export interface StockInfoMarket {
+export class StockInfoMarket {
     fiveMinutes: TimeWiseData;
     fifteenMinutes: TimeWiseData;
     oneHour: TimeWiseData;
+    dayCandle: OhlcvDataDTO
+
+    constructor( five: TimeWiseData, fifteen: TimeWiseData, oneHour: TimeWiseData){
+        this.fifteenMinutes = fifteen;
+        this.fiveMinutes = five;
+        this.oneHour = oneHour;
+        this.dayCandle = composeDailyData(this.fiveMinutes.candleInfo);
+    }
 }
 
 export const composeDailyData = ( data: OhlcvDataDTO[] ): OhlcvDataDTO => {

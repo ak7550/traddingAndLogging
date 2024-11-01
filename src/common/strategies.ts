@@ -1,11 +1,18 @@
-import { OhlcvDataDTO } from "../stock-data/entities/stock-data.entity";
+import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
+import { OhlcvDataDTO, StockInfoHistorical, StockInfoMarket } from "../stock-data/entities/stock-data.entity";
 import { DurationType, OrderType, OrderVariety, ProductType, TransactionType } from "./globalConstants.constant";
-import { getCandleData, isGapUp, percentageChange } from "./strategy-util";
+import { getCandleData, getEmaValue, isGapUp, percentageChange } from "./strategy-util";
 
 export interface MinifiedStrategy {
     name: string;
-    desc: string;
+    description: string;
     transactionType: TransactionType;
+}
+
+type FilterType = {
+    historical: StockInfoHistorical,
+    current: StockInfoMarket,
+    holdingDetails: HoldingInfoDTO
 }
 
 export interface OrderDetails extends MinifiedStrategy{
@@ -20,91 +27,213 @@ export interface OrderDetails extends MinifiedStrategy{
 
 export default interface Strategy extends OrderDetails {
     conditions: Array<{
-        filter: (ohlcData: OhlcvDataDTO[]) => boolean | number;
+        filter: (conditions: FilterType) => boolean | number;
         description: string;
     }>,
 
-    // deciding factor is to decide at which price, we need to set the order
-    decidingFactor: Function
+    // deciding factor is to decide at which price, we need to set the order, in case of LIMIT orders
+    decidingFactor?: (data: FilterType) => number
+    // If decidingFactor is undefined, just execute the trade at MARKET price. 
 }
 
-export const openHighSell: Strategy = {
+export const openHighSellClosingHour: Strategy = {
     name: "open high sell strategy",
-    desc: "Sell triggers when today's candle is red openhigh opens above previous day high",
+    description: "Sell triggers when there's a high volume candle. Candle body is big and become a selling candle after a good gap up.",
     transactionType: "SELL",
     quantity: totalQuantity => Math.floor(totalQuantity / 2), // I will sell half of my existing quantity
     conditions: [
         {
-            filter: (ohlc: OhlcvDataDTO[]): boolean => isGapUp(ohlc, 2),
-            description: `1. day ago open greater than 2 days ago high`
+            filter: ({current : { dayCandle }}) => dayCandle.close !== dayCandle.open,
+            description: 'Daily Close should not be equals to daily open'
         },
-
         {
-            filter: (ohlcData: OhlcvDataDTO[]): boolean => {
-                const low: number = getCandleData(ohlcData, 2, "low"), open: number = getCandleData(ohlcData, 2, "open");
-                return low !== open;
-            },
-            description: `2. 1 day ago low != 1 day age open`,
+            filter: ({current : { dayCandle }}) => !dayCandle.isOpenLow,
+            description: 'Daily candle should not be open low'
         },
-
         {
-            description: `3. 1 day age open greater than 2 days ago close`,
-            filter: (ohlc: OhlcvDataDTO[]): boolean => {
-                const length = ohlc.length;
-                return ohlc[length - 2].open > ohlc[length - 3].close;
-            },
+            filter: ({current : { dayCandle }}) => !dayCandle.isGreen,
+            description: 'Daily candle must be a red candle'
         },
-
         {
-            description: `4. 1 day ago open greater than 1 day ago close => red candle`,
-            filter: (ohlc: OhlcvDataDTO[]): boolean => !ohlc[ohlc.length - 2].isGreen,
+            filter: ({current : { dayCandle }, historical }) => getCandleData(historical.oneDay.candleInfo, 1, 'close') < dayCandle.open,
+            description: 'Daily open should be higher than previous day close'
         },
-
         {
-            description: `5. 1 day ago %change less than -0.5%`,
-            filter: (ohlc: OhlcvDataDTO[]): boolean => {
-                const previousClose: number = getCandleData(ohlc, 3, "close"), todayClose: number = getCandleData(ohlc, 2, "close");
-                const percentChange: number = percentageChange(
-                    todayClose,
-                    previousClose
-                );
-                return percentChange < -0.5;
-            }
+            filter: ({historical}) => historical.oneDay.rsi[0] > 55,
+            description: 'Daily RSI value needs to be more than 55'
         },
-
         {
-            description: `6. daily change is less than -0.5%`,
-            filter: (ohlc: OhlcvDataDTO[]): boolean => getCandleData(ohlc, 1, "bodyPercentage") > 0.5,
+            filter: ({historical}) => historical.oneWeek.rsi[0] > 60,
+            description: 'Weekly RSI value needs to be more than 60'
         },
-
         {
-            description: `7. daily close less than 1 day age close`,
-            filter: (ohlc: OhlcvDataDTO[]): boolean => {
-                const todayClose: number = getCandleData(ohlc, 1, "close");
-                const previousClose: number = getCandleData(ohlc, 2, "close");
-                return todayClose < previousClose;
-            }
+            filter: ({historical}) => historical.oneMonth.rsi[0] > 60,
+            description: 'Monthly RSI value needs to be more than 60'
+        },
+        {
+            filter: ({current : { dayCandle: {volume} }, historical}) => volume > getCandleData(historical.oneDay.candleInfo,1, 'volume') || volume > getEmaValue(10, historical.oneDay.candleInfo, 'volume')[0],
+            description: 'Daily volume should either be more than previous day volume or it should be higher than 10 day volume EMA'
+        },
+        {
+            filter: ({current : { dayCandle }}) => dayCandle.bodyPercentage > 51,
+            description: 'Daily candle\'s body should be more than 45% of the whole candle size.'
+        },
+        {
+            filter: ({current : { dayCandle }, historical: {oneDay: {candleInfo}}}) => percentageChange(dayCandle.open, getCandleData(candleInfo, 1, 'close')) > 2,
+            description: 'Daily candle\'s open should be more than 2% gap up from previous day close.'
+        },
+        {
+            filter: ({current: {dayCandle}, historical: {oneDay: {ema21}}}) => percentageChange(dayCandle.close, ema21[0]) > 5,
+            description: 'Daily candle\'s close shoudl be more than 5% than 21 EMA.'
         }
     ],
-
-    // deciding factor is when the price hits below half of 1st day candle
-    decidingFactor: (ohlc: OhlcvDataDTO[]) => {
-        const high = getCandleData(ohlc, 1, "high"), low = getCandleData(ohlc, 1, "low");
-        const sellingPoint = low + (high - low)/2;
-        return sellingPoint * 0.99; // 1% lower than the actual selling point
-    },
-
+    decidingFactor: undefined,
     orderType: "STOPLOSS_MARKET",
     productType: "DELIVERY",
     variety: "NORMAL",
     duration: "DAY"
 };
 
-// export const emaRetraceBuy: Strategy = {
+export const openHighSellMorning: Strategy = {
+    name: "Open high sell strategy for morning",
+    description: "Sell triggers if today's candle is open high and 1st 2 candles are consequtive red.",
+    transactionType: 'SELL',
+    quantity: totalQuantity => Math.floor(totalQuantity / 2), // I will sell half of my existing quantity
+    conditions: [
+        {
+            filter: ({historical}) => historical.oneDay.rsi[0] > 55,
+            description: 'Daily RSI value needs to be more than 55'
+        },
+        {
+            filter: ({historical}) => historical.oneWeek.rsi[0] > 60,
+            description: 'Weekly RSI value needs to be more than 60'
+        },
+        {
+            filter: ({historical}) => historical.oneMonth.rsi[0] > 60,
+            description: 'Monthly RSI value needs to be more than 60'
+        },
+        {
+            filter: ({historical, current}) => percentageChange(current.dayCandle.high, getCandleData(historical.oneDay.candleInfo, 1, 'close')) > 2,
+            description: 'today\'s open is 2% gap up than previous close'
+        },
+        {
+            filter: ({historical, current: {fiveMinutes: {candleInfo}}}) => percentageChange(getCandleData(candleInfo, 1, 'close'), historical.oneDay.ema9[0]) > 5,
+            description: 'Five min candle\'s close should be more than 5% of the 21 EMA'
+        },
+        {
+            filter: ({current: {fiveMinutes: { candleInfo }}}) => !candleInfo[candleInfo.length - 1].isGreen,
+            description: 'last 5 min candle needs be red candle'
+        },
+        {
+            filter: ({current: {fiveMinutes: {candleInfo}}}) => !candleInfo[candleInfo.length - 2].isGreen,
+            description: '2nd last 5 min candle needs be red candle'
+        },
+        {
+            filter: ({current: {fiveMinutes}}) => getCandleData(fiveMinutes.candleInfo, 1, 'close') < getCandleData(fiveMinutes.candleInfo, 2, 'close'),
+            description: 'Current closing should be lower than previous closing'
+        },
+        {
+            filter: ({current: {fiveMinutes}}) => getCandleData(fiveMinutes.candleInfo, 1, 'volume') > getCandleData(fiveMinutes.candleInfo, 2, 'volume'),
+            description: 'Current volume should be more than previous volume'
+        }
+    ],
+    decidingFactor: undefined,
+    orderType: "MARKET",
+    productType: "DELIVERY",
+    variety: "NORMAL",
+    duration: "DAY"
+}
 
-// }
+export const daily21EMARetestBuy : Strategy = {
+    name: '',
+    description: 'Add more and more stocks at daily 21 EMA, for an winning trade',
+    transactionType: "BUY",
+    quantity: q => Math.floor(q * 0.3), // will buy 30% of the existing stock
+    conditions: [
+        {
+            filter: ({holdingDetails: {percentagePnl}}) => percentagePnl > 4,
+            description: 'Stock should not be a lagard, total return should be more than 4%'
+        },
+        {
+            filter: ({current}) => current.dayCandle.isGreen,
+            description: 'Candle must be a green candle.'
+        },
+        {
+            filter: ({current: {dayCandle}}) => dayCandle.wickPercentage < 20,
+            description: 'Upside wick should not be more than 20% of the whole candle'
+        },
+        {
+            filter: ({historical: {oneDay: {ema21, candleInfo}}}) => percentageChange(getCandleData(candleInfo, 1, 'low'), ema21[0]) < 1,
+            description: 'Candle\'s low is in 1% range of the 21 EMA'
+        },
+        {
+            filter: ({current: {fiveMinutes: { candleInfo }}}) => candleInfo[candleInfo.length - 1].isGreen,
+            description: 'last 5 min candle needs be green candle'
+        },
+        {
+            filter: ({current: {fiveMinutes: {candleInfo}}}) => candleInfo[candleInfo.length - 2].isGreen,
+            description: '2nd last 5 min candle needs be green candle'
+        },
+        {
+            filter: ({current: {fiveMinutes}}) => getCandleData(fiveMinutes.candleInfo, 1, 'close') > getCandleData(fiveMinutes.candleInfo, 2, 'close'),
+            description: 'Current closing should be more than previous closing'
+        },
+    ],
+    decidingFactor: undefined,
+    orderType: "MARKET",
+    productType: "DELIVERY",
+    variety: "NORMAL",
+    duration: "DAY"
+}
 
 
-//TODO: define the proper strategies with proper conditions, try to optimise the code as much as possible, use function currying
+// this needs more research, some strong stocks are giving false SELL trigger
+export const dailyRSIBelow60: Strategy = {
+    name: 'Daily RSI is below 60',
+    description: 'SELL strategy when daily RSI is below 60 for consequtive 3 days.',
+    transactionType: 'SELL',
+    quantity: q => q, // sell 100% of the existing portfolio
+    conditions: [
+        {
+            filter: ({historical: {oneDay : {rsi}}}) => rsi[0] < 60 && rsi[1] < 60 && rsi[2] < 60,
+            description: 'RSI is below 60 for last 3 days'
+        },
+        {
+            filter: ({historical: {oneDay: {candleInfo, ema9}}}) => getCandleData(candleInfo, 1, 'close') < ema9[0],
+            description: 'previous day closing was below 9EMA'
+        },
+        {
+            filter: ({current, historical: {oneDay: {candleInfo}}}) => current.dayCandle.close < getCandleData(candleInfo, 1, 'close'),
+            description: 'today\'s closing is less than previous day close.'
+        }
+    ],
+    decidingFactor: undefined,
+    orderType: "MARKET",
+    productType: "DELIVERY",
+    variety: "NORMAL",
+    duration: "DAY"
+}
 
-//TODO: think how to traverse through all of the json codes work accordingly.
+
+//TODO: incomplete
+export const ageOldLoosingTrade: Strategy = {
+    conditions: [
+        {
+            filter: ({holdingDetails}) => holdingDetails.percentagePnl < 4,
+            description: 'Returns is less than 4%'
+        }
+        // need 1 more condition that says, what is the age of the trade, from when I am holding this trade.
+    ],
+    orderType: "MARKET",
+    productType: "DELIVERY",
+    variety: "NORMAL",
+    duration: "DAY",
+    quantity: q => q,
+    name: "AgeOldLoosing Trade",
+    description: "cutting down the age old looinsg trades, which are not giving returns for last 2 weeks.",
+    transactionType: "SELL"
+}
+
+// INTRADAY STRATEGY: 5min RSI >60, price above 21 ema 5mins, buy in every retest and hold till RSI comes below 60 or price comes below 21 EMA
+// this IDEA looks strong, if there's 51,21 crossover in 5 min chart.
+

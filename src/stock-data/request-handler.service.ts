@@ -53,6 +53,7 @@ export class RequestHandlerService {
     const fyersAppSecret = this.configService.getOrThrow<string>( 'FYERS_APP_SECRET' );
     const http: AxiosInstance = this.getAxiosInstanceByMaxRPS( 3 );
     const url: string = `https://api-t1.fyers.in/api/v3/validate-refresh-token`;
+    //TODO: direct dematAccountId is being passed here => not a good aproach.
     const refreshToken: Credential = await this.credentialService.findCredentialByDematId( 2, GlobalConstant.REFRESH_TOKEN );
     const pin: Credential = await this.credentialService.findCredentialByDematId( 2, 'pin' );
     const accessToken: Credential = await this.credentialService.findCredentialByDematId(2, GlobalConstant.ACCESS_TOKEN)
