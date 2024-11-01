@@ -1,7 +1,7 @@
 import { Injectable, Logger, RequestMethod } from "@nestjs/common";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { mapToHoldingDTO, mapToOrderResponseDTO } from "./config/angel.utils";
-import AngelHoldingDTO from "./dto/holding.dto";
+import AngelHoldingDTO from './dto/holding.dto';
 import { AngelOHLCHistoricalType } from "./dto/ohlc.historical.reponse.dto";
 import AngelOHLCHistoricalRequestDTO from "./dto/ohlc.historical.request.dto";
 import AngelOrderRequestDTO from "./dto/order.request.dto";
@@ -262,6 +262,14 @@ export default class AngelService implements TradingInterface {
     }
 
     async getHolding ( demat: DematAccount ): Promise<HoldingInfoDTO[]>{
-        return null;
+        return await this.credentialService.findCredential( demat, AngelConstant.AUTH_TOKEN )
+            .then(authToken => this.requestHandler.execute<AngelHoldingDTO[]>(
+                    AngelConstant.HOLDING_ROUTE,
+                    RequestMethod.GET,
+                    null,
+                    ApiType.others,
+                    authToken.keyValue
+            ))
+            .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO));
     }
 }

@@ -33,7 +33,7 @@ export default interface Strategy extends OrderDetails {
 
     // deciding factor is to decide at which price, we need to set the order, in case of LIMIT orders
     decidingFactor?: (data: FilterType) => number
-    // If decidingFactor is undefined, just execute the trade at MARKET price. 
+    // If decidingFactor is undefined, just execute the trade at MARKET price.
 }
 
 export const openHighSellClosingHour: Strategy = {
@@ -236,4 +236,3 @@ export const ageOldLoosingTrade: Strategy = {
 
 // INTRADAY STRATEGY: 5min RSI >60, price above 21 ema 5mins, buy in every retest and hold till RSI comes below 60 or price comes below 21 EMA
 // this IDEA looks strong, if there's 51,21 crossover in 5 min chart.
-
