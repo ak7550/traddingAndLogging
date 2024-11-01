@@ -5,9 +5,10 @@ import TradingFactoryService from "./trading-factory.service";
 import DhaanModule from "./dhaan/dhaan.module";
 import AngelModule from "./angel/angel.module";
 import { EntityModule } from "../entities/entity.module";
+import { TradingService } from './trading.service';
 
 @Module({
-    providers: [TradingFactoryService],
+    providers: [TradingFactoryService, TradingService],
     controllers: [TradingController],
     imports: [
         ConfigModule.forRoot({

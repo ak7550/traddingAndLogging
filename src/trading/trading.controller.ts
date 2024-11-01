@@ -14,22 +14,28 @@ import { DematService } from "../entities/demat/demat.service";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import GlobalConstant from "../common/globalConstants.constant";
 import { AngelConstant } from "./angel/config/angel.constant";
+import { TradingService } from './trading.service';
+import AngelService from './angel/angel.service';
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
 export default class TradingController {
     constructor(
-        private readonly tradingFactory: TradingFactoryService, // private readonly schedular: AngelScheduler,
+        private readonly tradingFactory: TradingFactoryService,
         private readonly dematService: DematService,
-    ) {}
+        private readonly tradingService: TradingService,
+        private readonly angelService: AngelService
+    ) { }
+
 
     @Get("holdings/:id")
+    @Get("holdings/user/:userId")
     async getAllHoldings(
-        @Param('id') dematAccountId: number
+        @Param( 'userId' ) userId: number,
+        @Query(GlobalConstant.BROKER)
+        broker: string
     ): Promise<HoldingInfoDTO[]> {
-        return await this.dematService.findOne(dematAccountId)
-        .then((demat: DematAccount) => Promise.resolve(this.tradingFactory.getInstance(demat.broker.name)))
-        .then((tradingService: TradingInterface) => tradingService.getAllHoldings(demat))
+        return await this.tradingService.getHoldings( userId, broker );
     }
 
     @Put("update-credentials")
@@ -43,6 +49,7 @@ export default class TradingController {
         return "hello";
     }
 
+    //TODO: REMOVE any from return type
     @Post("/orders/sl/daily")
     async placeDailyStopLossOrders(
         @Query(
@@ -53,9 +60,10 @@ export default class TradingController {
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.placeStopLossOrders(new DematAccount({}), []);
+        return await this.angelService.placeStopLossOrders(new DematAccount({}), []);
     }
 
+    //TODO: REMOVE any from return type
     @Get("placeOrders")
     async placeOrders(
         @Query(
@@ -66,9 +74,6 @@ export default class TradingController {
     ): Promise<any> {
         const tradingService: TradingInterface =
             this.tradingFactory.getInstance(broker);
-        return await tradingService.placeOrders("");
+        return await this.angelService.placeOrders("");
     }
-}
-function demat(value: DematAccount): DematAccount | PromiseLike<DematAccount> {
-    throw new Error("Function not implemented.");
 }

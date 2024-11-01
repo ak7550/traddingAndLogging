@@ -256,7 +256,12 @@ export default class AngelService implements TradingInterface {
         }
     }
 
+    //TODO: REMOVE any from return type
     placeOrders(jwtToken: string): Promise<any> {
         throw new Error("Method not implemented.");
+    }
+
+    async getHolding ( demat: DematAccount ): Promise<HoldingInfoDTO[]>{
+        return null;
     }
 }

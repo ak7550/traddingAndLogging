@@ -74,17 +74,15 @@ export default class AngelRequestHandler {
                     break;
             }
 
-            const observableRequest: Observable<AxiosResponse<any>> = from(
-                promise,
-            ).pipe(
+            const observableRequest: Observable<AxiosResponse<AngelAPIResponse<Type>>> = from( promise )
+            .pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error("error that we faced just now", error);
                     throw new Error("An error happened!");
                 }),
             );
 
-            const response: AxiosResponse<AngelAPIResponse<Type>> =
-                await firstValueFrom(observableRequest);
+            const response: AxiosResponse<AngelAPIResponse<Type>> = await firstValueFrom(observableRequest);
 
             this.logger.log(
                 `${AngelRequestHandler.name}: ${this.execute.name} => response received:

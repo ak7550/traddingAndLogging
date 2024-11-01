@@ -17,11 +17,16 @@ export default class DhaanService implements TradingInterface {
 
     constructor(private readonly requestHandler: DhaanRequestHandler) {}
 
+    //TODO: REMOVE any from return type
     async placeOrders(accessToken: string): Promise<any> {
         throw new Error("Method not implemented.");
     }
 
     async placeStopLossOrders(demat: DematAccount, strategy: Strategy[]): Promise<OrderResponseDTO[]> {
+        return null;
+    }
+
+    async getHolding ( demat: DematAccount ): Promise<HoldingInfoDTO[]>{
         return null;
     }
 
@@ -37,7 +42,7 @@ export default class DhaanService implements TradingInterface {
             const stockInfos: HoldingInfoDTO[] =
                 await this.getAllHoldings(accessToken);
 
-            //TODO
+            //TODO: REMOVE any from return type
             const orderResponses: Promise<any>[] = stockInfos.map(
                 async (stockInfo: HoldingInfoDTO): Promise<any> => {
                     const response: OhlcDTO =

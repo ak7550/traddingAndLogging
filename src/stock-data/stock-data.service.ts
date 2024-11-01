@@ -54,7 +54,7 @@ export class StockDataService {
           ( [ timestamp, open, high, low, close, volume ]: FyersHistoricalDataDTO ) =>
             new OhlcvDataDTO( timestamp, open, high, low, close, volume ) );
 
-        const weeks: any = _.chain( dailyOHLCV )
+        const weeks: OhlcvDataDTO[] = _.chain( dailyOHLCV )
           .groupBy(
             ( { timeStamp } ) => `${ moment.unix( timeStamp ).isoWeek() }-${ moment.unix( timeStamp ).year() }` )
           .values()

@@ -15,15 +15,19 @@ import { classToPlain, instanceToPlain } from "class-transformer";
 
 @Injectable()
 export class UserService {
-    async findDemat(id: number): Promise<DematAccount> {
-        return await this.entityManager.findOneBy(DematAccount, {id});
+    async findDemat(userId: number): Promise<DematAccount[]> {
+        this.logger.log( `Finding demat accounts associated with ${ userId }` );
+        return await this.entityManager.findOneBy( User, {
+            id: userId
+        } ).then( ( user: User ) => this.entityManager.findBy( DematAccount, {
+            user
+        } ) );
     }
 
     constructor(
         private readonly entityManager: EntityManager,
         private readonly logger: Logger = new Logger(UserService.name),
     ) {}
- 
 
     async createUser(createUserDTO: CreateUserDto): Promise<CreateUserDto> {
         try {
@@ -44,11 +48,7 @@ export class UserService {
         }
     }
 
-    
-
-    async createDemat(
-        createDematDto: CreateDematAccountDto,
-    ): Promise<CreateDematAccountDto> {
+    async createDemat(createDematDto: CreateDematAccountDto): Promise<CreateDematAccountDto> {
         try {
             this.logger.log(`Inside createDemat method`, JSON.stringify(createDematDto));
             const user: User = await this.entityManager.findOneBy(User, {
