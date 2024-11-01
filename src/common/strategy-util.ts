@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { OhlcvDataDTO } from '../stock-data/entities/stock-data.entity.js';
+import { OhlcvDataDTO, StockInfoHistorical } from '../stock-data/entities/stock-data.entity.js';
 import Strategy, { OrderDetails } from "./strategies.js";
 import {BollingerBands, EMA, RSI, VWAP} from 'technicalindicators';
 import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands.js';
@@ -132,7 +132,7 @@ export const getTrailingStopLoss = (
 
 //TODO
 export const getStopLoss = (
-    historicalData: OhlcvDataDTO[],
+    historicalData: StockInfoHistorical,
     strategies: Strategy[]
 ): OrderDetails[] => {
     const orderDetails: OrderDetails[] = [];
@@ -143,7 +143,7 @@ export const getStopLoss = (
         const { conditions, decidingFactor, ...rest } = strategy;
         for (let i2 = 0; i2 < conditions.length; i2++) {
             const {filter: method, description } = strategy.conditions[i2];
-            const result : number | boolean = method(historicalData);
+            const result : number | boolean = method(null);
             if(result == false){
                 applicable = false;
                 break;
@@ -158,7 +158,7 @@ export const getStopLoss = (
         if(applicable){
             orderDetails.push({
                 ...rest,
-                price: decidingFactor(historicalData, data)
+                price: decidingFactor(null)
             });
         }
     }
