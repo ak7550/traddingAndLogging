@@ -39,7 +39,7 @@ export default class AngelRequestHandler {
         jwtToken?: string
     ): Promise<Type> {
         try {
-            this.logger.log(
+            this.logger.verbose(
                 `Inside execute method: ${AngelRequestHandler.name}, route ${route}`
             );
             const http: AxiosInstance =
@@ -89,7 +89,7 @@ export default class AngelRequestHandler {
             const response: AxiosResponse<AngelAPIResponse<Type>> =
                 await firstValueFrom(observableRequest);
 
-            this.logger.log(
+            this.logger.verbose(
                 `${AngelRequestHandler.name}: ${this.execute.name} => response received:
                             ${response.data.data}`,
                 `route: ${route}`
@@ -107,7 +107,7 @@ export default class AngelRequestHandler {
         jwtToken: string
     ): Promise<GenerateTokenResponseDto> {
         try {
-            this.logger.log(
+            this.logger.verbose(
                 `Inside refreshToken method: ${AngelRequestHandler.name}, route ${request}`
             );
             const http: AxiosInstance =
@@ -127,7 +127,7 @@ export default class AngelRequestHandler {
                 }
             );
 
-            this.logger.log(
+            this.logger.verbose(
                 `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:
                             ${response.data.data}`,
                 `data: ${request}`
@@ -153,7 +153,7 @@ export default class AngelRequestHandler {
             message: "service is working well"
         });
 
-        this.logger.log(
+        this.logger.verbose(
             `response received from periodic webhook`,
             response.data
         );

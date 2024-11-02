@@ -44,7 +44,7 @@ export default class AngelScheduler {
     @Cron("15 10 8 * * 1-5")
     async updateCredentials(): Promise<void> {
         try {
-            this.logger.log(`Inside updateCredential method`);
+            this.logger.verbose(`Inside updateCredential method`);
             this.initiateBroker();
             const dematAccounts: DematAccount[] =
                 await this.dematService.findAll(this.broker);
@@ -55,7 +55,7 @@ export default class AngelScheduler {
                 );
 
             await Promise.allSettled(credentialPromise);
-            this.logger.log(
+            this.logger.verbose(
                 `All the credentials are refershed for ${this.broker.name}`
             );
         } catch (error) {
@@ -65,7 +65,10 @@ export default class AngelScheduler {
 
     async updateCredential(account: DematAccount): Promise<Credential[]> {
         try {
-            this.logger.log(`updating credentials for account`, `${account}`);
+            this.logger.verbose(
+                `updating credentials for account`,
+                `${account}`
+            );
             const credentials: Credential[] =
                 await this.credentialService.findAll(account);
 
@@ -119,7 +122,7 @@ export default class AngelScheduler {
             ];
             await this.credentialService.save(updatedCredentials);
 
-            this.logger.log(
+            this.logger.verbose(
                 `new credentials are saved successfully for`,
                 `${account}`
             );

@@ -170,7 +170,7 @@ export class StockDataService {
     ): Promise<T> {
         let value: T = await this.cacheManager.get(keyName);
         if (value !== undefined) {
-            this.logger.log(`found ${keyName} in cache`);
+            this.logger.verbose(`found ${keyName} in cache`);
             return value;
         }
         value = await method(keyName, this);

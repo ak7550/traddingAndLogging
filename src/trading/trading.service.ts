@@ -64,7 +64,7 @@ export class TradingService {
     async placeMorningSLOrders(): Promise<void> {
         const strategies: Strategy[] = [];
         await this.placeOrders(strategies).then(() =>
-            this.logger.log(`${_.map(strategies, "name")} are executed.`)
+            this.logger.verbose(`${_.map(strategies, "name")} are executed.`)
         );
     }
 
@@ -165,7 +165,7 @@ export class TradingService {
                     });
 
                     if (typeof answer === "boolean" && answer === false) {
-                        this.logger.log(
+                        this.logger.verbose(
                             `${description} is not satisfaied for ${holding.tradingsymbol}.This was a part of mustConditions, so breaking the loop.`
                         );
                         shouldProceed = false;
@@ -177,7 +177,7 @@ export class TradingService {
             }
 
             if (!shouldProceed) {
-                this.logger.log(
+                this.logger.verbose(
                     `MustConditions did not satisfy for ${holding.tradingsymbol}`
                 );
                 break;
@@ -199,7 +199,7 @@ export class TradingService {
                             if (typeof answer === "number" || answer) {
                                 acc.push(answer);
                             } else {
-                                this.logger.log(
+                                this.logger.verbose(
                                     `${description} did not satisfy for ${holding.tradingsymbol}`
                                 );
                             }
@@ -210,7 +210,7 @@ export class TradingService {
 
                 if (mightConditionsJunkAnswers.length < mightConditionLimit) {
                     shouldProceed = false;
-                    this.logger.log(
+                    this.logger.verbose(
                         `Only ${mightConditionsJunkAnswers.length} nnumber of conditions are satisfying, so can't proceed`
                     );
                     break;
@@ -218,7 +218,7 @@ export class TradingService {
             }
 
             if (shouldProceed) {
-                this.logger.log(
+                this.logger.verbose(
                     `Strategy ${name} is positive for ${holding.tradingsymbol} `
                 );
                 orders.push(orderDetails);
@@ -226,7 +226,7 @@ export class TradingService {
         }
 
         if (orders.length === 0) {
-            this.logger.log(
+            this.logger.verbose(
                 `No strategies are currently applicable for ${holding.tradingsymbol}`
             );
         }

@@ -31,7 +31,10 @@ export default class DhaanService implements TradingInterface {
         accessToken: string
     ): Promise<HoldingInfoDTO[]> {
         try {
-            this.logger.log("Inside getAllHoldings method", DhaanService.name);
+            this.logger.verbose(
+                "Inside getAllHoldings method",
+                DhaanService.name
+            );
 
             const response: DhaanHoldingDTO[] =
                 await this.requestHandler.execute<DhaanHoldingDTO[]>(
@@ -50,8 +53,8 @@ export default class DhaanService implements TradingInterface {
                     )
             );
 
-            this.logger.log(`converted into stockInfo: ${stockInfos}`);
-            this.logger.log(
+            this.logger.verbose(`converted into stockInfo: ${stockInfos}`);
+            this.logger.verbose(
                 `trying to convert a single one: ,
                 ${plainToClass(HoldingInfoDTO, response[0])}`
             );

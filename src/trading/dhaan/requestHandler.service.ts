@@ -66,7 +66,7 @@ export default class DhaanRequestHandler {
         apiType: ApiType
     ): Promise<Type> {
         try {
-            this.logger.log(`Inside execut method: ${route}`);
+            this.logger.verbose(`Inside execut method: ${route}`);
             const http: AxiosInstance = AxiosFactory.getAxiosInstance(apiType);
             let promise: Promise<AxiosResponse<Type>>;
 
@@ -91,7 +91,10 @@ export default class DhaanRequestHandler {
                 promise
             ).pipe(
                 catchError((error: AxiosError) => {
-                    this.logger.error("error that we faced just now", `${error}`);
+                    this.logger.error(
+                        "error that we faced just now",
+                        `${error}`
+                    );
                     throw new Error("An error happened!");
                 })
             );

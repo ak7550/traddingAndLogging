@@ -1,4 +1,4 @@
-import { Injectable} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
     GoogleAuth,
@@ -32,7 +32,7 @@ export class SheetService {
                 range
             });
 
-            this.logger.log("response received from google sheet!!");
+            this.logger.verbose("response received from google sheet!!");
             return response.data.values;
         } catch (error) {
             this.logger.error(

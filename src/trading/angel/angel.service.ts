@@ -44,7 +44,7 @@ export default class AngelService implements TradingInterface {
     ): Promise<OrderResponseDTO> {
         let orderResponse: OrderResponseDTO = null;
         try {
-            this.logger.log(
+            this.logger.verbose(
                 `Inside ${AngelService.name}: ${this.placeStopLossOrder.name} method`
             );
             const orderRequestDTO: AngelOrderRequestDTO =
@@ -59,7 +59,7 @@ export default class AngelService implements TradingInterface {
                     ApiType.order
                 );
 
-            this.logger.log(
+            this.logger.verbose(
                 `receive a successful response stoploss order of ${_stock.tradingsymbol}`
             );
 

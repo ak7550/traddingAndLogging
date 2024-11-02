@@ -1,8 +1,4 @@
-import {
-    HttpException,
-    HttpStatus,
-    Injectable
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { HttpStatusCode } from "axios";
 import { EntityManager } from "typeorm";
 import { CustomLogger } from "../../custom-logger.service";
@@ -17,7 +13,7 @@ import { User } from "./entities/user.entity";
 @Injectable()
 export class UserService {
     async findDemat(userId: number): Promise<DematAccount[]> {
-        this.logger.log(`Finding demat accounts associated with ${userId}`);
+        this.logger.verbose(`Finding demat accounts associated with ${userId}`);
         return await this.entityManager
             .findOneBy(User, {
                 id: userId
@@ -38,7 +34,7 @@ export class UserService {
 
     async createUser(createUserDTO: CreateUserDto): Promise<CreateUserDto> {
         try {
-            this.logger.log(
+            this.logger.verbose(
                 `Inside createUser method`,
                 JSON.stringify(createUserDTO)
             );
@@ -62,7 +58,7 @@ export class UserService {
         createDematDto: CreateDematAccountDto
     ): Promise<CreateDematAccountDto> {
         try {
-            this.logger.log(
+            this.logger.verbose(
                 `Inside createDemat method`,
                 JSON.stringify(createDematDto)
             );

@@ -79,7 +79,7 @@ export class CredentialService {
 
     async create(createCredentialDto: CreateCredentialDto): Promise<void> {
         try {
-            this.logger.log(`Inside createCredential method`);
+            this.logger.verbose(`Inside createCredential method`);
             const account: DematAccount = await this.dematService.findOne(
                 createCredentialDto.dematAccountId
             );
@@ -115,7 +115,7 @@ export class CredentialService {
         updateCredentialDto: UpdateCredentialDto
     ): Promise<Credential> {
         try {
-            this.logger.log(`Inside updateCredential method`);
+            this.logger.verbose(`Inside updateCredential method`);
             return await Promise.all([
                 this.entityManager.findOneBy(Credential, {
                     id

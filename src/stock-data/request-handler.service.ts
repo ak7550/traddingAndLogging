@@ -46,7 +46,7 @@ export class RequestHandlerService {
             return fyersAccessToken;
         }
 
-        this.logger.log(
+        this.logger.verbose(
             `data is not available in the cache, refresh the codes`
         );
         fyersAccessToken = await this.refreshToken();
@@ -108,7 +108,7 @@ export class RequestHandlerService {
             this.configService.getOrThrow<string>("FYERS_APP_ID");
         const accessToken: string = await this.getAccessToken();
 
-        this.logger.log(
+        this.logger.verbose(
             `Inside execute method: ${RequestHandlerService.name}, route ${route}`
         );
         const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
