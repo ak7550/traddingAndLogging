@@ -10,6 +10,7 @@ import { SheetModule } from "./sheet/sheet.module";
 import { StockDataModule } from './stock-data/stock-data.module';
 import TradingModule from "./trading/trading.module";
 import { VaultModule } from './vault/vault.module';
+import { CustomLogger } from './custom-logger.service';
 
 @Module({
     imports: [
@@ -27,7 +28,7 @@ import { VaultModule } from './vault/vault.module';
         StockDataModule
     ],
     controllers: [AppController],
-    providers: [AppService, KeyVaultService],
+    providers: [AppService, KeyVaultService, CustomLogger],
 })
 export class AppModule {
 }
