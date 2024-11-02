@@ -30,7 +30,7 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup( "api", app, document );
     const port = process.env.PORT || 3000;
-    app.useLogger( app.get( CustomLogger ) );
+    app.useLogger( new CustomLogger('NestApplication') );
     await app.listen(port, () => console.log(`app is running on port ${port}`));
 }
 bootstrap();

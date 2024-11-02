@@ -1,9 +1,9 @@
-import { Injectable, Logger, Scope } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 import * as fs from "fs-extra";
 import path from "path";
 
-@Injectable({ scope: Scope.TRANSIENT })
-export class CustomLogger extends Logger {
+// @Injectable({ scope: Scope.TRANSIENT })
+export class CustomLogger extends ConsoleLogger {
     private logFilePath: string;
 
     constructor(context: string) {
@@ -13,8 +13,11 @@ export class CustomLogger extends Logger {
 
     private createLogFilePath(): string {
         const today: string = new Date().toISOString().split("T")[0];
-        const logDir = path.resolve(__dirname, "../logs"); // Customize your log directory if needed
-        fs.ensureDirSync( logDir );
+        const logDir = path.resolve( __dirname, "../logs" ); // Customize your log directory if needed
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+
         return path.join(logDir, `${today}-logs.csv`);
     }
 
@@ -34,7 +37,7 @@ export class CustomLogger extends Logger {
 
     log(message: string, context?: string): void {
         super.log(message, context);
-        this.writeToLogFile("LOG", message, context);
+        // this.writeToLogFile("LOG", message, context);
     }
 
     error(message: string, trace?: string, context?: string): void {

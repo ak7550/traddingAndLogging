@@ -1,22 +1,23 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Broker } from './entities/broker.entity';
 import { EntityManager } from 'typeorm';
 import { HttpStatusCode } from 'axios';
 import { IntegratedBroker } from 'src/common/globalConstants.constant';
 import CreateBrokerDto from './dto/create-broker.dto';
+import { CustomLogger } from '../../custom-logger.service';
 
 @Injectable()
 export class BrokerService {
 
   constructor(
-    private readonly logger: Logger = new Logger(BrokerService.name),
+    private readonly logger: CustomLogger = new CustomLogger(BrokerService.name),
     private readonly entityManager: EntityManager
   ){}
 
   async create(
     createBrokerDTO: CreateBrokerDto,
   ): Promise<CreateBrokerDto> {
-    this.logger.log( `Inside createBroker method`, createBrokerDTO );
+    this.logger.debug( `Inside createBroker method ${''} `);
     //-> just wanna show it can be done by this way as well
     // const queryRunner = this.dataSource.createQueryRunner();
     // queryRunner.connect();
@@ -43,10 +44,7 @@ export class BrokerService {
         await this.entityManager.save(broker);
         return createBrokerDTO;
     } catch (error) {
-        this.logger.error(
-            `error occured while saving new broker info`,
-            error,
-        );
+        this.logger.error(`error occured while saving new broker info ${error}`);
         throw new HttpException(
             HttpStatusCode.Forbidden.toString(),
             HttpStatus.FORBIDDEN,

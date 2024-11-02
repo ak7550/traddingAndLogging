@@ -1,4 +1,4 @@
-import { Injectable, Logger, RequestMethod } from "@nestjs/common";
+import { Injectable, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
 import Strategy, { OrderDetails } from "../../common/strategies";
 import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
@@ -8,10 +8,11 @@ import TradingInterface from "../interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
 import DhaanRequestHandler from "./requestHandler.service";
+import { CustomLogger } from "../../custom-logger.service";
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
-    private readonly logger: Logger = new Logger(DhaanService.name);
+    private readonly logger: CustomLogger = new CustomLogger(DhaanService.name);
 
     constructor(private readonly requestHandler: DhaanRequestHandler) {}
 
@@ -49,17 +50,17 @@ export default class DhaanService implements TradingInterface {
                     )
             );
 
-            this.logger.log("converted into stockInfo: ", stockInfos);
+            this.logger.log(`converted into stockInfo: ${stockInfos}`);
             this.logger.log(
-                "trying to convert a single one: ",
-                plainToClass(HoldingInfoDTO, response[0])
+                `trying to convert a single one: ,
+                ${plainToClass(HoldingInfoDTO, response[0])}`
             );
 
             return stockInfos;
         } catch (error) {
             this.logger.error(
-                "Error occured while fetching the holdings data using Dhaan apis",
-                error,
+                `Error occured while fetching the holdings data using Dhaan apis,
+                ${error}`,
                 DhaanService.name
             );
         }

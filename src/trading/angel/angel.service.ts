@@ -1,4 +1,4 @@
-import { Injectable, Logger, RequestMethod } from "@nestjs/common";
+import { Injectable, RequestMethod } from "@nestjs/common";
 import { OrderDetails } from "../../common/strategies";
 import { CredentialService } from "../../entities/credential/credential.service";
 import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
@@ -7,21 +7,28 @@ import OrderResponseDTO from "../dtos/order.response.dto";
 import TradingInterface from "../interfaces/trading.interface";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { mapToHoldingDTO, mapToOrderResponseDTO } from "./config/angel.utils";
-import AngelHoldingDTO from './dto/holding.dto';
+import AngelHoldingDTO from "./dto/holding.dto";
 import AngelOrderRequestDTO from "./dto/order.request.dto";
 import AngelOrderResponseDTO from "./dto/order.response.dto";
 import AngelRequestHandler from "./request-handler.service";
+import { CustomLogger } from "../../custom-logger.service";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
     constructor(
         private readonly requestHandler: AngelRequestHandler,
-        private readonly logger: Logger = new Logger(AngelService.name),
+        private readonly logger: CustomLogger = new CustomLogger(
+            AngelService.name
+        ),
         private readonly credentialService: CredentialService
-    ) { }
+    ) {}
 
-    async placeOrder ( orderDetail: OrderDetails, holding: HoldingInfoDTO, demat: DematAccount ): Promise<OrderResponseDTO> {
-        throw new Error( "Method not implemented." );
+    async placeOrder(
+        orderDetail: OrderDetails,
+        holding: HoldingInfoDTO,
+        demat: DematAccount
+    ): Promise<OrderResponseDTO> {
+        throw new Error("Method not implemented.");
     }
 
     /**
@@ -66,23 +73,25 @@ export default class AngelService implements TradingInterface {
             );
         } catch (error: unknown) {
             this.logger.error(
-                `encountered an error, while creating the stoploss order of ${_stock.tradingsymbol}`,
-                error
+                `encountered an error, while creating the stoploss order of ${_stock.tradingsymbol}, ${error}`
             );
             orderResponse = mapToOrderResponseDTO(null, _stock, null, error);
         }
         return orderResponse;
     }
 
-    async getHolding ( demat: DematAccount ): Promise<HoldingInfoDTO[]>{
-        return await this.credentialService.findCredential( demat, AngelConstant.AUTH_TOKEN )
-            .then(authToken => this.requestHandler.execute<AngelHoldingDTO[]>(
+    async getHolding(demat: DematAccount): Promise<HoldingInfoDTO[]> {
+        return await this.credentialService
+            .findCredential(demat, AngelConstant.AUTH_TOKEN)
+            .then(authToken =>
+                this.requestHandler.execute<AngelHoldingDTO[]>(
                     AngelConstant.HOLDING_ROUTE,
                     RequestMethod.GET,
                     null,
                     ApiType.others,
                     authToken.keyValue
-            ))
+                )
+            )
             .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO));
     }
 }

@@ -7,10 +7,10 @@ import { DataBaseModule } from "./database/database.module";
 import { EntityModule } from "./entities/entity.module";
 import { KeyVaultService } from "./keyvault.service";
 import { SheetModule } from "./sheet/sheet.module";
-import { StockDataModule } from './stock-data/stock-data.module';
+import { StockDataModule } from "./stock-data/stock-data.module";
 import TradingModule from "./trading/trading.module";
-import { VaultModule } from './vault/vault.module';
-import { CustomLogger } from './custom-logger.service';
+import { VaultModule } from "./vault/vault.module";
+import { CustomLogger } from "./custom-logger.service";
 
 @Module({
     imports: [
@@ -28,7 +28,6 @@ import { CustomLogger } from './custom-logger.service';
         StockDataModule
     ],
     controllers: [AppController],
-    providers: [AppService, KeyVaultService, CustomLogger],
+    providers: [AppService, KeyVaultService, CustomLogger]
 })
-export class AppModule {
-}
+export class AppModule {}

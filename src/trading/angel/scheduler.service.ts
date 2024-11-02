@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import GlobalConstant, {
     IntegratedBroker
@@ -13,13 +13,16 @@ import { AngelConstant } from "./config/angel.constant";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelRequestHandler from "./request-handler.service";
+import { CustomLogger } from "../../custom-logger.service";
 
 @Injectable()
 export default class AngelScheduler {
     private broker: Broker;
 
     constructor(
-        private readonly logger: Logger = new Logger(AngelScheduler.name),
+        private readonly logger: CustomLogger = new CustomLogger(
+            AngelScheduler.name
+        ),
         private readonly brokerService: BrokerService,
         private readonly requestHandler: AngelRequestHandler,
         private readonly dematService: DematService,
@@ -56,13 +59,13 @@ export default class AngelScheduler {
                 `All the credentials are refershed for ${this.broker.name}`
             );
         } catch (error) {
-            this.logger.error(`failed to update credentials`, error);
+            this.logger.error(`failed to update credentials`, `${error}`);
         }
     }
 
     async updateCredential(account: DematAccount): Promise<Credential[]> {
         try {
-            this.logger.log(`updating credentials for account`, account);
+            this.logger.log(`updating credentials for account`, `${account}`);
             const credentials: Credential[] =
                 await this.credentialService.findAll(account);
 
@@ -118,14 +121,14 @@ export default class AngelScheduler {
 
             this.logger.log(
                 `new credentials are saved successfully for`,
-                account
+                `${account}`
             );
             return updatedCredentials;
         } catch (error) {
             // TODO: need to handle errors in a proper manner, unable to handle the errors efficiently, crashing the whole service
             this.logger.error(
                 `error occured while generating a new accessTokens for ${account.accountNumber}`,
-                error
+                `${error}`
             );
         }
     }
