@@ -1,14 +1,12 @@
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import _ from 'lodash';
 import moment from 'moment';
 import { CreateStockDatumDto } from './dto/create-stock-datum.dto';
-import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
-import { composeDailyData, OhlcvDataDTO, StockInfoHistorical, TimeWiseData } from './entities/stock-data.entity';
-import { RequestHandlerService } from './request-handler.service';
 import { FyersHistoricalDataDTO } from './dto/fyers-historical-response.dto';
-import ThreeWhiteSoldiers from 'technicalindicators/declarations/candlestick/ThreeWhiteSoldiers';
-import { mapToHoldingDTO } from '../trading/angel/config/angel.utils';
-import _, { constant } from 'lodash';
+import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
+import { composeDailyData, OhlcvDataDTO, StockInfoHistorical, StockInfoMarket, TimeWiseData } from './entities/stock-data.entity';
+import { RequestHandlerService } from './request-handler.service';
 
 @Injectable()
 export class StockDataService {
@@ -18,7 +16,11 @@ export class StockDataService {
     private readonly requestHandler: RequestHandlerService
   ) {
     console.log( `StockDataService initialised`, this);
-}
+  }
+
+  async getCurrentData ( stockName: string ): Promise<StockInfoMarket>{
+    return null;
+  }
 
   async getHistoricalData ( stockName: string ): Promise<StockInfoHistorical> {
     return await this.useCaching( stockName, this._getHistoricalData );
