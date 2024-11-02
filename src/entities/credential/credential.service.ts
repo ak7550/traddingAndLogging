@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { HttpStatusCode } from 'axios';
 import { EntityManager } from 'typeorm';
 import { DematService } from '../demat/demat.service';
@@ -6,6 +6,7 @@ import { DematAccount } from '../demat/entities/demat-account.entity';
 import { Credential } from './credential.entity';
 import { CreateCredentialDto } from './dto/create-credential.dto';
 import { UpdateCredentialDto } from './dto/update-credential.dto';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class CredentialService {
@@ -15,7 +16,8 @@ export class CredentialService {
 
     constructor(private readonly entityManager: EntityManager,
         private readonly logger: Logger = new Logger(CredentialService.name),
-        private readonly dematService: DematService
+        private readonly dematService: DematService,
+        @Inject( CACHE_MANAGER ) private readonly cacheManager: Cache,
     ){}
 
     //TEST
@@ -35,9 +37,18 @@ export class CredentialService {
         account: DematAccount,
         keyName: string,
     ): Promise<Credential> {
+        const cacheKey = `${ account.id }-${ keyName }`;
+        const credential: Credential = await this.cacheManager.get<Credential>( cacheKey );
+        if ( credential !== undefined ) {
+            return credential;
+        }
         return await this.entityManager.findOneBy(Credential, {
             account,
             keyName,
+        } ).then( credential => {
+            this.cacheManager.set( cacheKey, credential, 24 * 3600 * 1000 )
+            .then(() => this.logger.debug(`${cacheKey} is cached for 1 day.`));
+            return credential;
         });
     }
 

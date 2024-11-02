@@ -1,8 +1,7 @@
 import _ from 'lodash';
-import { OhlcvDataDTO, StockInfoHistorical } from '../stock-data/entities/stock-data.entity.js';
-import Strategy, { OrderDetails } from "./strategies.js";
-import {BollingerBands, EMA, RSI, VWAP} from 'technicalindicators';
+import { BollingerBands, RSI, VWAP } from 'technicalindicators';
 import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands.js';
+import { OhlcvDataDTO } from '../stock-data/entities/stock-data.entity.js';
 
 
 export const isGapUp = (ohlcdata: OhlcvDataDTO[], candle: number): boolean => {
@@ -114,56 +113,6 @@ export const getSl = (percent: number, valueFrom: number): number =>
 
 export const getTriggerPrice = (slValue: number, percent: number): number =>
     slValue * (1 + percent / 100);
-
-//TODO ==> this is the ultimate section, where i need to put the logic to find the exact stop loss value
-export const getTrailingStopLoss = (
-    previousClose: number,
-    baseStopLoss: number,
-    historicalData?: OhlcvDataDTO[],
-): number[] => {
-    const ema9: number[] = getEmaValue(9, historicalData);
-    const ema21: number[] = getEmaValue(21, historicalData);
-    const dailyRSI: number[] = getRSI(14, historicalData);
-    // check for open high system ==> if the 1st hour candle is open high, and the second candle is breaking the low of the previous open-high candle => sell triggers
-    //TODO: need to implement all the hi-fi logic here, which will find the stop loss value every single day
-
-    return [baseStopLoss, getTriggerPrice(baseStopLoss, 0.5)];
-};
-
-//TODO
-export const getStopLoss = (
-    historicalData: StockInfoHistorical,
-    strategies: Strategy[]
-): OrderDetails[] => {
-    const orderDetails: OrderDetails[] = [];
-    for (let index = 0; index < strategies.length; index++) {
-        const strategy: Strategy = strategies[index];
-        let applicable: boolean = true;
-        const data: number[] = [];
-        const { conditions, decidingFactor, ...rest } = strategy;
-        for (let i2 = 0; i2 < conditions.length; i2++) {
-            const {filter: method, description } = strategy.conditions[i2];
-            const result : number | boolean = method(null);
-            if(result == false){
-                applicable = false;
-                break;
-            }else{
-                console.log(description);
-                if(typeof(result) === 'number'){
-                    data.push(result);
-                }
-            }
-        }
-
-        if(applicable){
-            orderDetails.push({
-                ...rest,
-                price: decidingFactor(null)
-            });
-        }
-    }
-    return orderDetails;
-}
 
 export const getSMA = (
     smaLength: number,

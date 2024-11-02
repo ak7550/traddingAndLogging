@@ -81,8 +81,8 @@ export class UserService {
         return "This action adds a new credential";
     }
 
-    findAll() {
-        return `This action returns all credential`;
+    async findAll (): Promise<User[]> {
+        return await this.entityManager.find( User );
     }
 
     async findOne(id: number) {

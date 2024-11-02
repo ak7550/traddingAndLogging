@@ -22,12 +22,12 @@ export default class AngelOrderRequestDTO {
 
 		if ( this.ordertype == GlobalConstant.STOP_LOSS_MARKET ) {
 			// i am making it as a sl-m, as the stock should exit at market price
-			this.triggerprice = orderDetail?.triggerPrice.toFixed(2);
+			this.triggerprice = '0'; //TODO
 		}
 
 		if(this.ordertype == GlobalConstant.LIMIT){
 			// in case of limit orders, we will be needing LIMIT price
-			this.price = orderDetail?.price.toFixed(2);
+			this.price = '0'; //TODO
 		}
 	}
 

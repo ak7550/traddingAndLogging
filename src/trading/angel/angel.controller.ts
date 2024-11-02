@@ -10,12 +10,6 @@ export class AngelController {
         private readonly dematService: DematService
     ){}
 
-    //TODO: REMOVE any from return type
-    @Put("/orders/sl/daily")
-    async placeDailyStopLossOrders(): Promise<any> {
-        return await this.schedularService.placeDailyStopLossOrders([]);
-    }
-
     @Put('refresh-token')
     async refreshTokenForAllUser(){
         await this.schedularService.updateCredentials();

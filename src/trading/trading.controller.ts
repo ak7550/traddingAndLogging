@@ -1,30 +1,19 @@
 import {
     Controller,
-    DefaultValuePipe,
     Get,
     Param,
-    Post,
     Put,
     Query
 } from "@nestjs/common";
-import HoldingInfoDTO from "./dtos/holding-info.dto";
-import TradingInterface from "./interfaces/trading.interface";
-import TradingFactoryService from "./trading-factory.service";
-import { DematService } from "../entities/demat/demat.service";
-import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import GlobalConstant from "../common/globalConstants.constant";
-import { AngelConstant } from "./angel/config/angel.constant";
+import HoldingInfoDTO from "./dtos/holding-info.dto";
 import { TradingService } from './trading.service';
-import AngelService from './angel/angel.service';
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
 export default class TradingController {
     constructor(
-        private readonly tradingFactory: TradingFactoryService,
-        private readonly dematService: DematService,
-        private readonly tradingService: TradingService,
-        private readonly angelService: AngelService
+        private readonly tradingService: TradingService
     ) { }
 
 
@@ -49,31 +38,4 @@ export default class TradingController {
         return "hello";
     }
 
-    //TODO: REMOVE any from return type
-    @Post("/orders/sl/daily")
-    async placeDailyStopLossOrders(
-        @Query(
-            GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName)
-        )
-        broker: string
-    ): Promise<any> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(broker);
-        return await this.angelService.placeStopLossOrders(new DematAccount({}), []);
-    }
-
-    //TODO: REMOVE any from return type
-    @Get("placeOrders")
-    async placeOrders(
-        @Query(
-            GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName)
-        )
-        broker: string
-    ): Promise<any> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(broker);
-        return await this.angelService.placeOrders("");
-    }
 }
