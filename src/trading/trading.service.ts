@@ -62,7 +62,7 @@ export class TradingService {
         );
     }
 
-    private async placeOrders(
+    public async placeOrders(
         strategies: Strategy[]
     ): Promise<OrderResponseDTO[]> {
         const orderResponses: Observable<OrderResponseDTO[]> = from(
@@ -75,10 +75,8 @@ export class TradingService {
                 const dematObservable: Observable<OrderResponseDTO[]> = from( await this.getHolding( demat ) )
                 .pipe(
                     mergeMap(async (holding: HoldingInfoDTO) => {
-                        const [historical, current] = await Promise.all([
-                            this.stockDataService.getHistoricalData(holding.tradingsymbol),
-                            this.stockDataService.getCurrentData(holding.tradingsymbol)
-                        ]);
+                        const historical: StockInfoHistorical = await this.stockDataService.getHistoricalData(`${holding.exchange}:${holding.tradingsymbol}`);
+                        const current: StockInfoMarket = await this.stockDataService.getCurrentData(`${holding.exchange}:${holding.tradingsymbol}`);
 
                         const orderDetail: OrderDetails | void = this.processData( historical, current, holding, strategies );
 

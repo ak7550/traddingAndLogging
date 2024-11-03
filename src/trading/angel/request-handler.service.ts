@@ -141,7 +141,7 @@ export default class AngelRequestHandler {
         }
     }
 
-    @Cron(CronExpression.EVERY_30_MINUTES)
+    // @Cron(CronExpression.EVERY_30_MINUTES)
     async serviceTester() {
         const webHookUrl =
             "https://webhook.site/61274f5c-9719-4fff-8ff8-f278080432e5";
