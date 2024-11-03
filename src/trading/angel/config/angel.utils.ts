@@ -17,7 +17,7 @@ export const mapToOrderResponseDTO = (
     return null;
 };
 
-export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, exchange, isin, profitandloss, pnlpercentage }: AngelHoldingDTO): HoldingInfoDTO =>
+export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, exchange, isin, profitandloss, pnlpercentage, product, ltp }: AngelHoldingDTO): HoldingInfoDTO =>
     new HoldingInfoDTO({
         broker: IntegratedBroker.Angel,
         avgCostPrice: averageprice,
@@ -27,5 +27,6 @@ export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, 
         percentagePnl: pnlpercentage,
         pnl: profitandloss,
         totalQty: quantity,
-        tradingsymbol
+        tradingsymbol,
+        product, ltp
     });

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
 import { Min } from "class-validator";
 import StockInfoDTO from "./stock-info.dto";
-import { ExchangeType, IntegratedBroker } from "../../common/globalConstants.constant";
+import { ExchangeType, IntegratedBroker, ProductType } from "../../common/globalConstants.constant";
 
 
 /**
@@ -44,6 +44,11 @@ export default class HoldingInfoDTO extends StockInfoDTO{
     @Expose()
     avgCostPrice!: number;
 
+    @ApiProperty( {
+        type: Number
+    } )
+    ltp: Number
+
     @ApiProperty({
         type: Number,
     })
@@ -61,6 +66,11 @@ export default class HoldingInfoDTO extends StockInfoDTO{
         type: String,
     })
     exchange: ExchangeType;
+
+    @ApiProperty( {
+        type: String
+    } )
+    product: ProductType
 }
 // what I am getting is exact dhaanr response, but this stockInfo should be independant of all the broker
 
