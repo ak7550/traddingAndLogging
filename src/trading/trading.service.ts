@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import _ from "lodash";
 import {
     filter,
     from,
@@ -8,6 +9,7 @@ import {
     toArray
 } from "rxjs";
 import Strategy, { OrderDetails } from "../common/strategies";
+import { CustomLogger } from "../custom-logger.service";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import { User } from "../entities/user/entities/user.entity";
 import { UserService } from "../entities/user/user.service";
@@ -20,8 +22,6 @@ import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingInterface from "./interfaces/trading.interface";
 import TradingFactoryService from "./trading-factory.service";
-import _ from "lodash";
-import { CustomLogger } from "../custom-logger.service";
 
 @Injectable()
 export class TradingService {
