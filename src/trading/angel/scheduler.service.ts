@@ -20,9 +20,7 @@ export default class AngelScheduler {
     private broker: Broker;
 
     constructor(
-        private readonly logger: CustomLogger = new CustomLogger(
-            AngelScheduler.name
-        ),
+        private readonly logger: CustomLogger = new CustomLogger(AngelScheduler.name),
         private readonly brokerService: BrokerService,
         private readonly requestHandler: AngelRequestHandler,
         private readonly dematService: DematService,

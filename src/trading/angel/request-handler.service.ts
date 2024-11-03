@@ -1,24 +1,47 @@
-import { Injectable, RequestMethod } from "@nestjs/common";
+import { Inject, Injectable, RequestMethod } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import GlobalConstant from "../../common/globalConstants.constant";
+import { CustomLogger } from "../../custom-logger.service";
 import AxiosFactory from "./axios-factory.service";
-import { ApiType } from "./config/angel.constant";
+import { AngelConstant, ApiType } from "./config/angel.constant";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelAPIResponse from "./dto/generic.response.dto";
-import { CustomLogger } from "../../custom-logger.service";
+import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 
 @Injectable()
 export default class AngelRequestHandler {
+
+    @Cron(CronExpression.EVERY_DAY_AT_9AM)
+    async getAllAngelSymbolToken (): Promise<AngelSymbolTokenDTO[]> {
+        const keyName: string = "angel-symbol-token";
+        const data: AngelSymbolTokenDTO[] = await this.cacheManager.get<AngelSymbolTokenDTO[]>(keyName);
+
+        if ( data !== undefined ) {
+            this.logger.verbose( `${ keyName } found in cache` );
+            return data;
+        }
+        const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(
+            ApiType.others
+        );
+        return await http.get( AngelConstant.ANGEL_SYMBOL_TOKEN_URL )
+            .then( ({data} :AxiosResponse<AngelSymbolTokenDTO[]>) => {
+                this.cacheManager.set( keyName, data, 12 * 3600 * 1000 ); // cacheing it for 12 hours.
+                return data;
+            });
+    }
+    
     constructor(
         private readonly configService: ConfigService,
         private readonly axiosFactory: AxiosFactory,
         private readonly logger: CustomLogger = new CustomLogger(
             AngelRequestHandler.name
-        )
+        ),
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
     ) {}
 
     /**

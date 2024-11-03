@@ -18,6 +18,7 @@ export class AngelConstant {
     public static readonly HISTORICAL_DATA_ROUTE: string ="/historical/v1/getCandleData";
     public static readonly ORDER_PLACE_ROUTE: string = "/order/v1/placeOrder";
     public static readonly GENERATE_TOKEN_ROUTE: string = "/auth/angelbroking/jwt/v1/generateTokens";
+    public static readonly ANGEL_SYMBOL_TOKEN_URL: string = "https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json";
 }
 
 export enum ApiType {

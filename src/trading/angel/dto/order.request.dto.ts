@@ -3,11 +3,14 @@ import { isFunction } from 'rxjs/internal/util/isFunction';
 import GlobalConstant, { DurationType, ExchangeType, OrderType, OrderVariety, ProductType, TransactionType } from '../../../common/globalConstants.constant';
 import HoldingInfoDTO from 'src/trading/dtos/holding-info.dto';
 import { OrderDetails } from '../../../common/strategies';
+import AngelSymbolTokenDTO from './symboltoken.response.dto';
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
 //TODO: implement builder design pattern
 export default class AngelOrderRequestDTO {
-	mapData ( stock: HoldingInfoDTO, orderDetail: OrderDetails) {
+
+	//TODO: FIX THIS
+	constructor ( stock: HoldingInfoDTO, orderDetail: OrderDetails, symbolToken: AngelSymbolTokenDTO) {
 		this.variety = orderDetail.variety;
 		this.tradingsymbol = stock.tradingsymbol;
 		// this.symboltoken = stock.symboltoken;
@@ -59,6 +62,4 @@ export default class AngelOrderRequestDTO {
     // 	this.stoploss = stoploss;
     // 	this.quantity = quantity;
 	// }
-
-    constructor() {}
 }

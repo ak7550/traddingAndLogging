@@ -41,6 +41,7 @@ export type TransactionType = "BUY" | "SELL";
 export type OrderType = "MARKET" | "LIMIT" | "STOPLOSS_LIMIT" | "STOPLOSS_MARKET";
 export type ProductType = "DELIVERY" | "CARRYFOREARD";
 export type DurationType = "DAY" | "IOC";
+export type InstrumentType = "OPTSTK" | "OPTIDX" | "";
 
 //this will be considered as the single source of truth for all the integrated brokers
 export enum IntegratedBroker {
