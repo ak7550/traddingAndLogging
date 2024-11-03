@@ -11,6 +11,9 @@ import { CustomLogger } from "../../custom-logger.service";
 
 @Injectable()
 export class CredentialService {
+    async findCredentialById ( id: number ): Promise<Credential> {
+        return await this.entityManager.findOneBy( Credential, { id } );
+    }
     async getAll() {
         return await this.entityManager.find(Credential, {});
     }

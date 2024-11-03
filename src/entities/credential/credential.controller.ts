@@ -25,22 +25,6 @@ export class CredentialController {
         private readonly dematService: DematService
     ) {}
 
-    //TEST
-    @Post()
-    async createCredential(
-        @Body() createCredentialDto: CreateCredentialDto
-    ): Promise<HttpStatus> {
-        try {
-            await this.credentialService.create(createCredentialDto);
-            return HttpStatus.ACCEPTED;
-        } catch (error) {
-            throw new HttpException(
-                HttpStatusCode.Forbidden.toString(),
-                HttpStatus.FORBIDDEN
-            );
-        }
-    }
-
     @Get("")
     async getAll() {
         return await this.credentialService.getAll();
@@ -57,14 +41,7 @@ export class CredentialController {
 
     @Get(":id")
     async findCredntial(@Param("id") id: number): Promise<Credential> {
-        return await this.dematService
-            .findOne(id)
-            .then((demat: DematAccount) =>
-                this.credentialService.findCredential(
-                    demat,
-                    AngelConstant.AUTH_TOKEN
-                )
-            );
+        return await this.credentialService.findCredentialById( id );
     }
 
     //TEST
