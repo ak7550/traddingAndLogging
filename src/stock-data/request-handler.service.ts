@@ -12,6 +12,7 @@ import { FyersApiResponseDTO } from "./dto/fyers-api-response.dto";
 import { FyersHistoricalDataDTO } from "./dto/fyers-historical-response.dto";
 import { RefreshTokenResponseDTO } from "./dto/refresh-token-response.dto";
 import { RefreshTokenRequestDTO } from "./dto/refresh-token.request.dto";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class RequestHandlerService {
@@ -39,9 +40,8 @@ export class RequestHandlerService {
         );
     }
 
-
-    //todo: make a cron job to refresh tokens
-    private async refreshToken(): Promise<string> {
+    @Cron(CronExpression.EVERY_DAY_AT_7AM)
+    async refreshToken(): Promise<string> {
         const fyersAppId: string = this.configService.getOrThrow<string>("FYERS_APP_ID");
         const fyersAppSecret = this.configService.getOrThrow<string>("FYERS_APP_SECRET");
         const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
