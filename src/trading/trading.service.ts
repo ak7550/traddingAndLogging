@@ -20,7 +20,6 @@ import {
 import { StockDataService } from "../stock-data/stock-data.service";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
-import TradingInterface from "./interfaces/trading.interface";
 import TradingFactoryService from "./trading-factory.service";
 
 @Injectable()
@@ -39,25 +38,20 @@ export class TradingService {
         userId: number,
         broker?: string
     ): Promise<HoldingInfoDTO[]> {
-        const dematObservable: Observable<HoldingInfoDTO[]> = from(
-            this.userService.findDemat(userId)
-        ).pipe(
-            mergeMap((demats: DematAccount[]) => from(demats), 10),
-            filter(
-                (demat: DematAccount) => !broker || demat.broker.name === broker
-            ),
-            mergeMap(this.getHolding, 10), // 10 is the concurrency value
-            mergeMap((holdings: HoldingInfoDTO[]) => from(holdings), 10),
-            toArray()
-        );
+        const dematObservable: Observable<HoldingInfoDTO[]> = from( this.userService.findDemat( userId ) )
+            .pipe(
+                mergeMap((demats: DematAccount[]) => from(demats), 10),
+                filter((demat: DematAccount) => !broker || demat.broker.name === broker),
+                mergeMap(demat => this.getHolding(demat), 10), // 10 is the concurrency value
+                mergeMap((holdings: HoldingInfoDTO[]) => from(holdings), 10),
+                toArray()
+            );
 
         return await lastValueFrom(dematObservable);
     }
 
     private async getHolding(demat: DematAccount): Promise<HoldingInfoDTO[]> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(demat.broker.name);
-        return await tradingService.getHolding(demat);
+        return await this.tradingFactory.getInstance(demat.broker.name).getHolding(demat);
     }
 
     // sequence of the strategies in this array are very very very important. If a strategy satisfies, the order will be executed for that stock based upon that strategy
@@ -75,42 +69,22 @@ export class TradingService {
             this.userService.findAll()
         ).pipe(
             mergeMap((users: User[]) => from(users), 10),
-            mergeMap(
-                (user: User) => from(this.userService.findDemat(user.id)),
-                10
-            ),
-            mergeMap(
-                (dematAccounts: DematAccount[]) => from(dematAccounts),
-                10
-            ),
+            mergeMap((user: User) => from(this.userService.findDemat(user.id)),10),
+            mergeMap((dematAccounts: DematAccount[]) => from(dematAccounts),10),
             mergeMap(async (demat: DematAccount) => {
-                const dematObservable: Observable<OrderResponseDTO[]> = from(
-                    await this.getHolding(demat)
-                ).pipe(
+                const dematObservable: Observable<OrderResponseDTO[]> = from( await this.getHolding( demat ) )
+                .pipe(
                     mergeMap(async (holding: HoldingInfoDTO) => {
                         const [historical, current] = await Promise.all([
-                            this.stockDataService.getHistoricalData(
-                                holding.tradingsymbol
-                            ),
-                            this.stockDataService.getCurrentData(
-                                holding.tradingsymbol
-                            )
+                            this.stockDataService.getHistoricalData(holding.tradingsymbol),
+                            this.stockDataService.getCurrentData(holding.tradingsymbol)
                         ]);
 
-                        const orderDetail: OrderDetails | void =
-                            this.processData(
-                                historical,
-                                current,
-                                holding,
-                                strategies
-                            );
+                        const orderDetail: OrderDetails | void = this.processData( historical, current, holding, strategies );
+
                         if (orderDetail) {
-                            const orderResponse: OrderResponseDTO =
-                                await this.placeOrder(
-                                    orderDetail,
-                                    holding,
-                                    demat
-                                );
+                            const orderResponse: OrderResponseDTO = await this.placeOrder( orderDetail, holding, demat );
+                            // think of auditing this order response.
                             return orderResponse;
                         }
                     }, 10),

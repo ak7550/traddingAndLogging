@@ -16,8 +16,6 @@ export default class TradingController {
         private readonly tradingService: TradingService
     ) { }
 
-
-    @Get("holdings/:id")
     @Get("holdings/user/:userId")
     async getAllHoldings(
         @Param( 'userId' ) userId: number,
