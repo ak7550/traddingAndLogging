@@ -28,7 +28,7 @@ export class OhlcvDataDTO{
         this.low = l;
         this.close = c;
         this.volume = vol;
-        this.timeStr = moment.unix( this.timeStamp ).format( 'YYYY-MM-DD' );
+        this.timeStr = moment.unix(this.timeStamp).format('YYYY-MM-DD HH:mm');
 
         const totalCandleSize: number = Math.abs( this.high - this.low );
         const body: number = Math.abs( this.close - this.open );

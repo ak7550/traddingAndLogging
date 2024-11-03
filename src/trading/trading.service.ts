@@ -138,7 +138,7 @@ export class TradingService {
 
                     if (typeof answer === "boolean" && answer === false) {
                         this.logger.verbose(
-                            `${description} is not satisfaied for ${holding.tradingsymbol}.This was a part of mustConditions, so breaking the loop.`
+                            `${description} is not satisfaied for ${holding.tradingsymbol}. so breaking the loop.`
                         );
                         shouldProceed = false;
                         break;

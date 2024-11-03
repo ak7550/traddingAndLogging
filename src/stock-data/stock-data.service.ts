@@ -14,21 +14,39 @@ import {
 } from "./entities/stock-data.entity";
 import { RequestHandlerService } from "./request-handler.service";
 import { CustomLogger } from "../custom-logger.service";
+import { mapFyersDataToStockInfo } from "./config/stock-data.constant";
 
 @Injectable()
 export class StockDataService {
     constructor(
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-        private readonly logger: CustomLogger = new CustomLogger(
-            StockDataService.name
-        ),
+        private readonly logger: CustomLogger = new CustomLogger(StockDataService.name),
         private readonly requestHandler: RequestHandlerService
-    ) {
-        console.log(`StockDataService initialised`, this);
-    }
+    ) {}
 
-    async getCurrentData(stockName: string): Promise<StockInfoMarket> {
-        return null;
+    async getCurrentData ( stockName: string ): Promise<StockInfoMarket> {
+        const currentTime = moment().unix().toString();
+        const todayAt915 = moment("2024-10-31 09:15", "YYYY-MM-DD HH:mm")
+            // .set({ hour: 9, minute: 15, second: 0, millisecond: 0, date: 31, month: 10})
+            .unix()
+            .toString();
+
+        const fiveMinuteData = this.requestHandler.getData<FyersHistoricalDataDTO[]>( stockName, '5', todayAt915, currentTime, 0 );
+        const fifteenMinuteData = this.requestHandler.getData<FyersHistoricalDataDTO[]>( stockName, '15', todayAt915, currentTime, 0 );
+        const oneHourData = this.requestHandler.getData<FyersHistoricalDataDTO[]>( stockName, '60', todayAt915, currentTime, 0 );
+
+        return await Promise.all( [ fiveMinuteData, fifteenMinuteData, oneHourData ] )
+            .then( ( [ five, fifteen, oneHour ] ) => {
+                const ohlcv5: OhlcvDataDTO[] = five.map( mapFyersDataToStockInfo );
+                const ohlcv15: OhlcvDataDTO[] = fifteen.map( mapFyersDataToStockInfo );
+                const ohlcv1: OhlcvDataDTO[] = oneHour.map( mapFyersDataToStockInfo );
+
+                const timewise5: TimeWiseData = new TimeWiseData( ohlcv5 );
+                const timewise15: TimeWiseData = new TimeWiseData( ohlcv15 );
+                const timewise1: TimeWiseData = new TimeWiseData( ohlcv1 );
+
+                return new StockInfoMarket( timewise5, timewise15, timewise1 );
+            });
     }
 
     async getHistoricalData(stockName: string): Promise<StockInfoHistorical> {
@@ -51,35 +69,39 @@ export class StockDataService {
         const fourYrBefore = moment(threeYrBefore).subtract(366, "days");
 
         const last1yrData: Promise<FyersHistoricalDataDTO[]> =
-            instance.requestHandler.getData(
+            instance.requestHandler.getData<FyersHistoricalDataDTO[]>(
                 stockName,
                 "1D",
                 oneYrBefore.format("YYYY-MM-DD"),
-                today.format("YYYY-MM-DD")
+                today.format("YYYY-MM-DD"),
+                1
             );
 
         const last2yrData: Promise<FyersHistoricalDataDTO[]> =
-            instance.requestHandler.getData(
+            instance.requestHandler.getData<FyersHistoricalDataDTO[]>(
                 stockName,
                 "1D",
                 twoYrBefore.format("YYYY-MM-DD"),
-                oneYrBefore.subtract(1, "day").format("YYYY-MM-DD")
+                oneYrBefore.subtract( 1, "day" ).format( "YYYY-MM-DD" ),
+                1
             );
 
         const last3yrData: Promise<FyersHistoricalDataDTO[]> =
-            instance.requestHandler.getData(
+            instance.requestHandler.getData<FyersHistoricalDataDTO[]>(
                 stockName,
                 "1D",
                 threeYrBefore.format("YYYY-MM-DD"),
-                twoYrBefore.subtract(1, "day").format("YYYY-MM-DD")
+                twoYrBefore.subtract(1, "day").format("YYYY-MM-DD"),
+                1
             );
 
         const last4yrData: Promise<FyersHistoricalDataDTO[]> =
-            instance.requestHandler.getData(
+            instance.requestHandler.getData<FyersHistoricalDataDTO[]>(
                 stockName,
                 "1D",
                 fourYrBefore.format("YYYY-MM-DD"),
-                threeYrBefore.subtract(1, "day").format("YYYY-MM-DD")
+                threeYrBefore.subtract(1, "day").format("YYYY-MM-DD"),
+                1
             );
 
         return await Promise.all([
@@ -90,24 +112,7 @@ export class StockDataService {
         ]).then(([oneYrData, twoYrData, threeYrData, fourYrData]) => {
             const dailyOHLCV: OhlcvDataDTO[] = fourYrData
                 .concat(threeYrData, twoYrData, oneYrData)
-                .map(
-                    ([
-                        timestamp,
-                        open,
-                        high,
-                        low,
-                        close,
-                        volume
-                    ]: FyersHistoricalDataDTO) =>
-                        new OhlcvDataDTO(
-                            timestamp,
-                            open,
-                            high,
-                            low,
-                            close,
-                            volume
-                        )
-                );
+                .map(mapFyersDataToStockInfo);
 
             const weeks: OhlcvDataDTO[] = _.chain(dailyOHLCV)
                 .groupBy(

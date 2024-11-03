@@ -13,6 +13,7 @@ import { FyersHistoricalDataDTO } from "./dto/fyers-historical-response.dto";
 import { RefreshTokenResponseDTO } from "./dto/refresh-token-response.dto";
 import { RefreshTokenRequestDTO } from "./dto/refresh-token.request.dto";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import moment from "moment";
 
 @Injectable()
 export class RequestHandlerService {
@@ -41,7 +42,8 @@ export class RequestHandlerService {
     }
 
     @Cron(CronExpression.EVERY_DAY_AT_7AM)
-    async refreshToken(): Promise<string> {
+    async refreshToken (): Promise<string> {
+        this.logger.verbose(`Cron job trigerred for FYERS refresh token at ${moment().format("YYYY-MM-DDTHH:mm:ssZ")}`);
         const fyersAppId: string = this.configService.getOrThrow<string>("FYERS_APP_ID");
         const fyersAppSecret = this.configService.getOrThrow<string>("FYERS_APP_SECRET");
         const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
@@ -72,13 +74,14 @@ export class RequestHandlerService {
             });
     }
 
-    async getData(
+    async getData<Type>(
         stockName: string,
         resolution: Resolution,
         rangeFrom: string,
-        rangeTo: string
-    ): Promise<FyersHistoricalDataDTO[]> {
-        const route: string = `${FYERS_HISTORICAL_ROUTE}?symbol=${ stockName }&resolution=${ resolution }&date_format=1&range_from=${ rangeFrom }&range_to=${ rangeTo }&oi_flag=1`;
+        rangeTo: string,
+        dateFormat: number
+    ): Promise<Type> {
+        const route: string = `${FYERS_HISTORICAL_ROUTE}?symbol=${ stockName }&resolution=${ resolution }&date_format=${dateFormat}&range_from=${ rangeFrom }&range_to=${ rangeTo }&oi_flag=1`;
 
         const fyersAppId: string = this.configService.getOrThrow<string>("FYERS_APP_ID");
         const accessToken: Credential = await this.credentialService.findCredentialByDematId(2,GlobalConstant.ACCESS_TOKEN);
@@ -92,6 +95,6 @@ export class RequestHandlerService {
                     [GlobalConstant.Authorization]: `${fyersAppId}:${accessToken.keyValue}`
                 }
             })
-            .then((res: AxiosResponse<FyersApiResponseDTO<FyersHistoricalDataDTO>>) => res.data.candles);
+            .then((res: AxiosResponse<FyersApiResponseDTO<Type>>) => res.data.candles);
     }
 }

@@ -1,6 +1,6 @@
 export class FyersApiResponseDTO<T>  {
     s: "ok" | "error";
-    candles?: T[];
+    candles?: T;
     data?: T;
     message?: T;
     code?: number;
