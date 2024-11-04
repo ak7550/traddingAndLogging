@@ -101,7 +101,7 @@ export default class AngelService implements TradingInterface {
                         today,
                         AngelConstant.ONE_DAY_INTERVAL
                     ).then((historicalData: OhlcvDataDTO[]) =>
-                        getStopLoss(historicalData, strategies)
+                        getStopLoss(null, strategies)
                     );
 
                 if (orderDetail == null || orderDetail.length == 0) {
