@@ -36,3 +36,8 @@ Complete all the well known strategies implementations
 
 Task 8:
 Make sure the logs are customised, so that all the logs get stored into the local file system.
+
+-------------------
+[text](https://trendlyne.com/fundamentals/all-in-one-screener-data-get/?screenpk=190988&perPageCount=100&pageNumber=0&columns=&groupType=all&groupName=all&sortBy=&order=&query=&filterListId=&ownerpk=)
+
+screener link, that needs no authentication.
