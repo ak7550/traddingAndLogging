@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import GlobalConstant, {
     IntegratedBroker
 } from "../../common/globalConstants.constant";
@@ -17,45 +17,29 @@ import { CustomLogger } from "../../custom-logger.service";
 
 @Injectable()
 export default class AngelScheduler {
-    private broker: Broker;
 
     constructor(
         private readonly logger: CustomLogger = new CustomLogger(AngelScheduler.name),
-        private readonly brokerService: BrokerService,
         private readonly requestHandler: AngelRequestHandler,
         private readonly dematService: DematService,
         private readonly credentialService: CredentialService
     ) {}
 
-    private async initiateBroker() {
-        if (this.broker == undefined) {
-            this.broker = await this.brokerService.findOne(
-                IntegratedBroker.Angel
-            );
-        }
-    }
-
     /**
      * this module is responsible for updating the credentials of each users Who has a demat account in Angel
      */
-    // @Cron(CronExpression.EVERY_5_MINUTES) // for testing
-    @Cron("15 10 8 * * 1-5")
+    @Cron(CronExpression.EVERY_DAY_AT_9AM) // for testing
     async updateCredentials(): Promise<void> {
         try {
             this.logger.verbose(`Inside updateCredential method`);
-            this.initiateBroker();
-            const dematAccounts: DematAccount[] =
-                await this.dematService.findAll(this.broker);
+            const dematAccounts: DematAccount[] = await this.dematService.findAll(IntegratedBroker.Angel);
 
             const credentialPromise: Promise<Credential[]>[] =
-                dematAccounts.map((dematAccount: DematAccount) =>
-                    this.updateCredential(dematAccount)
-                );
+                dematAccounts.map((dematAccount: DematAccount) => this.updateCredential(dematAccount));
 
-            await Promise.allSettled(credentialPromise);
-            this.logger.verbose(
-                `All the credentials are refershed for ${this.broker.name}`
-            );
+            await Promise.allSettled( credentialPromise )
+                .then( () => this.logger.verbose(`All the credentials are refershed for ${IntegratedBroker.Angel}`) );
+
         } catch (error) {
             this.logger.error(`failed to update credentials`, `${error}`);
         }
@@ -63,12 +47,9 @@ export default class AngelScheduler {
 
     async updateCredential(account: DematAccount): Promise<Credential[]> {
         try {
-            this.logger.verbose(
-                `updating credentials for account`,
-                `${account}`
-            );
-            const credentials: Credential[] =
-                await this.credentialService.findAll(account);
+            this.logger.verbose( `updating credentials for account`, `${ account.id }` );
+
+            const credentials: Credential[] = await this.credentialService.findAll(account);
 
             const refreshToken: Credential = credentials.filter(
                 credential =>
@@ -82,18 +63,6 @@ export default class AngelScheduler {
             const feedToken: Credential = credentials.filter(
                 credential => credential.keyName === AngelConstant.FEED_TOKEN
             )[0];
-
-            let expiresAt: Credential = credentials.filter(
-                credential => credential.keyName === GlobalConstant.EXPIRES_AT
-            )[0];
-
-            // in case expires_at is null or undefined
-            if (expiresAt == null) {
-                expiresAt = new Credential({
-                    keyName: GlobalConstant.EXPIRES_AT,
-                    account
-                });
-            }
 
             const request: GenerateTokenDto = new GenerateTokenDto({
                 refreshToken: refreshToken.keyValue
@@ -109,21 +78,16 @@ export default class AngelScheduler {
             refreshToken.keyValue = response.refreshToken;
             jwtToken.keyValue = response.jwtToken;
             feedToken.keyValue = response.feedToken;
-            const expiryTime: number = Date.now() + 24 * 60 * 60 * 1000;
-            expiresAt.keyValue = expiryTime.toFixed(0);
 
             const updatedCredentials: Credential[] = [
                 refreshToken,
                 jwtToken,
-                feedToken,
-                expiresAt
+                feedToken
             ];
-            await this.credentialService.save(updatedCredentials);
+            
+            await this.credentialService.save( updatedCredentials )
+                .then(() => this.logger.verbose(`new credentials are saved successfully for`,`${account.id}`) );
 
-            this.logger.verbose(
-                `new credentials are saved successfully for`,
-                `${account}`
-            );
             return updatedCredentials;
         } catch (error) {
             // TODO: need to handle errors in a proper manner, unable to handle the errors efficiently, crashing the whole service

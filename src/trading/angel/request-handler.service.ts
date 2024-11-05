@@ -34,7 +34,7 @@ export default class AngelRequestHandler {
                 return data;
             });
     }
-    
+
     constructor(
         private readonly configService: ConfigService,
         private readonly axiosFactory: AxiosFactory,
@@ -130,19 +130,12 @@ export default class AngelRequestHandler {
         jwtToken: string
     ): Promise<GenerateTokenResponseDto> {
         try {
-            this.logger.verbose(
-                `Inside refreshToken method: ${AngelRequestHandler.name}, route ${request}`
-            );
-            const http: AxiosInstance =
-                this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+            this.logger.verbose( `Inside refreshToken method: ${ AngelRequestHandler.name }, route ${ request }`);
 
-            const response: AxiosResponse<
-                AngelAPIResponse<GenerateTokenResponseDto>
-            > = await http.post(
-                this.configService.getOrThrow<string>(
-                    "ANGEL_REFRESH_TOKEN_URL"
-                ),
-                request,
+            const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+
+            const response: AxiosResponse<AngelAPIResponse<GenerateTokenResponseDto>> =
+                await http.post( AngelConstant.ANGEL_REFRESH_TOKEN_URL, request,
                 {
                     headers: {
                         [GlobalConstant.Authorization]: `Bearer ${jwtToken}`
@@ -150,11 +143,8 @@ export default class AngelRequestHandler {
                 }
             );
 
-            this.logger.verbose(
-                `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:
-                            ${response.data.data}`,
-                `data: ${request}`
-            );
+            this.logger.verbose( `${ AngelRequestHandler.name }: ${ this.refreshToken.name } => response received: ${ response.data.data }`, `data: ${ request }` );
+            
             return response.data.data;
         } catch (error) {
             this.logger.error(
