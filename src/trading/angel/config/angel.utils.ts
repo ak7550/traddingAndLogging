@@ -1,20 +1,27 @@
 import { IntegratedBroker } from "../../../common/globalConstants.constant";
+import { OrderDetails } from "../../../common/strategies";
 import HoldingInfoDTO from "../../dtos/holding-info.dto";
-import OrderResponseDTO from "../../dtos/order.response.dto";
+import OrderResponseDTO from '../../dtos/order.response.dto';
+import AngelAPIResponse from "../dto/generic.response.dto";
 import AngelHoldingDTO from "../dto/holding.dto";
-import AngelOrderRequestDTO from "../dto/order.request.dto";
-import AngelOrderResponseDTO from "../dto/order.response.dto";
+import { AngelOrderStatusResponseDTO } from "../dto/orderStatus.response.dto";
 
-//TODO: fix this
-//docs: https://snyk.io/advisor/npm-package/class-transformer/functions/class-transformer.plainToClass
-//docs: https://medium.com/js-dojo/flexible-entities-with-class-transformer-7f4f0fc43289
 export const mapToOrderResponseDTO = (
-    response: AngelOrderResponseDTO = null,
+    response: AngelAPIResponse<AngelOrderStatusResponseDTO> = null,
     stock: HoldingInfoDTO,
-    orderRequestDTO: AngelOrderRequestDTO = null,
+    orderDetails: OrderDetails = null,
     error: unknown = null
 ): OrderResponseDTO => {
-    return null;
+    const orderResponse: OrderResponseDTO = new OrderResponseDTO();
+    orderResponse.tradingSymbol = stock.tradingsymbol;
+    orderResponse.orderType = orderDetails.orderType;
+    orderResponse.orderId = response.data.uniqueorderid;
+    orderResponse.price = response.data.price;
+    orderResponse.transactionType = orderDetails.transactionType;
+    orderResponse.broker = IntegratedBroker.Angel;
+    orderResponse.status = response.data.orderstatus;
+    orderResponse.reason = response.data.text;
+    return orderResponse;
 };
 
 export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, exchange, isin, profitandloss, pnlpercentage, product, ltp }: AngelHoldingDTO): HoldingInfoDTO =>

@@ -1,3 +1,4 @@
+import { IntegratedBroker, OrderType, TransactionType } from "../../common/globalConstants.constant";
 
 /**
  * docs: https://docs.nestjs.com/techniques/serialization
@@ -5,13 +6,13 @@
  */
 export default class OrderResponseDTO{
     tradingSymbol: string;
-    orderType: string;
-    orderId: number;
+    orderType: OrderType;
+    orderId: string;
     price: string;
-    transactionType: string;
-    broker: string;
-    isin: string;
+    transactionType: TransactionType;
+    broker: IntegratedBroker;
+    isin?: string;
     status: string;
     reason: string;
-    symboltoken: string;
+
 }

@@ -28,9 +28,9 @@ export interface OrderDetails {
 
     //deciding factor is to decide at which price, we need to set the order, in case of LIMIT orders
     // If decidingFactor is undefined, just execute the trade at MARKET price.
-    decidingFactor?: (data: FilterType) => {
-        price: number;
-        triggerPrice: number;
+    decidingFactor?: (data: HoldingInfoDTO) => {
+        price?: number;
+        triggerPrice?: number;
     };
 }
 
@@ -139,12 +139,12 @@ export const openHighSellClosingHour: Strategy = {
 
     orderDetails: {
         decidingFactor: undefined,
-        orderType: "STOPLOSS_MARKET",
-        productType: "DELIVERY",
-        variety: "NORMAL",
-        duration: "DAY",
+        orderType: OrderType.STOPLOSS_MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
         quantity: totalQuantity => Math.floor(totalQuantity / 2), // I will sell half of my existing quantity,
-        transactionType: "SELL"
+        transactionType: TransactionType.SELL
     }
 };
 
@@ -218,12 +218,12 @@ export const openHighSellMorning: Strategy = {
     ],
     orderDetails: {
         decidingFactor: undefined,
-        orderType: "MARKET",
-        productType: "DELIVERY",
-        variety: "NORMAL",
-        duration: "DAY",
+        orderType: OrderType.MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
         quantity: totalQuantity => Math.floor( totalQuantity / 2 ), // I will sell half of my existing quantity
-        transactionType: "SELL"
+        transactionType: TransactionType.SELL
     }
 };
 
@@ -287,11 +287,11 @@ export const daily21EMARetestBuy: Strategy = {
     orderDetails: {
         quantity: q => Math.floor(q * 0.3), // will buy 30% of the existing stock
         decidingFactor: undefined,
-        orderType: "MARKET",
-        productType: "DELIVERY",
-        variety: "NORMAL",
-        duration: "DAY",
-        transactionType: "BUY"
+        orderType: OrderType.MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
+        transactionType: TransactionType.BUY
     }
 };
 
@@ -331,11 +331,11 @@ export const dailyRSIBelow60: Strategy = {
 
     orderDetails: {
         decidingFactor: undefined,
-        orderType: "MARKET",
-        productType: "DELIVERY",
-        variety: "NORMAL",
-        duration: "DAY",
-        transactionType: "SELL",
+        orderType: OrderType.MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
+        transactionType: TransactionType.SELL,
         quantity: q => q // sell 100% of the existing portfolio
     }
 };
@@ -351,11 +351,11 @@ export const ageOldLoosingTrade: Strategy = {
     ],
 
     orderDetails: {
-        orderType: "MARKET",
-        productType: "DELIVERY",
-        variety: "NORMAL",
-        duration: "DAY",
-        transactionType: "SELL",
+        orderType: OrderType.MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
+        transactionType: TransactionType.SELL,
         quantity: q => q
     },
     name: "AgeOldLoosing Trade",

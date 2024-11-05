@@ -14,6 +14,8 @@ import AngelRequestHandler from "./request-handler.service";
 import { CustomLogger } from "../../custom-logger.service";
 import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
 import { Credential } from "../../entities/credential/credential.entity";
+import AngelAPIResponse from "./dto/generic.response.dto";
+import { AngelOrderStatusResponseDTO } from "./dto/orderStatus.response.dto";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -25,29 +27,36 @@ export default class AngelService implements TradingInterface {
         private readonly credentialService: CredentialService
     ) {}
 
-    async placeOrder(
+    async placeOrder (
         orderDetail: OrderDetails,
         holding: HoldingInfoDTO,
         demat: DematAccount
     ): Promise<OrderResponseDTO> {
         const angelSymbolToken: AngelSymbolTokenDTO = await this.requestHandler.getAllAngelSymbolToken()
             .then( ( symbolTokens: AngelSymbolTokenDTO[] ) => symbolTokens.filter( ( { symbol } ) => symbol === holding.tradingsymbol )[ 0 ] );
+
         const orderResponse: OrderResponseDTO = await this.credentialService
             .findCredential( demat, AngelConstant.AUTH_TOKEN )
-            .then( (authToken: Credential) => {
-                const orderRequest: AngelOrderRequestDTO = new AngelOrderRequestDTO( holding, orderDetail, angelSymbolToken );
-                return this.requestHandler.execute<AngelOrderResponseDTO>(AngelConstant.ORDER_PLACE_ROUTE, RequestMethod.POST, orderRequest, ApiType.order, authToken.keyValue)
-            } )
-            .then( ( response: AngelOrderResponseDTO ) => {
-                this.logger.verbose(`receive a successful response stoploss order of ${holding.tradingsymbol}`);
+            .then( async ( authToken: Credential ) => {
+                const orderRequest: AngelOrderRequestDTO =
+                    new AngelOrderRequestDTO(
+                        holding,
+                        orderDetail,
+                        angelSymbolToken
+                    );
 
-                //code to response into universal order-dto
-                //TODO: talk with angel, there must be an api to find a status of an individual order
-                // using that response, we will be able to map a lot of data
-                return mapToOrderResponseDTO(response,holding);
-            });
+                const {data: {uniqueorderid}} = await this.requestHandler.execute<AngelOrderResponseDTO>(
+                    AngelConstant.ORDER_PLACE_ROUTE,
+                    RequestMethod.POST,
+                    orderRequest,
+                    ApiType.order,
+                    authToken.keyValue
+                );
 
-        //TODO: think of sending this order response to audit
+                const completeResponse = await this.requestHandler.execute<AngelOrderStatusResponseDTO>( AngelConstant.ORDER_BOOK_ROUTE + uniqueorderid, RequestMethod.GET, null, ApiType.order, authToken.keyValue );
+
+                return mapToOrderResponseDTO(completeResponse, holding, orderDetail);
+            } );
         return orderResponse;
     }
 
@@ -63,6 +72,6 @@ export default class AngelService implements TradingInterface {
                     authToken.keyValue
                 )
             )
-            .then((res: AngelHoldingDTO[]) => res.map(mapToHoldingDTO));
+            .then(({data: res}) => res.map(mapToHoldingDTO));
     }
 }

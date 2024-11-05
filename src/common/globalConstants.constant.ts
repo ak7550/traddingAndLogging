@@ -32,16 +32,17 @@ export default class GlobalConstant {
     public static readonly FULFILLED = "fulfilled";
     public static readonly REJECTED = "rejected";
     public static readonly REFRESH_TOKEN = "refresh_token";
-    public static readonly EXPIRES_AT: string = "expiresAt";
 }
 
-export type ExchangeType = "NSE" | "BSE" | "NFO";
-export type OrderVariety = "NORMAL" | "STOPLOSS";
-export type TransactionType = "BUY" | "SELL";
-export type OrderType = "MARKET" | "LIMIT" | "STOPLOSS_LIMIT" | "STOPLOSS_MARKET";
-export type ProductType = "DELIVERY" | "CARRYFOREARD";
-export type DurationType = "DAY" | "IOC";
-export type InstrumentType = "OPTSTK" | "OPTIDX" | "";
+export enum ExchangeType { "NSE" , "BSE" , "NFO" , "MCX" , "BFO" , "CDS"} ;
+export enum OrderVariety { "NORMAL", "STOPLOSS", "AMO", "ROBO" };
+export enum TransactionType { "BUY", "SELL" };
+export enum OrderType { "MARKET", "LIMIT", "STOPLOSS_LIMIT", "STOPLOSS_MARKET" };
+export enum ProductType  { "DELIVERY", "CARRYFOREARD", "MARGIN", "INTRADAY", "BO" } ;
+export enum DurationType { "DAY", "IOC" } ;
+export enum InstrumentType {
+    "OPTSTK", "OPTIDX", ""
+};
 
 //this will be considered as the single source of truth for all the integrated brokers
 export enum IntegratedBroker {

@@ -60,7 +60,7 @@ export default class AngelRequestHandler {
         requestBody: Object,
         apiType: ApiType,
         jwtToken?: string
-    ): Promise<Type> {
+    ): Promise<AngelAPIResponse<Type>> {
         try {
             this.logger.verbose(
                 `Inside execute method: ${AngelRequestHandler.name}, route ${route}`
@@ -117,7 +117,7 @@ export default class AngelRequestHandler {
                             ${response.data.data}`,
                 `route: ${route}`
             );
-            return response.data.data;
+            return response.data;
         } catch (error) {
             this.logger.error(
                 `Error occured while hitting the ${route} request from Angel apis, ${error}`
@@ -144,7 +144,7 @@ export default class AngelRequestHandler {
             );
 
             this.logger.verbose( `${ AngelRequestHandler.name }: ${ this.refreshToken.name } => response received: ${ response.data.data }`, `data: ${ request }` );
-            
+
             return response.data.data;
         } catch (error) {
             this.logger.error(
