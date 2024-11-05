@@ -3,6 +3,7 @@ import HoldingInfoDTO from 'src/trading/dtos/holding-info.dto';
 import { DurationType, ExchangeType, OrderType, OrderVariety, ProductType, TransactionType } from '../../../common/globalConstants.constant';
 import { OrderDetails } from '../../../common/strategies';
 import AngelSymbolTokenDTO from './symboltoken.response.dto';
+import moment from 'moment';
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
 //TODO: implement builder design pattern
@@ -16,7 +17,10 @@ export default class AngelOrderRequestDTO {
 		this.producttype = orderDetail.productType;
 		this.ordertype = orderDetail.orderType;
 		this.duration = orderDetail.duration;
-		this.ordertag = `${ this.ordertype === OrderType.STOPLOSS_MARKET && "SL-M" } is placed for ${ stock.tradingsymbol } at ${ new Date() }`;
+		this.ordertag = `${
+			this.ordertype === OrderType.STOPLOSS_MARKET && "SL-M" } is placed for
+			 ${ stock.tradingsymbol } at ${ moment().format( "YYYY-MM-DD HH:mm" ) }`;
+
 		this.quantity = orderDetail.quantity( stock.totalQty );
 
 		if ( this.ordertype == OrderType.STOPLOSS_MARKET || this.ordertype === OrderType.STOPLOSS_LIMIT ) {
