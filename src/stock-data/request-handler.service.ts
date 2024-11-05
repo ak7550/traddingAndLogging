@@ -1,19 +1,18 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import axiosRateLimit from "axios-rate-limit";
+import moment from "moment";
 import GlobalConstant from "../common/globalConstants.constant";
 import { CustomLogger } from "../custom-logger.service";
 import { Credential } from "../entities/credential/credential.entity";
 import { CredentialService } from "../entities/credential/credential.service";
 import { FYERS_HISTORICAL_ROUTE, FYERS_REFRESH_TOKEN_URL, Resolution } from "./config/stock-data.constant";
 import { FyersApiResponseDTO } from "./dto/fyers-api-response.dto";
-import { FyersHistoricalDataDTO } from "./dto/fyers-historical-response.dto";
 import { RefreshTokenResponseDTO } from "./dto/refresh-token-response.dto";
 import { RefreshTokenRequestDTO } from "./dto/refresh-token.request.dto";
-import { Cron, CronExpression } from "@nestjs/schedule";
-import moment from "moment";
 
 @Injectable()
 export class RequestHandlerService {
