@@ -1,7 +1,7 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import _ from "lodash";
-import moment from "moment";
+import moment from "moment-timezone";
 import { CreateStockDatumDto } from "./dto/create-stock-datum.dto";
 import { FyersHistoricalDataDTO } from "./dto/fyers-historical-response.dto";
 import { UpdateStockDatumDto } from "./dto/update-stock-datum.dto";
@@ -35,7 +35,11 @@ export class StockDataService {
         const fifteenMinuteData = this.requestHandler.getData<FyersHistoricalDataDTO[]>( stockName, '15', todayAt915, currentTime, 0 );
         const oneHourData = this.requestHandler.getData<FyersHistoricalDataDTO[]>( stockName, '60', todayAt915, currentTime, 0 );
 
-        return await Promise.all( [ fiveMinuteData, fifteenMinuteData, oneHourData ] )
+        return await Promise.all( [
+            fiveMinuteData,
+            fifteenMinuteData,
+            oneHourData
+        ] )
             .then( ( [ five, fifteen, oneHour ] ) => {
                 const ohlcv5: OhlcvDataDTO[] = five.map( mapFyersDataToStockInfo );
                 const ohlcv15: OhlcvDataDTO[] = fifteen.map( mapFyersDataToStockInfo );
@@ -45,8 +49,8 @@ export class StockDataService {
                 const timewise15: TimeWiseData = new TimeWiseData( ohlcv15 );
                 const timewise1: TimeWiseData = new TimeWiseData( ohlcv1 );
 
-                return new StockInfoMarket( timewise5, timewise15, timewise1 );
-            });
+            return new StockInfoMarket(timewise5, timewise15, timewise1);
+        });
     }
 
     async getHistoricalData(stockName: string): Promise<StockInfoHistorical> {

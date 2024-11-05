@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import axiosRateLimit from "axios-rate-limit";
-import moment from "moment";
+import moment from "moment-timezone";
 import GlobalConstant from "../common/globalConstants.constant";
 import { CustomLogger } from "../custom-logger.service";
 import { Credential } from "../entities/credential/credential.entity";
@@ -80,7 +80,7 @@ export class RequestHandlerService {
         rangeTo: string,
         dateFormat: number
     ): Promise<Type> {
-        const route: string = `${FYERS_HISTORICAL_ROUTE}?symbol=${ stockName }&resolution=${ resolution }&date_format=${dateFormat}&range_from=${ rangeFrom }&range_to=${ rangeTo }&oi_flag=1`;
+        const route: string = `${FYERS_HISTORICAL_ROUTE}?symbol=${stockName}&resolution=${resolution}&date_format=${dateFormat}&range_from=${rangeFrom}&range_to=${rangeTo}&oi_flag=1`;
 
         const fyersAppId: string = this.configService.getOrThrow<string>("FYERS_APP_ID");
         const accessToken: Credential = await this.credentialService.findCredentialByDematId(2,GlobalConstant.ACCESS_TOKEN);

@@ -1,9 +1,8 @@
 import { ConsoleLogger } from '@nestjs/common';
 import * as fs from "fs-extra";
-import moment from 'moment';
+import moment from "moment-timezone";
 import path from "path";
 
-// @Injectable({ scope: Scope.TRANSIENT })
 export class CustomLogger extends ConsoleLogger {
     private logFilePath: string;
 
@@ -13,7 +12,7 @@ export class CustomLogger extends ConsoleLogger {
     }
 
     private createLogFilePath(): string {
-        const today: string = moment().toISOString().split("T")[0];
+        const today: string = moment().format("YYYY-MM-DD");
         const logDir = path.resolve( __dirname, "../logs" ); // Customize your log directory if needed
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir, { recursive: true });
@@ -27,7 +26,7 @@ export class CustomLogger extends ConsoleLogger {
         message: string,
         context?: string
     ): void {
-        const timestamp = moment().toISOString();
+        const timestamp = moment().format();
         const logEntry = `"${timestamp}","${level}","${
             context || ""
         }","${message}"\n`;

@@ -3,11 +3,14 @@ import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { CustomLogger } from "./custom-logger.service";
+import moment from "moment-timezone";
 
 async function bootstrap() {
     const app = await NestFactory.create( AppModule, {
         bufferLogs: true
-    });
+    } );
+
+    moment.tz.setDefault("Asia/Kolkata"); // setting the default time zone with GMT+5:30
     app.useGlobalPipes( new ValidationPipe( {
         transform: true,
         disableErrorMessages: process.env.NODE_ENV === 'prod',

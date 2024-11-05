@@ -1,8 +1,8 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import { BollingerBand, getBollingerBandData, getEmaValue, getRSI, getVwap } from '../../common/strategy-util';
 import _ from "lodash";
 
-export class OhlcvDataDTO{
+export class OhlcvDataDTO {
     open: number;
     high: number;
     low: number;
@@ -16,7 +16,7 @@ export class OhlcvDataDTO{
     isOpenHigh: boolean;
     isWholeBody: boolean;
     timeStamp: number; // epoch format
-    candleType?: 'DOJI' | 'DRAGON-FLY-DOJI' | 'HAMMER' | 'PIN-BAR' | 'MARUBOZU'; // todo => create a method to determine the candle type
+    candleType?: "DOJI" | "DRAGON-FLY-DOJI" | "HAMMER" | "PIN-BAR" | "MARUBOZU"; // todo => create a method to determine the candle type
     timeStr: string;
 
     //TODO: apply a criteria to find the what is the candle type (doji, dragonfly-doji, hammer, pin bar, whole-body)

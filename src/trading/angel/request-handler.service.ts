@@ -12,6 +12,7 @@ import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import moment from "moment-timezone";
 
 @Injectable()
 export default class AngelRequestHandler {
@@ -33,6 +34,11 @@ export default class AngelRequestHandler {
                 this.cacheManager.set( keyName, data, 12 * 3600 * 1000 ); // cacheing it for 12 hours.
                 return data;
             });
+    }
+
+    @Cron( CronExpression.EVERY_5_SECONDS )
+    testing () {
+        this.logger.debug( `Current time is: ${ moment().format() }` );
     }
 
     constructor(
