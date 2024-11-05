@@ -24,15 +24,23 @@ Holding table
 Task 4:
 Alert system trigger implementation, so that we can get an webhook call whenever there's an alert notification
 
-Task 5:
-Segregation of core logic in to Trading module. 
-I will call the broker module methods only when they are absolutely needed. => this will make code more efficient. 
-
-Task 6:
-Compelte the order placement tasks
-
 Task 7:
 Complete all the well known strategies implementations
 
 Task 8:
-Make sure the logs are customised, so that all the logs get stored into the local file system.
+Make the logs in a proper manner, debug it to fix it
+
+Task 9:
+Implement retry makanism for api calls
+
+Task 10:
+Enhance the error handling in request handler files.
+
+Task 12:
+Explore event triggers
+
+Task 13:
+Integrate google sheets
+
+Task 14:
+call some auth-less scanner GET apis to get the data regularly
