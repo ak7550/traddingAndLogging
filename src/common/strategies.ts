@@ -1,5 +1,6 @@
 import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
 import {
+    OhlcvDataDTO,
     StockInfoHistorical,
     StockInfoMarket
 } from "../stock-data/entities/stock-data.entity";
@@ -10,7 +11,7 @@ import {
     ProductType,
     TransactionType
 } from "./globalConstants.constant";
-import { getCandleData, getEmaValue, percentageChange } from "./strategy-util";
+import { findBigDaddyCandle, getCandleData, getEmaValue, percentageChange } from "./strategy-util";
 
 type FilterType = {
     historical: StockInfoHistorical;
@@ -294,6 +295,65 @@ export const daily21EMARetestBuy: Strategy = {
         transactionType: TransactionType.BUY
     }
 };
+
+//needs more research
+export const minimum4PercentSL: Strategy = {
+    name: 'minimum 4% stop loss',
+    description: 'Idea is each day for safety I will calculate the 4% SL from buying price',
+    mustConditions: [],
+    mightConditions: [],
+    orderDetails: {
+        quantity: q => Math.floor(q * 1 ), // will buy 30% of the existing stock
+        decidingFactor: ({avgCostPrice}: HoldingInfoDTO) => {
+            const triggerPrice = avgCostPrice * 0.96;
+            const slPrice = avgCostPrice * 0.95;
+            return {
+                triggerPrice,
+                price: slPrice
+            }
+        },
+        orderType: OrderType.STOPLOSS_LIMIT,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
+        transactionType: TransactionType.SELL
+    }
+
+}
+
+// this strategy will tell u at the end of market hours, that should we sell the stock or not
+/* how to identify a big daddy candle: 
+    1. it will be a huge gap up candle, more than 5% upside than previous day close
+    2. 80% is the body of the candle
+*/
+export const bigCandleBreakDown: Strategy = {
+    name: 'Big candle break down sell strategy',
+    description: 'If today\'s candle breaks the low of recent big daddy candle, we will sell it',
+    mustConditions: [
+        {
+            filter: ({historical: {oneDay: { candleInfo }}, current}) => {
+                const bigDaddyCandle : OhlcvDataDTO = findBigDaddyCandle(candleInfo, 60);
+                return bigDaddyCandle !== null && current.dayCandle.close < bigDaddyCandle.low * 0.99; 
+                // current daily candle's low is lesser than low of big daddy candle
+            },
+            description: 'Today\'s candle is breaking the low of recent big daddy CandleData.'
+        },
+        {
+            filter: ({ current }) => !current.dayCandle.isGreen,
+            description: "Candle must be a red candle."
+        },
+    ],
+
+    orderDetails: {
+        decidingFactor: undefined,
+        orderType: OrderType.MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
+        transactionType: TransactionType.SELL,
+        quantity: q => q // sell 100% of the existing portfolio
+    }
+}
 
 // this needs more research, some strong stocks are giving false SELL trigger
 export const dailyRSIBelow60: Strategy = {

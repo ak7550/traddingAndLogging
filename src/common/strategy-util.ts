@@ -10,6 +10,21 @@ export const isGapUp = (ohlcdata: OhlcvDataDTO[], candle: number): boolean => {
     return high > open;
 };
 
+export const findBigDaddyCandle = (candleInfo: OhlcvDataDTO[], days: number) : OhlcvDataDTO => {
+    for (let index = 1; index < days; index++) {
+        const currentCandle = candleInfo[candleInfo.length - index];
+        if(isBigDaddy(currentCandle)){
+            return currentCandle;
+        } 
+    }
+    return null;
+}
+
+export const isBigDaddy = ({high, low, bodyPercentage}: OhlcvDataDTO) => {
+    const percentUp = percentageChange(high, low);
+    return percentUp > 5 && bodyPercentage > 80;
+}
+
 export const percentageChange = (a: number, b: number): number => (a / b - 1) * 100;
 
 type CandlePropertyType = 'open' | 'high' | 'close' | 'low' | 'volume' | 'timeStamp' | 'bodyPercentage' | 'wickPercentage' | 'tailPercentage';
