@@ -44,3 +44,6 @@ Integrate google sheets
 
 Task 14:
 call some auth-less scanner GET apis to get the data regularly
+
+Task 15: 
+start analysing flat trade, code base, I need to integrate that BROKER as well.
