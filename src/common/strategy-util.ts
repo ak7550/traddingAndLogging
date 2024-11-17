@@ -165,4 +165,4 @@ export function getBollingerBandData ( ohlc: OhlcvDataDTO[], dataType: CandlePro
             bbMA: middle
         }
     });
-  };
+};

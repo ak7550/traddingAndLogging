@@ -16,10 +16,7 @@ export class OhlcvDataDTO {
     isOpenHigh: boolean;
     isWholeBody: boolean;
     timeStamp: number; // epoch format
-    candleType?: "DOJI" | "DRAGON-FLY-DOJI" | "HAMMER" | "PIN-BAR" | "MARUBOZU"; // todo => create a method to determine the candle type
     timeStr: string;
-
-    //TODO: apply a criteria to find the what is the candle type (doji, dragonfly-doji, hammer, pin bar, whole-body)
 
     constructor ( t: number, o: number, high: number, l: number, c: number, vol: number ) {
         this.timeStamp = t;
