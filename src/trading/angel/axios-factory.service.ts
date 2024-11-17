@@ -4,6 +4,7 @@ import axiosRateLimit from "axios-rate-limit";
 import { AngelConstant, ApiType } from "./config/angel.constant";
 import { ConfigService } from "@nestjs/config";
 import GlobalConstant from "../../common/globalConstants.constant";
+import axiosRetry from "axios-retry";
 
 @Injectable()
 export default class AxiosFactory {
@@ -13,7 +14,7 @@ export default class AxiosFactory {
     private otherApi: AxiosInstance;
 
     public getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
-        return axiosRateLimit(
+        const client: AxiosInstance = axiosRateLimit(
             axios.create({
                 baseURL: this.configService.getOrThrow<string>("ANGEL_BASE_URL"),
                 headers: {
@@ -29,6 +30,10 @@ export default class AxiosFactory {
                 maxRequests,
             },
         );
+
+        axiosRetry(client, {retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
+        return client;
     }
 
     constructor (

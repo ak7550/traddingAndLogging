@@ -13,6 +13,7 @@ import { FYERS_HISTORICAL_ROUTE, FYERS_REFRESH_TOKEN_URL, Resolution } from "./c
 import { FyersApiResponseDTO } from "./dto/fyers-api-response.dto";
 import { RefreshTokenResponseDTO } from "./dto/refresh-token-response.dto";
 import { RefreshTokenRequestDTO } from "./dto/refresh-token.request.dto";
+import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
 
 @Injectable()
 export class RequestHandlerService {
@@ -26,7 +27,7 @@ export class RequestHandlerService {
     ) {}
 
     getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
-        return axiosRateLimit(
+        const client: AxiosInstance = axiosRateLimit(
             axios.create({
                 // baseURL: this.configService.getOrThrow<string>("FYERS_BASE_URL"), // base url is not needed here => check the docs
                 headers: {
@@ -38,6 +39,10 @@ export class RequestHandlerService {
                 maxRequests
             }
         );
+
+        axiosRetry(client, {retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
+        return client;
     }
 
     @Cron(CronExpression.EVERY_DAY_AT_7AM)

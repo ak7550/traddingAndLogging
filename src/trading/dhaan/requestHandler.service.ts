@@ -1,19 +1,20 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-import axiosRateLimit, { RateLimitedAxiosInstance } from "axios-rate-limit";
-import { Observable, catchError, firstValueFrom, from } from "rxjs";
-import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import { ConfigService } from "@nestjs/config";
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import axiosRateLimit from "axios-rate-limit";
+import axiosRetry from "axios-retry";
+import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import GlobalConstant from "../../common/globalConstants.constant";
 import { CustomLogger } from "../../custom-logger.service";
+import { ApiType } from "./config/dhaan.constant";
 
 class AxiosFactory {
     private static tradingAxios: AxiosInstance;
     private static nonTradingAxios: AxiosInstance;
     private static historicalAxios: AxiosInstance;
 
-    private getAxiosInstance(maxRPS: number): RateLimitedAxiosInstance {
-        return axiosRateLimit(
+    private getAxiosInstance(maxRPS: number): AxiosInstance {
+        const client:AxiosInstance = axiosRateLimit(
             axios.create({
                 baseURL:
                     this.configService.getOrThrow<string>("DHAAN_BASE_URL"),
@@ -30,6 +31,9 @@ class AxiosFactory {
                 maxRPS
             }
         );
+
+        axiosRetry(client, {retries: 3, retryDelay: axiosRetry.exponentialDelay });
+        return client;
     }
 
     constructor(private readonly configService: ConfigService) {

@@ -28,10 +28,10 @@ Task 7:
 Complete all the well known strategies implementations
 
 Task 8:
-Make the logs in a proper manner, debug it to fix it
+think of some cheapest but secure way to deploy the application. ==> Linode
 
 Task 9:
-Implement retry makanism for api calls
+Implement retry mechanism for api calls
 
 Task 10:
 Enhance the error handling in request handler files.
