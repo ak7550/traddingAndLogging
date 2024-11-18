@@ -22,6 +22,8 @@ import { User } from "../entities/user/entities/user.entity";
                 synchronize: configService.getOrThrow(`DB_SYNCHRONIZE`),
                 retryAttempts: 5,
                 retryDelay: 1000,
+                logging: ["error", "info", "log", "query", "schema", "warn", "migration"],
+                maxQueryExecutionTime: 5000 //5 secs
             }),
             inject: [ConfigService],
         }),

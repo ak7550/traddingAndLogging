@@ -24,6 +24,9 @@ Holding table
 Task 4:
 Alert system trigger implementation, so that we can get an webhook call whenever there's an alert notification
 
+Task 5:
+Fix the typeOrm code, which is breaking in some cases.
+
 Task 7:
 Complete all the well known strategies implementations
 
@@ -31,7 +34,7 @@ Task 8:
 think of some cheapest but secure way to deploy the application. ==> Linode
 
 Task 9:
-Implement retry mechanism for api calls
+Implement retry mechanism for api calls ==> test the code
 
 Task 10:
 Enhance the error handling in request handler files.

@@ -62,9 +62,7 @@ export class CredentialService {
             .then(credential => {
                 this.cacheManager
                     .set(cacheKey, credential, 24 * 3600 * 1000)
-                    .then(() =>
-                        this.logger.debug(`${cacheKey} is cached for 1 day.`)
-                    );
+                    .then(() => this.logger.debug(`${cacheKey} is cached for 1 day.`));
                 return credential;
             });
     }

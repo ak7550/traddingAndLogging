@@ -41,7 +41,9 @@ export class BrokerService {
 
     try {
         const broker : Broker = new Broker(createBrokerDTO);
-        await this.entityManager.save(broker);
+        // this.entityManager.query
+        // this.entityManager.createQueryBuilder
+        await this.entityManager.save(this.entityManager.create(Broker, createBrokerDTO));
         return createBrokerDTO;
     } catch (error) {
         this.logger.error(`error occured while saving new broker info ${error}`);
