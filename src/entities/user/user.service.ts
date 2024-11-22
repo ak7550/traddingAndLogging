@@ -9,6 +9,7 @@ import { DematAccount } from "../demat/entities/demat-account.entity";
 import CreateUserDto from "./dto/create-user.dto";
 import UpdateUserDto from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
+import utils from 'util';
 
 @Injectable()
 export class UserService {
@@ -35,8 +36,8 @@ export class UserService {
     async createUser(createUserDTO: CreateUserDto): Promise<CreateUserDto> {
         try {
             this.logger.verbose(
-                `Inside createUser method`,
-                JSON.stringify(createUserDTO)
+                `Inside createUser method,
+                ${utils.inspect(createUserDTO, {depth: 4, colors: true, })}`
             );
             const user: User = await this.entityManager.save(
                 new User(createUserDTO)
@@ -45,7 +46,7 @@ export class UserService {
         } catch (error) {
             this.logger.error(
                 `error occured while saving new user info`,
-                `${error}`
+                `${utils.inspect(error, {depth: 4, colors: true, })}`
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),
@@ -59,8 +60,7 @@ export class UserService {
     ): Promise<CreateDematAccountDto> {
         try {
             this.logger.verbose(
-                `Inside createDemat method`,
-                JSON.stringify(createDematDto)
+                `Inside createDemat method ${utils.inspect(createDematDto, {depth: 4, colors: true, })}`
             );
             const user: User = await this.entityManager.findOneBy(User, {
                 id: createDematDto.userId
@@ -79,7 +79,7 @@ export class UserService {
         } catch (error) {
             this.logger.error(
                 `error occured while saving new demat account info`,
-                `${error}`
+                `${utils.inspect(error, {depth: 4, colors: true, })}`
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),

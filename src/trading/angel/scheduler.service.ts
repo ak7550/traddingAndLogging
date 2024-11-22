@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import utils from 'util';
 import GlobalConstant, {
     IntegratedBroker
 } from "../../common/globalConstants.constant";
-import { BrokerService } from "../../entities/broker/broker.service";
-import { Broker } from "../../entities/broker/entities/broker.entity";
+import { CustomLogger } from "../../custom-logger.service";
 import { Credential } from "../../entities/credential/credential.entity";
 import { CredentialService } from "../../entities/credential/credential.service";
 import { DematService } from "../../entities/demat/demat.service";
@@ -13,7 +13,6 @@ import { AngelConstant } from "./config/angel.constant";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelRequestHandler from "./request-handler.service";
-import { CustomLogger } from "../../custom-logger.service";
 
 @Injectable()
 export default class AngelScheduler {
@@ -41,7 +40,7 @@ export default class AngelScheduler {
                 .then( () => this.logger.verbose(`All the credentials are refershed for ${IntegratedBroker.Angel}`) );
 
         } catch (error) {
-            this.logger.error(`failed to update credentials`, `${error}`);
+            this.logger.error(`failed to update credentials`, `${utils.inspect(error, {depth: 4, colors: true, })}`);
         }
     }
 
@@ -93,7 +92,7 @@ export default class AngelScheduler {
             // TODO: need to handle errors in a proper manner, unable to handle the errors efficiently, crashing the whole service
             this.logger.error(
                 `error occured while generating a new accessTokens for ${account.accountNumber}`,
-                `${error}`
+                `${utils.inspect(error, {depth: 4, colors: true, })}`
             );
         }
     }

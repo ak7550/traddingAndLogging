@@ -9,6 +9,7 @@ import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
 import DhaanRequestHandler from "./requestHandler.service";
 import { CustomLogger } from "../../custom-logger.service";
+import utils from 'util';
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
@@ -53,7 +54,7 @@ export default class DhaanService implements TradingInterface {
                     )
             );
 
-            this.logger.verbose(`converted into stockInfo: ${stockInfos}`);
+            this.logger.verbose(`converted into stockInfo: ${utils.inspect(stockInfos, {depth: 4, colors: true, })}`);
             this.logger.verbose(
                 `trying to convert a single one: ,
                 ${plainToClass(HoldingInfoDTO, response[0])}`
@@ -63,7 +64,7 @@ export default class DhaanService implements TradingInterface {
         } catch (error) {
             this.logger.error(
                 `Error occured while fetching the holdings data using Dhaan apis,
-                ${error}`,
+                ${utils.inspect(error, {depth: 4, colors: true, })}`,
                 DhaanService.name
             );
         }

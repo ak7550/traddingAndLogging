@@ -13,6 +13,7 @@ import AngelAPIResponse from "./dto/generic.response.dto";
 import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import moment from "moment-timezone";
+import utils from 'util';
 
 @Injectable()
 export default class AngelRequestHandler {
@@ -110,7 +111,7 @@ export default class AngelRequestHandler {
                 AxiosResponse<AngelAPIResponse<Type>>
             > = from(promise).pipe(
                 catchError((error: AxiosError) => {
-                    this.logger.error(`error that we faced just now, ${error}`);
+                    this.logger.error(`error that we faced just now,${utils.inspect(error, {depth: 4, colors: true, })}`);
                     throw new Error("An error happened!");
                 })
             );
@@ -126,7 +127,7 @@ export default class AngelRequestHandler {
             return response.data;
         } catch (error) {
             this.logger.error(
-                `Error occured while hitting the ${route} request from Angel apis, ${error}`
+                `Error occured while hitting the ${route} request from Angel apis, ${utils.inspect(error, {depth: 4, colors: true, })}`
             );
         }
     }
@@ -136,7 +137,7 @@ export default class AngelRequestHandler {
         jwtToken: string
     ): Promise<GenerateTokenResponseDto> {
         try {
-            this.logger.verbose( `Inside refreshToken method: ${ AngelRequestHandler.name }, route ${ request }`);
+            this.logger.verbose( `Inside refreshToken method: ${ AngelRequestHandler.name }, route ${utils.inspect(request, {depth: 4, colors: true, })}`);
 
             const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
 
@@ -149,13 +150,13 @@ export default class AngelRequestHandler {
                 }
             );
 
-            this.logger.verbose( `${ AngelRequestHandler.name }: ${ this.refreshToken.name } => response received: ${ response.data.data }`, `data: ${ request }` );
+            this.logger.verbose( `${ AngelRequestHandler.name }: ${ this.refreshToken.name } => response received: ${ response.data.data }`, `data: ${utils.inspect(request, {depth: 4, colors: true, })}` );
 
             return response.data.data;
         } catch (error) {
             this.logger.error(
                 `Error occured while generating the refreshtoken request from Angel apis`,
-                `${error}`
+                `${utils.inspect(error, {depth: 4, colors: true, })}`
             );
         }
     }

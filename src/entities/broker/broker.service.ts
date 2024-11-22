@@ -5,6 +5,7 @@ import { HttpStatusCode } from 'axios';
 import { IntegratedBroker } from 'src/common/globalConstants.constant';
 import CreateBrokerDto from './dto/create-broker.dto';
 import { CustomLogger } from '../../custom-logger.service';
+import utils from 'util';
 
 @Injectable()
 export class BrokerService {
@@ -17,7 +18,7 @@ export class BrokerService {
   async create(
     createBrokerDTO: CreateBrokerDto,
   ): Promise<CreateBrokerDto> {
-    this.logger.debug( `Inside createBroker method ${''} `);
+    this.logger.debug( `Inside createBroker method `);
     //-> just wanna show it can be done by this way as well
     // const queryRunner = this.dataSource.createQueryRunner();
     // queryRunner.connect();
@@ -46,7 +47,7 @@ export class BrokerService {
         await this.entityManager.save(this.entityManager.create(Broker, createBrokerDTO));
         return createBrokerDTO;
     } catch (error) {
-        this.logger.error(`error occured while saving new broker info ${error}`);
+        this.logger.error(`error occured while saving new broker info ${utils.inspect(error, {depth: 4, colors: true, })}`);
         throw new HttpException(
             HttpStatusCode.Forbidden.toString(),
             HttpStatus.FORBIDDEN,

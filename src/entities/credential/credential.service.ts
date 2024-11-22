@@ -8,6 +8,7 @@ import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { CustomLogger } from "../../custom-logger.service";
+import utils from 'util';
 
 @Injectable()
 export class CredentialService {
@@ -101,7 +102,7 @@ export class CredentialService {
             await this.entityManager.save(credential);
         } catch (error) {
             this.logger.error(
-                `error occured while saving credential info ${error}`
+                `error occured while saving credential info ${utils.inspect(error, {depth: 4, colors: true, })}`
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),
@@ -132,7 +133,7 @@ export class CredentialService {
             });
         } catch (error) {
             this.logger.error(
-                `error occured while saving new broker info ${error}`
+                `error occured while saving new broker info ${utils.inspect(error, {depth: 4, colors: true, })}`
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),

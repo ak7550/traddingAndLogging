@@ -7,6 +7,7 @@ import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import GlobalConstant from "../../common/globalConstants.constant";
 import { CustomLogger } from "../../custom-logger.service";
 import { ApiType } from "./config/dhaan.constant";
+import utils from 'util';
 
 class AxiosFactory {
     private static tradingAxios: AxiosInstance;
@@ -97,7 +98,7 @@ export default class DhaanRequestHandler {
                 catchError((error: AxiosError) => {
                     this.logger.error(
                         "error that we faced just now",
-                        `${error}`
+                        `${utils.inspect(error, {depth: 4, colors: true, })}`
                     );
                     throw new Error("An error happened!");
                 })
@@ -110,7 +111,7 @@ export default class DhaanRequestHandler {
         } catch (error) {
             this.logger.error(
                 `Error occured while hitting the ${route} request from Dhaan apis`,
-                `${error}`
+                `${utils.inspect(error, {depth: 4, colors: true, })}`
             );
         }
     }
