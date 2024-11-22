@@ -25,7 +25,7 @@ Task 4:
 Alert system trigger implementation, so that we can get an webhook call whenever there's an alert notification
 
 Task 5:
-Fix the typeOrm code, which is breaking in some cases.
+Fix the typeOrm code, which is breaking in some save update operations.
 
 Task 7:
 Complete all the well known strategies implementations
@@ -50,3 +50,7 @@ call some auth-less scanner GET apis to get the data regularly
 
 Task 15: 
 start analysing flat trade, code base, I need to integrate that BROKER as well.
+
+TASK 16:
+[NSE 52 WEEK HIGH API](https://www.nseindia.com/api/live-analysis-data-52weekhighstock)
+TrendLyne => Free API
