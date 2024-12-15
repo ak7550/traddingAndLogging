@@ -1,8 +1,10 @@
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable, RequestMethod } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-import { Observable, catchError, firstValueFrom, from } from "rxjs";
+import { catchError, firstValueFrom, from, Observable } from "rxjs";
+import utils from 'util';
 import GlobalConstant from "../../common/globalConstants.constant";
 import { CustomLogger } from "../../custom-logger.service";
 import AxiosFactory from "./axios-factory.service";
@@ -11,9 +13,6 @@ import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
-import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
-import moment from "moment-timezone";
-import utils from 'util';
 
 @Injectable()
 export default class AngelRequestHandler {
@@ -35,11 +34,6 @@ export default class AngelRequestHandler {
                 this.cacheManager.set( keyName, data, 12 * 3600 * 1000 ); // cacheing it for 12 hours.
                 return data;
             });
-    }
-
-    @Cron( CronExpression.EVERY_5_SECONDS )
-    testing () {
-        this.logger.debug( `Current time is: ${ moment().format() }` );
     }
 
     constructor(

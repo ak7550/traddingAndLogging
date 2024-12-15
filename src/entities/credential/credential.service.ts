@@ -99,7 +99,7 @@ export class CredentialService {
             credential.keyValue = createCredentialDto.keyValue;
             credential.account = account;
 
-            await this.entityManager.save(credential);
+            await this.entityManager.save(this.entityManager.create(Credential, credential));
         } catch (error) {
             this.logger.error(
                 `error occured while saving credential info ${utils.inspect(error, {depth: 4, colors: true, })}`
@@ -129,7 +129,7 @@ export class CredentialService {
                 credential.keyName = updateCredentialDto?.keyName;
                 credential.keyValue = updateCredentialDto?.keyValue;
                 credential.account = demat;
-                return this.entityManager.save(credential);
+                return this.entityManager.save(this.entityManager.create(Credential, credential));
             });
         } catch (error) {
             this.logger.error(

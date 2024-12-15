@@ -3,20 +3,16 @@ import {
     Controller,
     Delete,
     Get,
-    HttpException,
     HttpStatus,
     Param,
     Post,
     Put
 } from "@nestjs/common";
-import { HttpStatusCode } from "axios";
 import { DematService } from "../demat/demat.service";
-import { DematAccount } from "../demat/entities/demat-account.entity";
 import { Credential } from "./credential.entity";
 import { CredentialService } from "./credential.service";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
-import { AngelConstant } from "../../trading/angel/config/angel.constant";
 
 @Controller("credential")
 export class CredentialController {
@@ -28,6 +24,11 @@ export class CredentialController {
     @Get("")
     async getAll() {
         return await this.credentialService.getAll();
+    }
+
+    @Post()
+    async createCredential(@Body() credential: CreateCredentialDto){
+        return await this.credentialService.create(credential);
     }
 
     @Put(":id")

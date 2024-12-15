@@ -16,16 +16,11 @@ think of the db structure for auditing, keeping the order data and user informat
 also need to think how can we use the order information append to demat table
 
 --------------------------------------------------------------------------
-Task 3: Data base
-Audit table
-Orders table
-Holding table
+Task 5:
+Fix the typeOrm code, which is breaking in some save update operations.
 
 Task 4:
 Alert system trigger implementation, so that we can get an webhook call whenever there's an alert notification
-
-Task 5:
-Fix the typeOrm code, which is breaking in some save update operations.
 
 Task 7:
 Complete all the well known strategies implementations
@@ -50,6 +45,11 @@ call some auth-less scanner GET apis to get the data regularly
 
 Task 15: 
 start analysing flat trade, code base, I need to integrate that BROKER as well.
+
+Task 3: Data base
+Audit table
+Orders table
+Holding table
 
 TASK 16:
 [NSE 52 WEEK HIGH API](https://www.nseindia.com/api/live-analysis-data-52weekhighstock)

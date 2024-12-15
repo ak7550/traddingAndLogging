@@ -11,7 +11,7 @@ import {
     ProductType,
     TransactionType
 } from "./globalConstants.constant";
-import { findBigDaddyCandle, getCandleData, getEmaValue, percentageChange } from "./strategy-util";
+import { findBigDaddyCandle, getCandleData, getEmaValue, isBigDaddy, percentageChange } from "./strategy-util";
 
 type FilterType = {
     historical: StockInfoHistorical;
@@ -148,6 +148,50 @@ export const openHighSellClosingHour: Strategy = {
         transactionType: TransactionType.SELL
     }
 };
+
+export const openHighSellconfirmationMorning: Strategy = {
+    name: "Open high sell strategy for morning",
+    description: "Previous candle is open high, today's 1 hour candle is breaking previuos day",
+    mustConditions: [
+        {
+            filter: ({ historical }) => historical.oneDay.rsi[0] > 55,
+            description: "Daily RSI value needs to be more than 55"
+        },
+        {
+            filter: ({ historical }) => historical.oneWeek.rsi[0] > 60,
+            description: "Weekly RSI value needs to be more than 60"
+        },
+        {
+            filter: ({ historical }) => historical.oneMonth.rsi[0] > 60,
+            description: "Monthly RSI value needs to be more than 60"
+        },
+        {
+            description: `Previous candle was a red candle with big body`,
+            filter: ({historical: {oneDay : {candleInfo}}}) => isBigDaddy(candleInfo[candleInfo.length - 1])
+        },
+        {
+            description: `Previous candle was a red candle.`,
+            filter: ({historical: {oneDay : {candleInfo}}}) => !candleInfo[candleInfo.length - 1].isGreen,
+        },
+        {
+            description: `Today's 1 hour candle has given a close below previous 1 day candle's low`,
+            filter: ({current: {dayCandle} , historical: {oneDay : {candleInfo}}}) => candleInfo[candleInfo.length-1].low > dayCandle.close
+        },
+        {
+            description: `Previous 15 min candle was also below previous day candle's low`,
+            filter: ({ historical: {oneDay}, current: {fifteenMinutes: {candleInfo}}}) => candleInfo[candleInfo.length - 2].close < oneDay.candleInfo[oneDay.candleInfo.length - 1].low
+        }
+    ],
+    orderDetails: {
+        decidingFactor: undefined,
+        orderType: OrderType.MARKET,
+        productType: ProductType.DELIVERY,
+        variety: OrderVariety.NORMAL,
+        duration: DurationType.DAY,
+        quantity: totalQuantity => Math.floor( totalQuantity / 2 ), // I will sell half of my existing quantity
+        transactionType: TransactionType.SELL
+    }
+}
 
 export const openHighSellMorning: Strategy = {
     name: "Open high sell strategy for morning",

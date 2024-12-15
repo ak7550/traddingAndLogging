@@ -21,9 +21,15 @@ import { StockDataService } from "../stock-data/stock-data.service";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingFactoryService from "./trading-factory.service";
+import AlertRequestDTO from "./dtos/alert.request.dto";
+import utils from 'util';
 
 @Injectable()
 export class TradingService {
+    async handleTradingViewAlert(alert: AlertRequestDTO) :Promise<void>{
+        this.logger.log(`Inside handleTradingViewAlert method, ${utils.inspect(alert, {depth: 4, colors: true, })}`);
+    }
+
     constructor(
         private readonly userService: UserService,
         private readonly tradingFactory: TradingFactoryService,
