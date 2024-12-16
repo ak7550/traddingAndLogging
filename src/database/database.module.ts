@@ -11,12 +11,12 @@ import { User } from "../entities/user/entities/user.entity";
         TypeOrmModule.forRootAsync({
             //@ts-ignore => just to avoid userFactory type error
             useFactory: (configService: ConfigService) => ({
-                type: configService.getOrThrow(`DB_TYPE`),
-                host: configService.getOrThrow(`DB_HOST`),
+                type: configService.getOrThrow<string>(`DB_TYPE`),
+                host: configService.getOrThrow<string>(`DB_HOST`),
                 port: parseInt(configService.getOrThrow(`DB_PORT`)) || 3306,
-                username: configService.getOrThrow(`DB_USER`),
-                password: configService.getOrThrow(`DB_PASSWORD`),
-                database: configService.getOrThrow(`DB_NAME`),
+                username: configService.getOrThrow<string>(`DB_USER`),
+                password: configService.getOrThrow<string>(`DB_PASSWORD`),
+                database: configService.getOrThrow<string>('NODE_ENV') !== 'test' ?  configService.getOrThrow(`DB_NAME`) : configService.getOrThrow(`TEST_DB_NAME`),
                 entities: [Credential, User, DematAccount, Broker],
                 autoLoadEntities: true,
                 synchronize: configService.getOrThrow(`DB_SYNCHRONIZE`),

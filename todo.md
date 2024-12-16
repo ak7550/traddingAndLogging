@@ -16,41 +16,45 @@ think of the db structure for auditing, keeping the order data and user informat
 also need to think how can we use the order information append to demat table
 
 --------------------------------------------------------------------------
-Task 5:
+- [ ] Task 5:
 Fix the typeOrm code, which is breaking in some save update operations.
 
-Task 4:
-Alert system trigger implementation, so that we can get an webhook call whenever there's an alert notification
-
-Task 7:
+- [ ] Task 7:
 Complete all the well known strategies implementations
 
-Task 8:
+- [ ] Task 8:
 think of some cheapest but secure way to deploy the application. ==> Linode
 
-Task 9:
+- [ ] Task 9:
 Implement retry mechanism for api calls ==> test the code
 
-Task 10:
+- [ ] Task 10:
 Enhance the error handling in request handler files.
 
-Task 12:
+- [ ] Task 12:
 Explore event triggers
 
-Task 13:
+- [ ] Task 13:
 Integrate google sheets
 
-Task 14:
+- [ ] Task 14:
 call some auth-less scanner GET apis to get the data regularly
 
-Task 15: 
+- [ ] Task 15: 
 start analysing flat trade, code base, I need to integrate that BROKER as well.
 
-Task 3: Data base
+- [ ] Task 3: Data base
 Audit table
 Orders table
 Holding table
 
-TASK 16:
+- [ ] TASK 16:
 [NSE 52 WEEK HIGH API](https://www.nseindia.com/api/live-analysis-data-52weekhighstock)
 TrendLyne => Free API
+[TRENDLYNE IPO SCANNER](https://trendlyne.com/ipo/api/screener/year/2024/)
+
+- [ ] Task 16:
+start writing test cases for end to end testing.
+
+- [ ] Task 17:
+A new api in trading controller, which is able to read files in csv or xslx format and update the order, holding tables.
