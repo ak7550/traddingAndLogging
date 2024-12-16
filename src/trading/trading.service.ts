@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
 import _ from "lodash";
 import {
     filter,
@@ -8,7 +9,8 @@ import {
     Observable,
     toArray
 } from "rxjs";
-import Strategy, { OrderDetails, strategies } from "../common/strategies";
+import utils from 'util';
+import Strategy, { openHighSellClosingHour, OrderDetails, strategies } from "../common/strategies";
 import { CustomLogger } from "../custom-logger.service";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import { User } from "../entities/user/entities/user.entity";
@@ -18,11 +20,10 @@ import {
     StockInfoMarket
 } from "../stock-data/entities/stock-data.entity";
 import { StockDataService } from "../stock-data/stock-data.service";
+import AlertRequestDTO from "./dtos/alert.request.dto";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingFactoryService from "./trading-factory.service";
-import AlertRequestDTO from "./dtos/alert.request.dto";
-import utils from 'util';
 
 @Injectable()
 export class TradingService {
@@ -71,6 +72,14 @@ export class TradingService {
     // sequence of the strategies in this array are very very very important. If a strategy satisfies, the order will be executed for that stock based upon that strategy
     async placeMorningSLOrders(): Promise<void> {
         const strategies: Strategy[] = [];
+        await this.placeOrders(strategies).then(() =>
+            this.logger.verbose(`${_.map(strategies, "name")} are executed.`)
+        );
+    }
+
+    @Cron('0 23 15 * * 1-5')
+    public async closingTimeOrder(): Promise<void> {
+        const strategies: Strategy[] = [openHighSellClosingHour];
         await this.placeOrders(strategies).then(() =>
             this.logger.verbose(`${_.map(strategies, "name")} are executed.`)
         );

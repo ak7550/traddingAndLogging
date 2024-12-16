@@ -74,24 +74,18 @@ export const openHighSellClosingHour: Strategy = {
             filter: ({ current: { dayCandle } }) => !dayCandle.isGreen,
             description: "Daily candle must be a red candle"
         },
-        {
-            filter: ({ current: { dayCandle }, historical }) =>
-                getCandleData(historical.oneDay.candleInfo, 1, "close") <
-                dayCandle.open,
-            description: "Daily open should be higher than previous day close"
-        },
-        {
-            filter: ({ historical }) => historical.oneDay.rsi[0] > 55,
-            description: "Daily RSI value needs to be more than 55"
-        },
-        {
-            filter: ({ historical }) => historical.oneWeek.rsi[0] > 60,
-            description: "Weekly RSI value needs to be more than 60"
-        },
-        {
-            filter: ({ historical }) => historical.oneMonth.rsi[0] > 60,
-            description: "Monthly RSI value needs to be more than 60"
-        },
+        // {
+        //     filter: ({ historical }) => historical.oneDay.rsi[0] > 55,
+        //     description: "Daily RSI value needs to be more than 55"
+        // },
+        // {
+        //     filter: ({ historical }) => historical.oneWeek.rsi[0] > 60,
+        //     description: "Weekly RSI value needs to be more than 60"
+        // },
+        // {
+        //     filter: ({ historical }) => historical.oneMonth.rsi[0] > 60,
+        //     description: "Monthly RSI value needs to be more than 60"
+        // },
         {
             filter: ({
                 current: {
@@ -110,7 +104,26 @@ export const openHighSellClosingHour: Strategy = {
             filter: ({ current: { dayCandle } }) =>
                 dayCandle.bodyPercentage > 51,
             description:
-                "Daily candle's body should be more than 45% of the whole candle size."
+                "Daily candle's body should be more than 51% of the whole candle size."
+        },
+        {
+            filter: ({
+                current: { dayCandle },
+                historical: {
+                    oneDay: { ema21, ema9 }
+                }
+            }) => percentageChange(dayCandle.close, ema21[0]) > 5 || percentageChange(dayCandle.close, ema9[0]) > 5,
+            description:
+                "Daily candle's close shoudl be more than 5% than 21 EMA or 9 EMA"
+        }
+    ],
+
+    mightConditions: [
+        {
+            filter: ({ current: { dayCandle }, historical }) => 
+                getCandleData(historical.oneDay.candleInfo, 1, "close") <
+                dayCandle.open,
+            description: "Daily open should be higher than previous day close"
         },
         {
             filter: ({
@@ -125,18 +138,10 @@ export const openHighSellClosingHour: Strategy = {
                 ) > 2,
             description:
                 "Daily candle's open should be more than 2% gap up from previous day close."
-        },
-        {
-            filter: ({
-                current: { dayCandle },
-                historical: {
-                    oneDay: { ema21 }
-                }
-            }) => percentageChange(dayCandle.close, ema21[0]) > 5,
-            description:
-                "Daily candle's close shoudl be more than 5% than 21 EMA."
         }
     ],
+
+    mightConditionLimit: 0,
 
     orderDetails: {
         decidingFactor: undefined,
