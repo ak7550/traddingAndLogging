@@ -8,7 +8,7 @@ import {
     Observable,
     toArray
 } from "rxjs";
-import Strategy, { OrderDetails } from "../common/strategies";
+import Strategy, { OrderDetails, strategies } from "../common/strategies";
 import { CustomLogger } from "../custom-logger.service";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import { User } from "../entities/user/entities/user.entity";
@@ -26,8 +26,16 @@ import utils from 'util';
 
 @Injectable()
 export class TradingService {
-    async handleTradingViewAlert(alert: AlertRequestDTO) :Promise<void>{
-        this.logger.log(`Inside handleTradingViewAlert method, ${utils.inspect(alert, {depth: 4, colors: true, })}`);
+    async handleTradingViewAlert(alert: AlertRequestDTO) :Promise<OrderResponseDTO[]>{
+        const strategiesForThisAlert: Strategy[] = alert.strategyNumber.reduce((acc, val) => {
+            if(val<strategies.length){
+                acc.push(strategies[val]);
+            }
+            return acc;
+        }, []);
+        const orderResponses: OrderResponseDTO[] = await this.placeOrders(strategiesForThisAlert)
+        this.logger.log(`Order placed for ${alert.ticker} into the demat numbers: ${utils.inspect(orderResponses, {depth: 4})}`);
+        return orderResponses;
     }
 
     constructor(
@@ -69,13 +77,16 @@ export class TradingService {
     }
 
     public async placeOrders(
-        strategies: Strategy[]
+        strategies: Strategy[],
+        userId?: number, 
+        broker?: string
     ): Promise<OrderResponseDTO[]> {
         const orderResponses: Observable<OrderResponseDTO[]> = from(
-            this.userService.findAll()
+            userId === undefined ?
+            this.userService.findAll() : this.userService.findOne(userId).then(user => [user])
         ).pipe(
             mergeMap((users: User[]) => from(users), 10),
-            mergeMap((user: User) => from(this.userService.findDemat(user.id)),10),
+            mergeMap((user: User) => from(this.userService.findDemat(user.id, broker)),10),
             mergeMap((dematAccounts: DematAccount[]) => from(dematAccounts),10),
             mergeMap(async (demat: DematAccount) => {
                 const dematObservable: Observable<OrderResponseDTO[]> = from( await this.getHolding( demat ) )

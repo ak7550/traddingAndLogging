@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsNumber, IsString } from "class-validator";
+import { IsArray, IsNumber, IsString } from "class-validator";
 
 export default class AlertRequestDTO {
     @IsString()
@@ -9,12 +9,32 @@ export default class AlertRequestDTO {
     @IsString()
     @Transform(({ value }) => value.toLowerCase())
     ticker: string;
+
+    @IsNumber()
+    @Type(() => Number)
+    close: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    open: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    high: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    low: number;
+     
+    @IsNumber()
+    @Type(() => Number)
+    volume: number;
     
     @IsNumber()
     @Type(() => Number)
     price: number;
-
-    @IsNumber()
+    
+    @IsArray()
     @Type(() => Number)
-    volume: number;
+    strategyNumber: number[]; // strtegy to decide which strategy to pick
 }

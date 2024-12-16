@@ -55,7 +55,7 @@ export default class AngelService implements TradingInterface {
 
                 const completeResponse = await this.requestHandler.execute<AngelOrderStatusResponseDTO>( AngelConstant.ORDER_BOOK_ROUTE + uniqueorderid, RequestMethod.GET, null, ApiType.order, authToken.keyValue );
 
-                return mapToOrderResponseDTO(completeResponse, holding, orderDetail);
+                return mapToOrderResponseDTO(completeResponse, holding, orderDetail, demat);
             } );
         return orderResponse;
     }

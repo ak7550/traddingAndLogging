@@ -10,7 +10,7 @@ import {
     Query
 } from "@nestjs/common";
 import GlobalConstant, { tradingViewWebhookIp } from "../common/globalConstants.constant";
-import Strategy, { daily21EMARetestBuy } from "../common/strategies";
+import Strategy, { daily21EMARetestBuy, strategies } from "../common/strategies";
 import AlertRequestDTO from "./dtos/alert.request.dto";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
@@ -46,10 +46,16 @@ export default class TradingController {
     @Post( "order" )
     public async placeOrder (
         @Query( 'user' ) userId: number,
-        @Query('broker') broker: string
+        @Query('broker') broker: string,
+        @Body() strategyNumber: number[] 
     ): Promise<OrderResponseDTO[]> {
-        const strategy: Strategy[] = [daily21EMARetestBuy]
-        return await this.tradingService.placeOrders(strategy);
+        const strategy: Strategy[] = strategyNumber.reduce((acc, val) => {
+                    if(val<strategies.length){
+                        acc.push(strategies[val]);
+                    }
+                    return acc;
+                }, []);
+        return await this.tradingService.placeOrders(strategy, userId, broker);
     }
 
     //TODO: make sure that we get the webhook payload in json format,

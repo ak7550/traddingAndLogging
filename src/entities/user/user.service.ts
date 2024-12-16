@@ -10,10 +10,11 @@ import CreateUserDto from "./dto/create-user.dto";
 import UpdateUserDto from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import utils from 'util';
+import _ from "lodash";
 
 @Injectable()
 export class UserService {
-    async findDemat(userId: number): Promise<DematAccount[]> {
+    async findDemat(userId: number, broker?: string): Promise<DematAccount[]> {
         this.logger.verbose(`Finding demat accounts associated with ${userId}`);
         return await this.entityManager
             .findOneBy(User, {
@@ -23,7 +24,9 @@ export class UserService {
                 this.entityManager.findBy(DematAccount, {
                     user
                 })
-            );
+            )
+            .then((demats: DematAccount[]) => broker === undefined ? demats : 
+            demats.filter(({broker: {name}}) => _.isEqual(name, broker)));
     }
 
     constructor(

@@ -1,3 +1,5 @@
+
+import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
 import { IntegratedBroker, OrderType, TransactionType } from "../../common/globalConstants.constant";
 
 /**
@@ -14,5 +16,5 @@ export default class OrderResponseDTO{
     isin?: string;
     status: string;
     reason: string;
-
+    demat: DematAccount;
 }

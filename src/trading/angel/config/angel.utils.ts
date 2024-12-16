@@ -1,3 +1,4 @@
+import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
 import { IntegratedBroker } from "../../../common/globalConstants.constant";
 import { OrderDetails } from "../../../common/strategies";
 import HoldingInfoDTO from "../../dtos/holding-info.dto";
@@ -10,6 +11,7 @@ export const mapToOrderResponseDTO = (
     response: AngelAPIResponse<AngelOrderStatusResponseDTO> = null,
     stock: HoldingInfoDTO,
     orderDetails: OrderDetails = null,
+    demat: DematAccount,
     error: unknown = null
 ): OrderResponseDTO => {
     const orderResponse: OrderResponseDTO = new OrderResponseDTO();
@@ -21,6 +23,7 @@ export const mapToOrderResponseDTO = (
     orderResponse.broker = IntegratedBroker.Angel;
     orderResponse.status = response.data.orderstatus;
     orderResponse.reason = response.data.text;
+    orderResponse.demat = demat;
     return orderResponse;
 };
 
