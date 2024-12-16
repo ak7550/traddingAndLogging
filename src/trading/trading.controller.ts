@@ -1,16 +1,20 @@
 import {
+    Body,
     Controller,
     Get,
+    Headers,
+    Ip,
     Param,
     Post,
     Put,
     Query
 } from "@nestjs/common";
-import GlobalConstant from "../common/globalConstants.constant";
-import HoldingInfoDTO from "./dtos/holding-info.dto";
-import { TradingService } from './trading.service';
-import OrderResponseDTO from "./dtos/order.response.dto";
+import GlobalConstant, { tradingViewWebhookIp } from "../common/globalConstants.constant";
 import Strategy, { daily21EMARetestBuy } from "../common/strategies";
+import AlertRequestDTO from "./dtos/alert.request.dto";
+import HoldingInfoDTO from "./dtos/holding-info.dto";
+import OrderResponseDTO from "./dtos/order.response.dto";
+import { TradingService } from './trading.service';
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
@@ -48,4 +52,17 @@ export default class TradingController {
         return await this.tradingService.placeOrders(strategy);
     }
 
+    //TODO: make sure that we get the webhook payload in json format,
+    //DOCS: https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
+    //DOCS: https://stackoverflow.com/questions/73495506/how-to-get-client-ip-in-nestjs
+    @Post('tradingview')
+    public async tradingViewAlert(@Body() body: AlertRequestDTO, @Ip() ip: string, @Headers('content-type') contentType: string){
+        const ipV6Prefix = '::ffff:';
+        if(ip.includes(ipV6Prefix)){
+            ip = ip.split(ipV6Prefix)[1];
+        }
+        if(tradingViewWebhookIp.includes(ip) && contentType === 'application/json'){
+            this.tradingService.handleTradingViewAlert(body);
+        }
+    }
 }

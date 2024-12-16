@@ -44,6 +44,17 @@ export enum InstrumentType {
     "OPTSTK", "OPTIDX", ""
 };
 
+export const tradingViewWebhookIp: string[] = [
+    "52.89.214.238",
+    "34.212.75.30",
+    "54.218.53.128",
+    "52.32.178.7" ,
+    '0.0.0.0',
+    '192.168.0.1',
+    'localhost',
+    '::1' // this happens when we fire requests from local env to localhost
+]
+
 //this will be considered as the single source of truth for all the integrated brokers
 export enum IntegratedBroker {
     Angel = "angel",
