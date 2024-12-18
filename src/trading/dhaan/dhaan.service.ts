@@ -10,12 +10,13 @@ import DhaanHoldingDTO from "./dto/holding.dto";
 import DhaanRequestHandler from "./requestHandler.service";
 import { CustomLogger } from "../../custom-logger.service";
 import utils from 'util';
+import { StockInfoHistorical, StockInfoMarket } from "src/stock-data/entities/stock-data.entity";
 
 @Injectable()
 export default class DhaanService implements TradingInterface {
     private readonly logger: CustomLogger = new CustomLogger(DhaanService.name);
 
-    constructor(private readonly requestHandler: DhaanRequestHandler) {}
+    constructor(private readonly requestHandler: DhaanRequestHandler) { }
 
     async placeStopLossOrders(
         demat: DematAccount,
@@ -54,7 +55,7 @@ export default class DhaanService implements TradingInterface {
                     )
             );
 
-            this.logger.verbose(`converted into stockInfo: ${utils.inspect(stockInfos, {depth: 4, colors: true, })}`);
+            this.logger.verbose(`converted into stockInfo: ${utils.inspect(stockInfos, { depth: 4, colors: true, })}`);
             this.logger.verbose(
                 `trying to convert a single one: ,
                 ${plainToClass(HoldingInfoDTO, response[0])}`
@@ -64,7 +65,7 @@ export default class DhaanService implements TradingInterface {
         } catch (error) {
             this.logger.error(
                 `Error occured while fetching the holdings data using Dhaan apis,
-                ${utils.inspect(error, {depth: 4, colors: true, })}`,
+                ${utils.inspect(error, { depth: 4, colors: true, })}`,
                 DhaanService.name
             );
         }
@@ -74,7 +75,9 @@ export default class DhaanService implements TradingInterface {
     public async placeOrder(
         orderDetail: OrderDetails,
         holding: HoldingInfoDTO,
-        demat: DematAccount
+        demat: DematAccount,
+        current: StockInfoMarket,
+        historical: StockInfoHistorical
     ): Promise<OrderResponseDTO> {
         return null;
     }

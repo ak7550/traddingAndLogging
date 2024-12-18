@@ -9,8 +9,9 @@ import {
     Observable,
     toArray
 } from "rxjs";
+import { openHighSellClosingHour } from "src/common/strategies/openHighSellClosingHour.strategy";
 import utils from 'util';
-import Strategy, { openHighSellClosingHour, OrderDetails, strategies } from "../common/strategies";
+import Strategy, { OrderDetails, strategies } from "../common/strategies";
 import { CustomLogger } from "../custom-logger.service";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import { User } from "../entities/user/entities/user.entity";
@@ -27,6 +28,7 @@ import TradingFactoryService from "./trading-factory.service";
 
 @Injectable()
 export class TradingService {
+    
     async handleTradingViewAlert(alert: AlertRequestDTO) :Promise<OrderResponseDTO[]>{
         const strategiesForThisAlert: Strategy[] = alert.strategyNumber.reduce((acc, val) => {
             if(val<strategies.length){
@@ -107,7 +109,7 @@ export class TradingService {
                         const orderDetail: OrderDetails | void = this.processData( historical, current, holding, strategies );
 
                         if (orderDetail) {
-                            const orderResponse: OrderResponseDTO = await this.placeOrder( orderDetail, holding, demat );
+                            const orderResponse: OrderResponseDTO = await this.placeOrder( orderDetail, holding, demat, current, historical );
                             // think of auditing this order response.
                             return orderResponse;
                         }
@@ -128,11 +130,13 @@ export class TradingService {
     private async placeOrder(
         orderDetail: OrderDetails,
         holding: HoldingInfoDTO,
-        demat: DematAccount
+        demat: DematAccount,
+        current: StockInfoMarket,
+        historical: StockInfoHistorical
     ): Promise<OrderResponseDTO> {
         return await this.tradingFactory
             .getInstance(demat.broker.name)
-            .placeOrder(orderDetail, holding, demat);
+            .placeOrder(orderDetail, holding, demat, current, historical);
     }
 
     private processData(

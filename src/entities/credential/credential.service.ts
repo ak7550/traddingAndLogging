@@ -99,7 +99,10 @@ export class CredentialService {
             credential.keyValue = createCredentialDto.keyValue;
             credential.account = account;
 
-            await this.entityManager.save(this.entityManager.create(Credential, credential));
+            const object: Credential = this.entityManager.create(Credential, credential);
+            await this.entityManager.save(credential)
+            .then(res => this.logger.log(`finally inserted into credentials tables ${utils.inspect(res, {depth: 4})}`))
+            .catch(err => this.logger.error(`faced error while doing insert operation, ${utils.inspect(err, {depth: 4})}`));
         } catch (error) {
             this.logger.error(
                 `error occured while saving credential info ${utils.inspect(error, {depth: 4, colors: true, })}`

@@ -10,7 +10,7 @@ import {
     Query
 } from "@nestjs/common";
 import GlobalConstant, { tradingViewWebhookIp } from "../common/globalConstants.constant";
-import Strategy, { daily21EMARetestBuy, strategies } from "../common/strategies";
+import Strategy, { strategies } from "../common/strategies";
 import AlertRequestDTO from "./dtos/alert.request.dto";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";

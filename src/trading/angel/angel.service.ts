@@ -16,6 +16,7 @@ import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
 import { Credential } from "../../entities/credential/credential.entity";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import { AngelOrderStatusResponseDTO } from "./dto/orderStatus.response.dto";
+import { StockInfoHistorical, StockInfoMarket } from "src/stock-data/entities/stock-data.entity";
 
 @Injectable()
 export default class AngelService implements TradingInterface {
@@ -30,7 +31,9 @@ export default class AngelService implements TradingInterface {
     async placeOrder (
         orderDetail: OrderDetails,
         holding: HoldingInfoDTO,
-        demat: DematAccount
+        demat: DematAccount,
+        current: StockInfoMarket,
+        historical: StockInfoHistorical
     ): Promise<OrderResponseDTO> {
         const angelSymbolToken: AngelSymbolTokenDTO = await this.requestHandler.getAllAngelSymbolToken()
             .then( ( symbolTokens: AngelSymbolTokenDTO[] ) => symbolTokens.filter( ( { symbol } ) => symbol === holding.tradingsymbol )[ 0 ] );
@@ -42,7 +45,9 @@ export default class AngelService implements TradingInterface {
                     new AngelOrderRequestDTO(
                         holding,
                         orderDetail,
-                        angelSymbolToken
+                        angelSymbolToken,
+                        current,
+                        historical
                     );
 
                 const {data: {uniqueorderid}} = await this.requestHandler.execute<AngelOrderResponseDTO>(

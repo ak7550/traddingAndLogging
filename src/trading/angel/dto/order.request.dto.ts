@@ -10,6 +10,7 @@ import {
 import { OrderDetails } from "../../../common/strategies";
 import AngelSymbolTokenDTO from "./symboltoken.response.dto";
 import moment from "moment-timezone";
+import { StockInfoHistorical, StockInfoMarket } from "src/stock-data/entities/stock-data.entity";
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
 //TODO: implement builder design pattern
@@ -17,7 +18,9 @@ export default class AngelOrderRequestDTO {
     constructor(
         stock: HoldingInfoDTO,
         orderDetail: OrderDetails,
-        { token }: AngelSymbolTokenDTO
+        { token }: AngelSymbolTokenDTO,
+        current: StockInfoMarket,
+        historical: StockInfoHistorical
     ) {
         this.variety = orderDetail.variety;
         this.tradingsymbol = stock.tradingsymbol;
@@ -40,13 +43,21 @@ export default class AngelOrderRequestDTO {
         ) {
             // i am making it as a sl-m, as the stock should exit at market price
             this.triggerprice = orderDetail
-                .decidingFactor(stock)
+                .decidingFactor({
+                   holdingDetails: stock,
+                   current,
+                   historical
+                })
                 .triggerPrice.toFixed(2);
         }
 
         if (this.ordertype == OrderType.LIMIT) {
             // in case of limit orders, we will be needing LIMIT price
-            this.price = orderDetail.decidingFactor(stock).price.toFixed(2);
+            this.price = orderDetail.decidingFactor({
+                holdingDetails: stock,
+                current,
+                historical
+            }).price.toFixed(2);
         }
     }
 
