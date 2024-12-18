@@ -1,4 +1,4 @@
-import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
+
 import {
     OhlcvDataDTO,
     StockInfoHistorical,
@@ -17,6 +17,7 @@ import { dailyRSIBelow60 } from "./strategies/rsiBelow60.strategy";
 import { sellconfirmationMorning } from "./strategies/sellInMorning.strategy";
 import { findBigDaddyCandle, getCandleData, isBigDaddy, percentageChange } from "./strategy-util";
 import { simple4PercentSL } from "./strategies/simple4PercentSL.strategy";
+import HoldingInfoDTO from "../trading/dtos/holding-info.dto";
 
 type FilterType = {
     historical: StockInfoHistorical;
@@ -142,7 +143,7 @@ export const openHighSellMorning: Strategy = {
 };
 
 // this strategy will tell u at the end of market hours, that should we sell the stock or not
-/* how to identify a big daddy candle: 
+/* how to identify a big daddy candle:
     1. it will be a huge gap up candle, more than 5% upside than previous day close
     2. 80% is the body of the candle
 */

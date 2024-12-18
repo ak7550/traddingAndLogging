@@ -1,4 +1,5 @@
-import { OhlcvDataDTO } from "src/stock-data/entities/stock-data.entity";
+
+import { OhlcvDataDTO } from "../../stock-data/entities/stock-data.entity";
 import { DurationType, OrderType, OrderVariety, ProductType, TransactionType } from "../globalConstants.constant";
 import Strategy from "../strategies";
 import { findBigDaddyCandle, getCandleData, isBigDaddy } from "../strategy-util";

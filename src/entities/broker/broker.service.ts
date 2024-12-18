@@ -2,10 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Broker } from './entities/broker.entity';
 import { EntityManager } from 'typeorm';
 import { HttpStatusCode } from 'axios';
-import { IntegratedBroker } from 'src/common/globalConstants.constant';
 import CreateBrokerDto from './dto/create-broker.dto';
 import { CustomLogger } from '../../custom-logger.service';
 import utils from 'util';
+import { IntegratedBroker } from '../../common/globalConstants.constant';
 
 @Injectable()
 export class BrokerService {

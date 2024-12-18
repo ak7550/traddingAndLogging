@@ -1,6 +1,5 @@
-
-import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
 import { IntegratedBroker, OrderType, TransactionType } from "../../common/globalConstants.constant";
+import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
 
 /**
  * docs: https://docs.nestjs.com/techniques/serialization

@@ -10,7 +10,8 @@ import DhaanHoldingDTO from "./dto/holding.dto";
 import DhaanRequestHandler from "./requestHandler.service";
 import { CustomLogger } from "../../custom-logger.service";
 import utils from 'util';
-import { StockInfoHistorical, StockInfoMarket } from "src/stock-data/entities/stock-data.entity";
+import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
+
 
 @Injectable()
 export default class DhaanService implements TradingInterface {

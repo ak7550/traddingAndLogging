@@ -1,4 +1,4 @@
-import HoldingInfoDTO from "src/trading/dtos/holding-info.dto";
+
 import {
     DurationType,
     ExchangeType,
@@ -8,9 +8,11 @@ import {
     TransactionType
 } from "../../../common/globalConstants.constant";
 import { OrderDetails } from "../../../common/strategies";
+import { StockInfoHistorical, StockInfoMarket } from "../../../stock-data/entities/stock-data.entity";
+import HoldingInfoDTO from "../../dtos/holding-info.dto";
 import AngelSymbolTokenDTO from "./symboltoken.response.dto";
 import moment from "moment-timezone";
-import { StockInfoHistorical, StockInfoMarket } from "src/stock-data/entities/stock-data.entity";
+
 
 //docs: https://smartapi.angelbroking.com/docs/Orders
 //TODO: implement builder design pattern

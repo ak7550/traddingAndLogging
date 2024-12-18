@@ -115,7 +115,7 @@ export default class AngelRequestHandler {
 
             this.logger.verbose(
                 `${AngelRequestHandler.name}: ${this.execute.name} => response received:
-                            ${response.data.data}`,
+                            ${utils.inspect(response.data.data, {depth: 4})}`,
                 `route: ${route}`
             );
             return response.data;

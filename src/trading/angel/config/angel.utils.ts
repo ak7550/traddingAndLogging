@@ -1,6 +1,7 @@
-import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
+
 import { IntegratedBroker } from "../../../common/globalConstants.constant";
 import { OrderDetails } from "../../../common/strategies";
+import { DematAccount } from "../../../entities/demat/entities/demat-account.entity";
 import HoldingInfoDTO from "../../dtos/holding-info.dto";
 import OrderResponseDTO from '../../dtos/order.response.dto';
 import AngelAPIResponse from "../dto/generic.response.dto";

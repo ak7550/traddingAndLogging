@@ -8,12 +8,12 @@ import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { CustomLogger } from "../../custom-logger.service";
-import utils from 'util';
+import utils from "util";
 
 @Injectable()
 export class CredentialService {
-    async findCredentialById ( id: number ): Promise<Credential> {
-        return await this.entityManager.findOneBy( Credential, { id } );
+    async findCredentialById(id: number): Promise<Credential> {
+        return await this.entityManager.findOneBy(Credential, { id });
     }
     async getAll() {
         return await this.entityManager.find(Credential, {});
@@ -63,7 +63,9 @@ export class CredentialService {
             .then(credential => {
                 this.cacheManager
                     .set(cacheKey, credential, 24 * 3600 * 1000)
-                    .then(() => this.logger.debug(`${cacheKey} is cached for 1 day.`));
+                    .then(() =>
+                        this.logger.debug(`${cacheKey} is cached for 1 day.`)
+                    );
                 return credential;
             });
     }
@@ -99,13 +101,34 @@ export class CredentialService {
             credential.keyValue = createCredentialDto.keyValue;
             credential.account = account;
 
-            const object: Credential = this.entityManager.create(Credential, credential);
-            await this.entityManager.save(credential)
-            .then(res => this.logger.log(`finally inserted into credentials tables ${utils.inspect(res, {depth: 4})}`))
-            .catch(err => this.logger.error(`faced error while doing insert operation, ${utils.inspect(err, {depth: 4})}`));
+            const object: Credential = this.entityManager.create(
+                Credential,
+                credential
+            );
+            await this.entityManager
+                .save(this.entityManager.create(Credential, credential))
+                .then(res =>
+                    this.logger.log(
+                        `finally inserted into credentials tables ${utils.inspect(
+                            res,
+                            { depth: 4 }
+                        )}`
+                    )
+                )
+                .catch(err =>
+                    this.logger.error(
+                        `faced error while doing insert operation, ${utils.inspect(
+                            err,
+                            { depth: 4 }
+                        )}`
+                    )
+                );
         } catch (error) {
             this.logger.error(
-                `error occured while saving credential info ${utils.inspect(error, {depth: 4, colors: true, })}`
+                `error occured while saving credential info ${utils.inspect(
+                    error,
+                    { depth: 4, colors: true }
+                )}`
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),
@@ -132,11 +155,16 @@ export class CredentialService {
                 credential.keyName = updateCredentialDto?.keyName;
                 credential.keyValue = updateCredentialDto?.keyValue;
                 credential.account = demat;
-                return this.entityManager.save(this.entityManager.create(Credential, credential));
+                return this.entityManager.save(
+                    this.entityManager.create(Credential, credential)
+                );
             });
         } catch (error) {
             this.logger.error(
-                `error occured while saving new broker info ${utils.inspect(error, {depth: 4, colors: true, })}`
+                `error occured while saving new broker info ${utils.inspect(
+                    error,
+                    { depth: 4, colors: true }
+                )}`
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),

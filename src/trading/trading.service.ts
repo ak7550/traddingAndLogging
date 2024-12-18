@@ -9,7 +9,7 @@ import {
     Observable,
     toArray
 } from "rxjs";
-import { openHighSellClosingHour } from "src/common/strategies/openHighSellClosingHour.strategy";
+
 import utils from 'util';
 import Strategy, { OrderDetails, strategies } from "../common/strategies";
 import { CustomLogger } from "../custom-logger.service";
@@ -25,10 +25,11 @@ import AlertRequestDTO from "./dtos/alert.request.dto";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingFactoryService from "./trading-factory.service";
+import { openHighSellClosingHour } from "../common/strategies/openHighSellClosingHour.strategy";
 
 @Injectable()
 export class TradingService {
-    
+
     async handleTradingViewAlert(alert: AlertRequestDTO) :Promise<OrderResponseDTO[]>{
         const strategiesForThisAlert: Strategy[] = alert.strategyNumber.reduce((acc, val) => {
             if(val<strategies.length){
@@ -89,7 +90,7 @@ export class TradingService {
 
     public async placeOrders(
         strategies: Strategy[],
-        userId?: number, 
+        userId?: number,
         broker?: string
     ): Promise<OrderResponseDTO[]> {
         const orderResponses: Observable<OrderResponseDTO[]> = from(

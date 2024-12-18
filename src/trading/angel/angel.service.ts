@@ -16,7 +16,8 @@ import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
 import { Credential } from "../../entities/credential/credential.entity";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import { AngelOrderStatusResponseDTO } from "./dto/orderStatus.response.dto";
-import { StockInfoHistorical, StockInfoMarket } from "src/stock-data/entities/stock-data.entity";
+import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
+
 
 @Injectable()
 export default class AngelService implements TradingInterface {
