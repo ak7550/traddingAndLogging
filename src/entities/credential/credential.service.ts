@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { HttpStatusCode } from "axios";
-import { EntityManager } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 import { DematService } from "../demat/demat.service";
 import { DematAccount } from "../demat/entities/demat-account.entity";
 import { Credential } from "./credential.entity";
@@ -9,6 +9,8 @@ import { UpdateCredentialDto } from "./dto/update-credential.dto";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { CustomLogger } from "../../custom-logger.service";
 import utils from "util";
+import { plainToClass } from "class-transformer";
+import { MutexInterface, Mutex } from 'async-mutex';
 
 @Injectable()
 export class CredentialService {
@@ -19,6 +21,7 @@ export class CredentialService {
         return await this.entityManager.find(Credential, {});
     }
 
+    private mutex: Mutex;
     constructor(
         private readonly entityManager: EntityManager,
         private readonly logger: CustomLogger = new CustomLogger(
@@ -26,7 +29,9 @@ export class CredentialService {
         ),
         private readonly dematService: DematService,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
-    ) {}
+    ) {
+        this.mutex = new Mutex();
+    }
 
     //TEST
     async deleteCredentials(id: number) {
@@ -49,10 +54,12 @@ export class CredentialService {
         account: DematAccount,
         keyName: string
     ): Promise<Credential> {
-        const cacheKey = `${account.id}-${keyName}`;
+        const cacheKey = `${ account.id }-${ keyName }`;
+        const release: MutexInterface.Releaser = await this.mutex.acquire();
         const credential: Credential =
             await this.cacheManager.get<Credential>(cacheKey);
-        if (credential !== undefined) {
+        if ( credential !== undefined ) {
+            release();
             return credential;
         }
         return await this.entityManager
@@ -62,7 +69,8 @@ export class CredentialService {
             })
             .then(credential => {
                 this.cacheManager
-                    .set(cacheKey, credential, 24 * 3600 * 1000)
+                    .set( cacheKey, credential, 6 * 3600 * 1000 ) // saving them for 6 hours only, to make sure they are not present inside cache, when we are refreshing them.
+                    .then(() => release())
                     .then(() =>
                         this.logger.debug(`${cacheKey} is cached for 1 day.`)
                     );
@@ -70,8 +78,10 @@ export class CredentialService {
             });
     }
 
-    async save(credentials: Credential[]) {
-        await this.entityManager.save(credentials);
+    async save(credentials: Credential[]): Promise<void> {
+        await this.entityManager.save(credentials)
+            .then( () => this.logger.log( `updated the credentials in db` ) )
+            .catch( err => this.logger.error( `faced error while updating the credentials in db, ${ utils.inspect( err ) }` ) );
     }
 
     //TODO: remove this method, rename above findCredential as findCredentials and it will do the job

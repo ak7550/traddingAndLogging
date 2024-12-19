@@ -18,13 +18,14 @@ import { Mutex, MutexInterface } from "async-mutex";
 @Injectable()
 export default class AngelRequestHandler {
 
-    @Cron(CronExpression.EVERY_DAY_AT_9AM)
+    @Cron(CronExpression.EVERY_DAY_AT_8AM)
     async getAllAngelSymbolToken (): Promise<AngelSymbolTokenDTO[]> {
         const keyName: string = "angel-symbol-token";
         const release: MutexInterface.Releaser = await this.mutex.acquire();
         const data: AngelSymbolTokenDTO[] = await this.cacheManager.get<AngelSymbolTokenDTO[]>(keyName);
 
         if ( data !== undefined ) {
+            release();
             this.logger.verbose( `${ keyName } found in cache` );
             return data;
         }
@@ -35,8 +36,8 @@ export default class AngelRequestHandler {
         );
         return await http.get( AngelConstant.ANGEL_SYMBOL_TOKEN_URL )
             .then( ({data} :AxiosResponse<AngelSymbolTokenDTO[]>) => {
-                this.cacheManager.set( keyName, data, 12 * 3600 * 1000 )
-                    .then( () => release()); // cacheing it for 12 hours.
+                this.cacheManager.set( keyName, data, 8 * 3600 * 1000 )
+                    .then( () => release());
                 return data;
             });
     }

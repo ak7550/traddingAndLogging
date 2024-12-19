@@ -7,6 +7,7 @@ import { RequestHandlerService } from "./request-handler.service";
 import { CredentialModule } from "../entities/credential/credential.module";
 import { ConfigService } from "@nestjs/config";
 import { CustomLogger } from "../custom-logger.service";
+import { DematModule } from "../entities/demat/demat.module";
 
 @Module({
     imports: [
@@ -23,7 +24,8 @@ import { CustomLogger } from "../custom-logger.service";
             }),
             inject: [ConfigService]
         }),
-        CredentialModule
+        CredentialModule,
+        DematModule
     ],
     controllers: [StockDataController],
     providers: [StockDataService, CustomLogger, RequestHandlerService],
