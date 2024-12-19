@@ -1,13 +1,13 @@
-import { Module } from "@nestjs/common";
-import { CredentialController } from "./credential.controller";
-import { CredentialService } from "./credential.service";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Credential } from "./credential.entity";
-import { DematModule } from "../demat/demat.module";
 import { CacheModule } from "@nestjs/cache-manager";
-import { redisStore } from "cache-manager-redis-yet";
+import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { redisStore } from "cache-manager-redis-yet";
 import { CustomLogger } from "../../custom-logger.service";
+import { DematModule } from "../demat/demat.module";
+import { CredentialController } from "./credential.controller";
+import { Credential } from "./credential.entity";
+import { CredentialService } from "./credential.service";
 
 @Module({
     imports: [

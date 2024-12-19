@@ -94,7 +94,7 @@ export class TradingService {
         broker?: string
     ): Promise<OrderResponseDTO[]> {
         const orderResponses: Observable<OrderResponseDTO[]> = from(
-            userId === undefined ?
+            Number.isNaN(userId) ?
             this.userService.findAll() : this.userService.findOne(userId).then(user => [user])
         ).pipe(
             mergeMap((users: User[]) => from(users), 10),
@@ -234,6 +234,6 @@ export class TradingService {
             );
         }
 
-        return orders[0];
+        return orders[0]; //TODO: more optimisation needed.
     }
 }

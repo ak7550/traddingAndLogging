@@ -3,13 +3,20 @@ import { CreateStockDatumDto } from './dto/create-stock-datum.dto';
 import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
 import { StockInfoHistorical } from './entities/stock-data.entity';
 import { StockDataService } from './stock-data.service';
+import { RequestHandlerService } from './request-handler.service';
 
 @Controller('stock-data')
 // @UseInterceptors(CacheInterceptor)
 export class StockDataController {
   constructor(
     private readonly stockDataService: StockDataService,
+    private readonly requestHandler: RequestHandlerService
   ) {}
+
+  @Get( 'refresh-token' )
+  async refreshToken (): Promise<string> {
+    return await this.requestHandler.refreshToken();
+  }
 
   @Post()
   create(@Body() createStockDatumDto: CreateStockDatumDto) {

@@ -47,7 +47,7 @@ export default class TradingController {
     public async placeOrder (
         @Query( 'user' ) userId: number,
         @Query('broker') broker: string,
-        @Body() strategyNumber: number[] 
+        @Body() strategyNumber: number[]
     ): Promise<OrderResponseDTO[]> {
         const strategy: Strategy[] = strategyNumber.reduce((acc, val) => {
                     if(val<strategies.length){
@@ -55,7 +55,7 @@ export default class TradingController {
                     }
                     return acc;
                 }, []);
-        return await this.tradingService.placeOrders(strategy, userId, broker);
+        return await this.tradingService.placeOrders(strategy, userId, broker?.toLowerCase());
     }
 
     //TODO: make sure that we get the webhook payload in json format,

@@ -37,7 +37,8 @@ export default class AngelService implements TradingInterface {
         historical: StockInfoHistorical
     ): Promise<OrderResponseDTO> {
         const angelSymbolToken: AngelSymbolTokenDTO = await this.requestHandler.getAllAngelSymbolToken()
-            .then( ( symbolTokens: AngelSymbolTokenDTO[] ) => symbolTokens.filter( ( { symbol } ) => symbol === holding.tradingsymbol )[ 0 ] );
+            .then( ( symbolTokens: AngelSymbolTokenDTO[] ) =>
+                symbolTokens.filter( ( { symbol } ) => symbol === holding.tradingsymbol )[ 0 ] );
 
         const orderResponse: OrderResponseDTO = await this.credentialService
             .findCredential( demat, AngelConstant.AUTH_TOKEN )

@@ -25,7 +25,7 @@ export class UserService {
                     user
                 })
             )
-            .then((demats: DematAccount[]) => broker === undefined ? demats : 
+            .then((demats: DematAccount[]) => broker === undefined ? demats :
             demats.filter(({broker: {name}}) => _.isEqual(name, broker)));
     }
 

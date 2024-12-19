@@ -9,6 +9,7 @@ import {
 import { DematAccount } from "../demat/entities/demat-account.entity";
 import { decryptData, encryptData } from "../../common/globalUtility.utility";
 import AbstractEntity from "../../database/abstract.entity";
+import moment from "moment-timezone";
 
 //docs: https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
 @Entity("credential")
@@ -47,12 +48,12 @@ export class Credential extends AbstractEntity<Credential> {
 
     @BeforeInsert()
     setCreatedAt() {
-        this.createdAt = new Date();
+        this.createdAt = moment().toDate();
     }
 
     @BeforeUpdate()
     setUpdatedAt() {
-        this.updatedAt = new Date();
+        this.updatedAt = moment().toDate();
     }
 
     toJSON() {
