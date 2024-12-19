@@ -13,6 +13,7 @@ import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
+import { Mutex, MutexInterface } from "async-mutex";
 
 @Injectable()
 export default class AngelRequestHandler {
@@ -20,30 +21,38 @@ export default class AngelRequestHandler {
     @Cron(CronExpression.EVERY_DAY_AT_9AM)
     async getAllAngelSymbolToken (): Promise<AngelSymbolTokenDTO[]> {
         const keyName: string = "angel-symbol-token";
+        const release: MutexInterface.Releaser = await this.mutex.acquire();
         const data: AngelSymbolTokenDTO[] = await this.cacheManager.get<AngelSymbolTokenDTO[]>(keyName);
 
         if ( data !== undefined ) {
             this.logger.verbose( `${ keyName } found in cache` );
             return data;
         }
+
+
         const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(
             ApiType.others
         );
         return await http.get( AngelConstant.ANGEL_SYMBOL_TOKEN_URL )
             .then( ({data} :AxiosResponse<AngelSymbolTokenDTO[]>) => {
-                this.cacheManager.set( keyName, data, 12 * 3600 * 1000 ); // cacheing it for 12 hours.
+                this.cacheManager.set( keyName, data, 12 * 3600 * 1000 )
+                    .then( () => release()); // cacheing it for 12 hours.
                 return data;
             });
     }
 
+    private mutex: Mutex;
     constructor(
-        private readonly configService: ConfigService,
         private readonly axiosFactory: AxiosFactory,
         private readonly logger: CustomLogger = new CustomLogger(
             AngelRequestHandler.name
         ),
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
-    ) {}
+    ) {
+        this.mutex = new Mutex();
+    }
+
+
 
     /**
      * this method is being used to call almost all the angel apis and handle their responses
@@ -131,7 +140,7 @@ export default class AngelRequestHandler {
         jwtToken: string
     ): Promise<GenerateTokenResponseDto> {
         try {
-            this.logger.verbose( `Inside refreshToken method: ${ AngelRequestHandler.name }, route ${utils.inspect(request, {depth: 4, colors: true, })}`);
+            this.logger.verbose( `Inside refreshToken method: ${ AngelRequestHandler.name }, route`);
 
             const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
 
