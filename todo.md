@@ -58,3 +58,9 @@ start writing test cases for end to end testing.
 
 - [ ] Task 17:
 A new api in trading controller, which is able to read files in csv or xslx format and update the order, holding tables.
+
+- [ ] Task 18:
+while calculating historical and curent stock data, we are using so many numbers as constant, make sure you create a seperate file and put those numbers as constant.
+
+- [ ] task 19:
+implement worker thread using picsana for getHistoricalData and getCurrentData

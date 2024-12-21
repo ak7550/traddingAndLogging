@@ -24,6 +24,7 @@ export class StockDataService {
         private readonly requestHandler: RequestHandlerService
     ) {}
 
+    //TODO: costly operation, think of implementing worker thread.
     async getCurrentData ( stockName: string ): Promise<StockInfoMarket> {
         const currentTime = moment().unix().toString();
         const todayAt915 = moment("2024-10-31 09:15", "YYYY-MM-DD HH:mm")
@@ -62,6 +63,7 @@ export class StockDataService {
      * to get monthly indicator values, we will pull out daily data from last 4 years and then calculate monthly indicator values
      * Fyers is providing daily data of last 366 days in a single api call
      */
+    //TODO: costly operation, think of implementing worker thread
     private async _getHistoricalData(
         stockName: string,
         instance: StockDataService

@@ -8,10 +8,17 @@ export const add10PercentEveryDay: Strategy = {
         {
             filter: ({ holdingDetails: { percentagePnl } }) => percentagePnl > 6,
             description: `holding percentage must be more than 6%`
+        }
+    ],
+    mightConditionLimit: 1,
+    mightConditions: [
+        {
+            filter: ({ current: { dayCandle: { isGreen } } }) => isGreen,
+            description: 'current candle must be green'
         },
         {
-            filter: ({current: {dayCandle: {isGreen}}}) =>  isGreen,
-            description: 'current candle must be green'
+            description: 'body percentage is less than 40%',
+            filter: ({ current: { dayCandle: { bodyPercentage } } }) => bodyPercentage < 40
         }
     ],
     orderDetails: {

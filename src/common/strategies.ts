@@ -4,6 +4,7 @@ import {
     StockInfoHistorical,
     StockInfoMarket
 } from "../stock-data/entities/stock-data.entity";
+import HoldingInfoDTO from "../trading/dtos/holding-info.dto";
 import {
     DurationType,
     OrderType,
@@ -14,10 +15,10 @@ import {
 import { daily21EMARetestBuy } from "./strategies/daily21EMARetestBuy.strategy";
 import { openHighSellClosingHour } from "./strategies/openHighSellClosingHour.strategy";
 import { dailyRSIBelow60 } from "./strategies/rsiBelow60.strategy";
+import { sellEvery15min } from "./strategies/sellEvery15min.strategy";
 import { sellconfirmationMorning } from "./strategies/sellInMorning.strategy";
-import { findBigDaddyCandle, getCandleData, isBigDaddy, percentageChange } from "./strategy-util";
 import { simple4PercentSL } from "./strategies/simple4PercentSL.strategy";
-import HoldingInfoDTO from "../trading/dtos/holding-info.dto";
+import { findBigDaddyCandle, getCandleData, percentageChange } from "./strategy-util";
 
 type FilterType = {
     historical: StockInfoHistorical;
@@ -221,4 +222,4 @@ export const ageOldLoosingTrade: Strategy = {
 // this IDEA looks strong, if there's 51,21 crossover in 5 min chart.
 
 export const lastHourStreategies: Strategy[] = [bigCandleBreakDown, dailyRSIBelow60, ageOldLoosingTrade, daily21EMARetestBuy, openHighSellClosingHour];
-export const strategies: Strategy[] = [openHighSellClosingHour, sellconfirmationMorning, openHighSellMorning, daily21EMARetestBuy, simple4PercentSL, bigCandleBreakDown, dailyRSIBelow60, ageOldLoosingTrade];
+export const strategies: Strategy[] = [openHighSellClosingHour, sellconfirmationMorning, openHighSellMorning, daily21EMARetestBuy, simple4PercentSL, bigCandleBreakDown, dailyRSIBelow60, ageOldLoosingTrade, sellEvery15min];

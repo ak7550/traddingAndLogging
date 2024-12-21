@@ -25,7 +25,7 @@ export const isBigDaddy = ({high, low, bodyPercentage}: OhlcvDataDTO) => {
     return percentUp > 5 && bodyPercentage > 80;
 }
 
-export const percentageChange = (a: number, b: number): number => (a / b - 1) * 100;
+export const percentageChange = (biggerNumber: number, smallerNumber: number): number => (biggerNumber / smallerNumber - 1) * 100;
 
 type CandlePropertyType = 'open' | 'high' | 'close' | 'low' | 'volume' | 'timeStamp' | 'bodyPercentage' | 'wickPercentage' | 'tailPercentage';
 
@@ -76,6 +76,7 @@ export const getEmaValue = (
     return ema.reverse();
 };
 
+//BUG: vwap data is not correct
 export const getVwap = ( data: OhlcvDataDTO[] ): number[] => {
     const vwapArray: number[] = [];
 

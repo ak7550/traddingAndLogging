@@ -23,12 +23,14 @@ export const sellEvery15min: Strategy = {
     ],
     mustConditions: [
         {
-            filter: ({ current: { fifteenMinutes: { candleInfo }, oneHour: { vwap } } }) =>
+            // vwap funcation is not giving proper data
+            filter: ({ current: { fifteenMinutes: { candleInfo }, oneHour: { ema9: vwap } } }) =>
                 getCandleData(candleInfo, 2, 'close') < vwap[0],
             description: 'previous 15 min candle is below 1 hour vwap'
         },
         {
-            filter: ({ current: { fifteenMinutes: { candleInfo }, oneHour: { vwap } } }) =>
+            // vwap funcation is not giving proper data
+            filter: ({ current: { fifteenMinutes: { candleInfo }, oneHour: { ema9:vwap } } }) =>
                 getCandleData(candleInfo, 1, 'close') < vwap[0],
             description: 'current 15 min candle is below 1 hour vwap'
         },

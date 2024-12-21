@@ -1,5 +1,5 @@
 import moment from "moment-timezone";
-import { BollingerBand, getBollingerBandData, getEmaValue, getRSI, getVwap } from '../../common/strategy-util';
+import { BollingerBand, getBollingerBandData, getEmaValue, getRSI, getVwap, percentageChange } from '../../common/strategy-util';
 import _ from "lodash";
 
 export class OhlcvDataDTO {
@@ -33,9 +33,9 @@ export class OhlcvDataDTO {
         this.wickPercentage = Math.abs( this.high - Math.max( this.open, this.close ) ) * 100 / body;
         this.tailPercentage = Math.abs( this.low - Math.min( this.open, this.close ) ) * 100 / body;
         this.isGreen = this.open < this.close;
-        this.isOpenHigh = this.open === this.high;
-        this.isOpenLow = this.open === this.low;
-        this.isWholeBody = this.bodyPercentage === 100;
+        this.isOpenHigh = percentageChange(this.high, this.open) < 0.5;
+        this.isOpenLow = percentageChange(this.open, this.low) < 0.5;
+        this.isWholeBody = this.bodyPercentage >= 80;
     }
 }
 
