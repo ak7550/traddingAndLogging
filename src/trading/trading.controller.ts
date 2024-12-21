@@ -25,11 +25,11 @@ export default class TradingController {
 
     @Get("holdings/user/:userId")
     async getAllHoldings(
-        @Param( 'userId' ) userId: number,
+        @Param('userId') userId: number,
         @Query(GlobalConstant.BROKER)
         broker: string
     ): Promise<HoldingInfoDTO[]> {
-        return await this.tradingService.getHoldings( userId, broker );
+        return await this.tradingService.getHoldings(userId, broker);
     }
 
     @Put("update-credentials")
@@ -43,32 +43,31 @@ export default class TradingController {
         return "hello";
     }
 
-    @Post( "order" )
-    public async placeOrder (
-        @Query( 'user' ) userId: number,
+    @Post("order")
+    public async placeOrder(
+        @Query('user') userId: number,
         @Query('broker') broker: string,
         @Body() strategyNumber: number[]
     ): Promise<OrderResponseDTO[]> {
-        const strategy: Strategy[] = strategyNumber.reduce((acc, val) => {
-                    if(val<strategies.length){
-                        acc.push(strategies[val]);
-                    }
-                    return acc;
-                }, []);
-        return await this.tradingService.placeOrders(strategy, userId, broker?.toLowerCase());
+        const strategy: Strategy[] = strategyNumber.map(val => strategies[val])
+            .filter(val => val !== undefined);
+
+        return await this.tradingService.placeSchedularOrder(strategy, userId, broker?.toLowerCase());
     }
 
     //TODO: make sure that we get the webhook payload in json format,
     //DOCS: https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
     //DOCS: https://stackoverflow.com/questions/73495506/how-to-get-client-ip-in-nestjs
     @Post('tradingview')
-    public async tradingViewAlert(@Body() body: AlertRequestDTO, @Ip() ip: string, @Headers('content-type') contentType: string){
+    public async tradingViewAlert(
+        @Query('dematId') dematId: number,
+        @Body() body: AlertRequestDTO, @Ip() ip: string, @Headers('content-type') contentType: string) {
         const ipV6Prefix = '::ffff:';
-        if(ip.includes(ipV6Prefix)){
+        if (ip.includes(ipV6Prefix)) {
             ip = ip.split(ipV6Prefix)[1];
         }
-        if(tradingViewWebhookIp.includes(ip) && contentType === 'application/json'){
-            this.tradingService.handleTradingViewAlert(body);
+        if (tradingViewWebhookIp.includes(ip) && contentType === 'application/json') {
+            this.tradingService.handleTradingViewAlert(body, dematId);
         }
     }
 }

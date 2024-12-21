@@ -9,6 +9,7 @@ import DhaanModule from "./dhaan/dhaan.module";
 import TradingFactoryService from "./trading-factory.service";
 import TradingController from "./trading.controller";
 import { TradingService } from "./trading.service";
+import { DematModule } from "src/entities/demat/demat.module";
 
 @Module({
     providers: [TradingFactoryService, TradingService, CustomLogger],
@@ -21,7 +22,8 @@ import { TradingService } from "./trading.service";
         AngelModule,
         EntityModule,
         UserModule,
-        StockDataModule
+        StockDataModule,
+        DematModule
     ],
     exports: [CustomLogger]
 })

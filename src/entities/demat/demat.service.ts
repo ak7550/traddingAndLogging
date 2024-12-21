@@ -25,11 +25,12 @@ export class DematService {
   }
 
 
-  async findAll ( broker: IntegratedBroker ): Promise<DematAccount[]> {
-    return await this.brokerService.findOne( broker )
-      .then( broker => this.entityManager.findBy( DematAccount, {
-        broker,
-      } ) );
+  async findAll ( broker?: IntegratedBroker ): Promise<DematAccount[]> {
+    const query = this.entityManager.createQueryBuilder(DematAccount, 'dematAccount');
+    if (broker) {
+      query.where('dematAccount.broker = :broker', { broker });
+    }
+    return await query.getMany();
 }
 
   async findOne(id: number) : Promise<DematAccount> {
