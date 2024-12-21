@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CreateStockDatumDto } from './dto/create-stock-datum.dto';
 import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
 import { StockInfoHistorical } from './entities/stock-data.entity';
@@ -13,7 +13,7 @@ export class StockDataController {
     private readonly requestHandler: RequestHandlerService
   ) {}
 
-  @Get( 'refresh-token' )
+  @Put( 'refresh-token' )
   async refreshToken (): Promise<string> {
     return await this.requestHandler.refreshToken();
   }

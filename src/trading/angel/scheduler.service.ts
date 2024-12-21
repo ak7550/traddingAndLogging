@@ -13,6 +13,7 @@ import { AngelConstant } from "./config/angel.constant";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelRequestHandler from "./request-handler.service";
+import moment from "moment-timezone";
 
 @Injectable()
 export default class AngelScheduler {
@@ -85,7 +86,7 @@ export default class AngelScheduler {
             ];
             
             await this.credentialService.save( updatedCredentials )
-                .then(() => this.logger.verbose(`new credentials are saved successfully for`,`${account.id}`) );
+                .then(() => this.logger.verbose(`new credentials are saved successfully for ${account.id} at ${moment().format('YYYY-MM-DD HH:mm')}`) );
 
             return updatedCredentials;
         } catch (error) {
