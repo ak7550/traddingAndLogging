@@ -1,16 +1,15 @@
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { Mutex, MutexInterface } from 'async-mutex';
 import { HttpStatusCode } from "axios";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager } from "typeorm";
+import utils from "util";
+import { CustomLogger } from "../../custom-logger.service";
 import { DematService } from "../demat/demat.service";
 import { DematAccount } from "../demat/entities/demat-account.entity";
 import { Credential } from "./credential.entity";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
-import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
-import { CustomLogger } from "../../custom-logger.service";
-import utils from "util";
-import { plainToClass } from "class-transformer";
-import { MutexInterface, Mutex } from 'async-mutex';
 
 @Injectable()
 export class CredentialService {
@@ -91,6 +90,7 @@ export class CredentialService {
         });
     }
 
+    //BUG: if we are trying to save a new cred, it will not be saved
     async create(createCredentialDto: CreateCredentialDto): Promise<void> {
         try {
             this.logger.verbose(`Inside createCredential method`);
@@ -111,13 +111,12 @@ export class CredentialService {
             credential.keyValue = createCredentialDto.keyValue;
             credential.account = account;
 
-            const object: Credential = this.entityManager.create(
-                Credential,
-                credential
-            );
-            await this.entityManager
-                .save(this.entityManager.create(Credential, credential))
-                .then(res =>
+            await this.entityManager.createQueryBuilder()
+            .insert()
+            .into(Credential)
+            .values([credential])
+            .execute()
+            .then(res =>
                     this.logger.log(
                         `finally inserted into credentials tables ${utils.inspect(
                             res,

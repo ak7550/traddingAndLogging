@@ -26,6 +26,7 @@ import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingFactoryService from "./trading-factory.service";
 import { openHighSellClosingHour } from "../common/strategies/openHighSellClosingHour.strategy";
+import { sellEvery15min } from "src/common/strategies/sellEvery15min.strategy";
 
 @Injectable()
 export class TradingService {
@@ -50,6 +51,14 @@ export class TradingService {
         ),
         private readonly stockDataService: StockDataService
     ) {}
+
+    @Cron('0 */15 9-15 * * 1-5')
+    async sellEvery15min(): Promise<OrderResponseDTO[]> {
+        const strategies: Strategy[] = [sellEvery15min];
+        const orderResponses: OrderResponseDTO[] = await this.placeOrders(strategies)
+        this.logger.log(`Order placed for ${utils.inspect(strategies, {depth: 4})} into the demat numbers: ${utils.inspect(orderResponses, {depth: 4})}`);
+        return orderResponses;
+    }
 
     //docs: https://rxjs.dev/deprecations/to-promise
     async getHoldings(
