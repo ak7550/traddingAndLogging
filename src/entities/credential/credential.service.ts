@@ -53,11 +53,11 @@ export class CredentialService {
         account: DematAccount,
         keyName: string
     ): Promise<Credential> {
-        const cacheKey = `${ account.id }-${ keyName }`;
+        const cacheKey = `${account.id}-${keyName}`;
         const release: MutexInterface.Releaser = await this.mutex.acquire();
         const credential: Credential =
             await this.cacheManager.get<Credential>(cacheKey);
-        if ( credential !== undefined ) {
+        if (credential !== undefined) {
             release();
             return credential;
         }
@@ -68,7 +68,7 @@ export class CredentialService {
             })
             .then(credential => {
                 this.cacheManager
-                    .set( cacheKey, credential, 6 * 3600 * 1000 ) // saving them for 6 hours only, to make sure they are not present inside cache, when we are refreshing them.
+                    .set(cacheKey, credential, 6 * 3600 * 1000) // saving them for 6 hours only, to make sure they are not present inside cache, when we are refreshing them.
                     .then(() => release())
                     .then(() =>
                         this.logger.debug(`${cacheKey} is cached for 1 day.`)
@@ -79,8 +79,8 @@ export class CredentialService {
 
     async save(credentials: Credential[]): Promise<void> {
         await this.entityManager.save(credentials)
-            .then( () => this.logger.log( `updated the credentials in db` ) )
-            .catch( err => this.logger.error( `faced error while updating the credentials in db, ${ utils.inspect( err ) }` ) );
+            .then(() => this.logger.log(`updated the credentials in db`))
+            .catch(err => this.logger.error(`faced error while updating the credentials in db, ${utils.inspect(err)}`));
     }
 
     //TODO: remove this method, rename above findCredential as findCredentials and it will do the job
@@ -98,40 +98,39 @@ export class CredentialService {
                 createCredentialDto.dematAccountId
             );
 
-            let credential: Credential = await this.findCredential(
+            const credential: Credential = await this.findCredential(
                 account,
                 createCredentialDto.keyName
             );
 
             if (credential == null) {
-                credential = new Credential({});
+                const newCredential = new Credential({});
+                newCredential.keyName = createCredentialDto.keyName;
+                newCredential.keyValue = createCredentialDto.keyValue;
+                newCredential.account = account;
+
+                await this.entityManager.createQueryBuilder()
+                    .insert()
+                    .into(Credential)
+                    .values([newCredential])
+                    .execute()
+                    .then(res =>
+                        this.logger.log(
+                            `finally inserted into credentials tables ${utils.inspect(
+                                res,
+                                { depth: 4 }
+                            )}`
+                        )
+                    )
+                    .catch(err =>
+                        this.logger.error(
+                            `faced error while doing insert operation, ${utils.inspect(
+                                err,
+                                { depth: 4 }
+                            )}`
+                        )
+                    );
             }
-
-            credential.keyName = createCredentialDto.keyName;
-            credential.keyValue = createCredentialDto.keyValue;
-            credential.account = account;
-
-            await this.entityManager.createQueryBuilder()
-            .insert()
-            .into(Credential)
-            .values([credential])
-            .execute()
-            .then(res =>
-                    this.logger.log(
-                        `finally inserted into credentials tables ${utils.inspect(
-                            res,
-                            { depth: 4 }
-                        )}`
-                    )
-                )
-                .catch(err =>
-                    this.logger.error(
-                        `faced error while doing insert operation, ${utils.inspect(
-                            err,
-                            { depth: 4 }
-                        )}`
-                    )
-                );
         } catch (error) {
             this.logger.error(
                 `error occured while saving credential info ${utils.inspect(
