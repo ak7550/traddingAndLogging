@@ -15,6 +15,7 @@ import { FYERS_HISTORICAL_ROUTE, FYERS_REFRESH_TOKEN_URL, Resolution } from "./c
 import { FyersApiResponseDTO } from "./dto/fyers-api-response.dto";
 import { RefreshTokenResponseDTO } from "./dto/refresh-token-response.dto";
 import { RefreshTokenRequestDTO } from "./dto/refresh-token.request.dto";
+import utils from 'util';
 
 @Injectable()
 export class RequestHandlerService {
@@ -81,7 +82,11 @@ export class RequestHandlerService {
                 this.cacheManager.set(`2-${GlobalConstant.ACCESS_TOKEN}`, accT, 7 * 60 * 60 * 1000);
                 this.logger.log(`Fyers credentials are updated and cached at ${moment().format('YYYY-MM-DD HH:mm')}`)
                 return response.data.access_token;
-            });
+            } )
+            .catch( err => {
+                this.logger.error( `Request failed with ${ utils.inspect( err, { depth: 4, colors: true } ) }` );
+                return null;
+            } );
     }
 
     async getData<Type>(
