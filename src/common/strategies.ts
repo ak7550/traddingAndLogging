@@ -42,9 +42,13 @@ export interface OrderDetails {
     };
 }
 
-export default interface Strategy {
+export interface StrategyDetails {
     name: string;
     description: string;
+    orderDetails: OrderDetails;
+}
+
+interface StrategyConditions {
     // all of these conditions must satisfy
     mustConditions?: Array<{
         filter: (conditions: FilterType) => boolean | number;
@@ -59,9 +63,9 @@ export default interface Strategy {
 
     //this is the minimum number that needs to be satisfied
     mightConditionLimit?: number;
-
-    orderDetails: OrderDetails;
 }
+
+export default interface Strategy extends StrategyDetails, StrategyConditions{}
 
 // needs more research
 export const openHighSellMorning: Strategy = {

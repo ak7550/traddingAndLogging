@@ -1,5 +1,5 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
-import { OrderDetails } from "../../common/strategies";
+import { OrderDetails, StrategyDetails } from "../../common/strategies";
 import { CustomLogger } from "../../custom-logger.service";
 import { Credential } from "../../entities/credential/credential.entity";
 import { CredentialService } from "../../entities/credential/credential.service";
@@ -29,7 +29,7 @@ export default class AngelService implements TradingInterface {
     ) {}
 
     async placeOrder (
-        orderDetail: OrderDetails,
+        orderDetail: StrategyDetails,
         holding: HoldingInfoDTO,
         demat: DematAccount,
         current: StockInfoMarket,
@@ -45,7 +45,7 @@ export default class AngelService implements TradingInterface {
                 const orderRequest: AngelOrderRequestDTO =
                     new AngelOrderRequestDTO(
                         holding,
-                        orderDetail,
+                        orderDetail.orderDetails,
                         angelSymbolToken,
                         current,
                         historical

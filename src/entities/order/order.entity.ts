@@ -28,7 +28,7 @@ export class Order extends AbstractEntity<Order> {
     message: string;
 
     @Column({
-        length: 12,
+        length: 25,
         name: 'stock_symbol'
     })
     stockSymbol: string;
@@ -61,7 +61,7 @@ export class Order extends AbstractEntity<Order> {
     @Column("float")
     price: number;
 
-    @Column("float", { name: "trigger_price" })
+    @Column("float", { name: "trigger_price", default: 0 })
     triggerPrice: number
 
     @Column({ name: 'market_place_order_id' })

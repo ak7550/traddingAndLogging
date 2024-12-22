@@ -1,16 +1,16 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
 import { plainToClass } from "class-transformer";
-import Strategy, { OrderDetails } from "../../common/strategies";
+import utils from 'util';
+import Strategy, { StrategyDetails } from "../../common/strategies";
+import { CustomLogger } from "../../custom-logger.service";
 import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
+import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
 import HoldingInfoDTO from "../dtos/holding-info.dto";
 import OrderResponseDTO from "../dtos/order.response.dto";
 import TradingInterface from "../interfaces/trading.interface";
 import { ApiType, DhaanConstants } from "./config/dhaan.constant";
 import DhaanHoldingDTO from "./dto/holding.dto";
 import DhaanRequestHandler from "./requestHandler.service";
-import { CustomLogger } from "../../custom-logger.service";
-import utils from 'util';
-import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
 
 
 @Injectable()
@@ -74,7 +74,7 @@ export default class DhaanService implements TradingInterface {
     }
 
     public async placeOrder(
-        orderDetail: OrderDetails,
+        orderDetail: StrategyDetails,
         holding: HoldingInfoDTO,
         demat: DematAccount,
         current: StockInfoMarket,

@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import { IntegratedBroker, OrderStatus } from "../../../common/globalConstants.constant";
-import { OrderDetails } from "../../../common/strategies";
+import { OrderDetails, StrategyDetails } from "../../../common/strategies";
 import { DematAccount } from "../../../entities/demat/entities/demat-account.entity";
 import HoldingInfoDTO from "../../dtos/holding-info.dto";
 import OrderResponseDTO from '../../dtos/order.response.dto';
@@ -12,20 +12,21 @@ import { AngelConstant } from "./angel.constant";
 export const mapToOrderResponseDTO = (
     response: AngelAPIResponse<AngelOrderStatusResponseDTO> = null,
     stock: HoldingInfoDTO,
-    orderDetails: OrderDetails = null,
+    orderDetails: StrategyDetails = null,
     demat: DematAccount,
     error: unknown = null
 ): OrderResponseDTO => {
     const orderResponse: OrderResponseDTO = new OrderResponseDTO();
     orderResponse.stockSymbol = stock.tradingsymbol;
-    orderResponse.orderType = orderDetails.orderType;
+    orderResponse.orderType = orderDetails.orderDetails.orderType;
     orderResponse.marketplaceOrderId = response.data.uniqueorderid;
     orderResponse.price = parseFloat(response.data.price);
-    orderResponse.transactionType = orderDetails.transactionType;
+    orderResponse.transactionType = orderDetails.orderDetails.transactionType;
     orderResponse.orderStatus = setOrderStatus(response.data.orderstatus);
     orderResponse.message = response.data.text || JSON.stringify(error);
     orderResponse.account = demat;
-    orderResponse.quantity = parseInt(response.data.quantity);
+    orderResponse.quantity = parseInt( response.data.quantity );
+    orderResponse.strategyName = orderDetails.name;
     return orderResponse;
 };
 
@@ -67,6 +68,7 @@ export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, 
 
 export const generateFakeAngelOrderResponse = (): AngelAPIResponse<AngelOrderStatusResponseDTO> => {
     const response: AngelAPIResponse<AngelOrderStatusResponseDTO> = new AngelAPIResponse<AngelOrderStatusResponseDTO>();
+    response.data = new AngelOrderStatusResponseDTO();
     response.data.uniqueorderid = crypto.randomBytes(16).toString('hex');
     response.data.price = '100.20';
     response.data.orderstatus = AngelConstant.ORDER_STATUS_CANCELLED;
