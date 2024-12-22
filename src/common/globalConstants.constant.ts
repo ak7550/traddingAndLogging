@@ -61,3 +61,7 @@ export enum IntegratedBroker {
     Dhaan = "dhaan",
     Fyers = "fyers"
 }
+
+export enum OrderStatus {
+    fulfilled, rejected, pending, skipped
+}
