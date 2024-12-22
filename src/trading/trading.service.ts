@@ -249,6 +249,11 @@ export class TradingService {
         holding: HoldingInfoDTO,
         strategies: Strategy[]
     ): OrderDetails | void {
+        if ( this.configService.get<boolean>( 'PLACE_ORDER' ) === false ) {
+            this.logger.log( `Faking this method` );
+            return strategies[ 0 ].orderDetails;
+        }
+
         const orders: OrderDetails[] = [];
         for (let index = 0; index < strategies.length; index++) {
             const {
