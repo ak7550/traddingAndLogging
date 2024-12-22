@@ -1,7 +1,10 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
 import { OrderDetails } from "../../common/strategies";
+import { CustomLogger } from "../../custom-logger.service";
+import { Credential } from "../../entities/credential/credential.entity";
 import { CredentialService } from "../../entities/credential/credential.service";
 import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
+import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
 import HoldingInfoDTO from "../dtos/holding-info.dto";
 import OrderResponseDTO from '../dtos/order.response.dto';
 import TradingInterface from "../interfaces/trading.interface";
@@ -10,13 +13,9 @@ import { mapToHoldingDTO, mapToOrderResponseDTO } from "./config/angel.utils";
 import AngelHoldingDTO from "./dto/holding.dto";
 import AngelOrderRequestDTO from './dto/order.request.dto';
 import AngelOrderResponseDTO from "./dto/order.response.dto";
-import AngelRequestHandler from "./request-handler.service";
-import { CustomLogger } from "../../custom-logger.service";
-import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
-import { Credential } from "../../entities/credential/credential.entity";
-import AngelAPIResponse from "./dto/generic.response.dto";
 import { AngelOrderStatusResponseDTO } from "./dto/orderStatus.response.dto";
-import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
+import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
+import AngelRequestHandler from "./request-handler.service";
 
 
 @Injectable()

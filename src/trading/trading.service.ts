@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Cron } from "@nestjs/schedule";
 import _ from "lodash";
 import {
@@ -9,12 +10,13 @@ import {
     Observable,
     toArray
 } from "rxjs";
-
 import { daily21EMARetestBuy } from "src/common/strategies/daily21EMARetestBuy.strategy";
 import { dailyRSIBelow60 } from "src/common/strategies/rsiBelow60.strategy";
 import { sellEvery15min } from "src/common/strategies/sellEvery15min.strategy";
 import { sellconfirmationMorning } from "src/common/strategies/sellInMorning.strategy";
 import { DematService } from "src/entities/demat/demat.service";
+import { CreateOrderDTO } from "src/entities/order/dto/createOrder.dto";
+import { OrderService } from "src/entities/order/order.service";
 import utils from 'util';
 import Strategy, { OrderDetails, strategies } from "../common/strategies";
 import { openHighSellClosingHour } from "../common/strategies/openHighSellClosingHour.strategy";
@@ -27,16 +29,14 @@ import {
     StockInfoMarket
 } from "../stock-data/entities/stock-data.entity";
 import { StockDataService } from "../stock-data/stock-data.service";
-import AlertRequestDTO from "./dtos/alert.request.dto";
-import HoldingInfoDTO from "./dtos/holding-info.dto";
-import OrderResponseDTO from "./dtos/order.response.dto";
-import TradingFactoryService from "./trading-factory.service";
-import TradingInterface from "./interfaces/trading.interface";
-import { ConfigService } from "@nestjs/config";
-import { OrderService } from "src/entities/order/order.service";
 import { generateFakeAngelOrderResponse, mapToOrderResponseDTO } from "./angel/config/angel.utils";
 import AngelAPIResponse from "./angel/dto/generic.response.dto";
 import { AngelOrderStatusResponseDTO } from "./angel/dto/orderStatus.response.dto";
+import AlertRequestDTO from "./dtos/alert.request.dto";
+import HoldingInfoDTO from "./dtos/holding-info.dto";
+import OrderResponseDTO from "./dtos/order.response.dto";
+import TradingInterface from "./interfaces/trading.interface";
+import TradingFactoryService from "./trading-factory.service";
 
 type AlertServiceType = {
     demat: DematAccount;
@@ -45,8 +45,6 @@ type AlertServiceType = {
 
 @Injectable()
 export class TradingService {
-
-
     async handleTradingViewAlert(alert: AlertRequestDTO, dematAccountId?: number): Promise<OrderResponseDTO[] | void> {
         const strategiesForThisAlert: Strategy[] = alert.strategyNumber
             .map(n => strategies[n])
@@ -110,13 +108,11 @@ export class TradingService {
         private readonly userService: UserService,
         private readonly dematService: DematService,
         private readonly tradingFactory: TradingFactoryService,
-        private readonly logger: CustomLogger = new CustomLogger(
-            TradingService.name
-        ),
+        private readonly logger: CustomLogger = new CustomLogger(TradingService.name),
         private readonly stockDataService: StockDataService,
         private readonly configService: ConfigService,
         private readonly orderService: OrderService
-    ) { }
+    ) {}
 
     @Cron('0 */15 9-15 * * 1-5')
     async sellEvery15min(): Promise<OrderResponseDTO[]> {
@@ -216,14 +212,14 @@ export class TradingService {
 
         const orderResponse: OrderResponseDTO = this.configService.get<boolean>('PLACE_ORDER') ?
             await tradingInterface.placeOrder(orderDetail, holding, demat, current, historical)
-            : this.placeFakeOrder(orderDetail, holding, demat, current, historical);
+            : this.placeFakeOrder(orderDetail, holding, demat);
 
-        this.saveIntoDb(orderDetail, holding, demat, current, historical, orderResponse);
+        this.saveOrderDetailsInDb(orderDetail, holding, demat, current, historical, orderResponse);
         return orderResponse;
     }
 
     //TODO
-    private async saveIntoDb(
+    private async saveOrderDetailsInDb(
         orderDetail: OrderDetails,
         holding: HoldingInfoDTO,
         demat: DematAccount,
@@ -231,19 +227,19 @@ export class TradingService {
         historical: StockInfoHistorical,
         orderResponse: OrderResponseDTO
     ): Promise<void> {
-        return null;
+        const order : CreateOrderDTO = new CreateOrderDTO({
+            ...orderResponse
+        });
+        this.orderService.createOrder(order);
     }
 
-    //TODO
     private placeFakeOrder(
         orderDetail: OrderDetails,
         holding: HoldingInfoDTO,
-        demat: DematAccount,
-        current: StockInfoMarket,
-        historical: StockInfoHistorical
+        demat: DematAccount
     ) : OrderResponseDTO {
         // creating angel-api-order-response
-        const fakeAngelOrderResponse: AngelAPIResponse<AngelOrderStatusResponseDTO> = generateFakeAngelOrderResponse(orderDetail, holding, demat, current, historical);
+        const fakeAngelOrderResponse: AngelAPIResponse<AngelOrderStatusResponseDTO> = generateFakeAngelOrderResponse();
         return mapToOrderResponseDTO(fakeAngelOrderResponse, holding, orderDetail, demat);
     }
 

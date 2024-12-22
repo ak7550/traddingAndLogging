@@ -1,5 +1,5 @@
-
-import { IntegratedBroker } from "../../../common/globalConstants.constant";
+import * as crypto from "crypto";
+import { IntegratedBroker, OrderStatus } from "../../../common/globalConstants.constant";
 import { OrderDetails } from "../../../common/strategies";
 import { DematAccount } from "../../../entities/demat/entities/demat-account.entity";
 import HoldingInfoDTO from "../../dtos/holding-info.dto";
@@ -7,6 +7,7 @@ import OrderResponseDTO from '../../dtos/order.response.dto';
 import AngelAPIResponse from "../dto/generic.response.dto";
 import AngelHoldingDTO from "../dto/holding.dto";
 import { AngelOrderStatusResponseDTO } from "../dto/orderStatus.response.dto";
+import { AngelConstant } from "./angel.constant";
 
 export const mapToOrderResponseDTO = (
     response: AngelAPIResponse<AngelOrderStatusResponseDTO> = null,
@@ -16,17 +17,39 @@ export const mapToOrderResponseDTO = (
     error: unknown = null
 ): OrderResponseDTO => {
     const orderResponse: OrderResponseDTO = new OrderResponseDTO();
-    orderResponse.tradingSymbol = stock.tradingsymbol;
+    orderResponse.stockSymbol = stock.tradingsymbol;
     orderResponse.orderType = orderDetails.orderType;
-    orderResponse.orderId = response.data.uniqueorderid;
-    orderResponse.price = response.data.price;
+    orderResponse.marketplaceOrderId = response.data.uniqueorderid;
+    orderResponse.price = parseFloat(response.data.price);
     orderResponse.transactionType = orderDetails.transactionType;
-    orderResponse.broker = IntegratedBroker.Angel;
-    orderResponse.status = response.data.orderstatus;
-    orderResponse.reason = response.data.text;
-    orderResponse.demat = demat;
+    orderResponse.orderStatus = setOrderStatus(response.data.orderstatus);
+    orderResponse.message = response.data.text || JSON.stringify(error);
+    orderResponse.account = demat;
+    orderResponse.quantity = parseInt(response.data.quantity);
     return orderResponse;
 };
+
+const setOrderStatus = (status: string): OrderStatus => {
+    let statusVal: OrderStatus;
+    switch (status) {
+        case AngelConstant.ORDER_STATUS_REJECTED:
+        case AngelConstant.ORDER_STATUS_CANCELLED:
+            statusVal = OrderStatus.rejected;
+            break;
+        case AngelConstant.ORDER_STATUS_OPEN:
+        case AngelConstant.ORDER_STATUS_MODIFIED:
+            statusVal = OrderStatus.pending;
+            break;
+        case AngelConstant.ORDER_STATUS_COMPLETE:
+            statusVal = OrderStatus.fulfilled;
+            break;
+        default:
+            statusVal = OrderStatus.skipped;
+            break;
+    }
+
+    return statusVal;
+}
 
 export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, exchange, isin, profitandloss, pnlpercentage, product, ltp }: AngelHoldingDTO): HoldingInfoDTO =>
     new HoldingInfoDTO({
@@ -41,3 +64,13 @@ export const mapToHoldingDTO = ({ averageprice, tradingsymbol, quantity, close, 
         tradingsymbol,
         product, ltp
     });
+
+export const generateFakeAngelOrderResponse = (): AngelAPIResponse<AngelOrderStatusResponseDTO> => {
+    const response: AngelAPIResponse<AngelOrderStatusResponseDTO> = new AngelAPIResponse<AngelOrderStatusResponseDTO>();
+    response.data.uniqueorderid = crypto.randomBytes(16).toString('hex');
+    response.data.price = '100.20';
+    response.data.orderstatus = AngelConstant.ORDER_STATUS_CANCELLED;
+    response.data.text = 'This is a fake order';
+    response.data.quantity = '100';
+    return response;
+}
