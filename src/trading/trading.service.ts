@@ -31,6 +31,12 @@ import AlertRequestDTO from "./dtos/alert.request.dto";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingFactoryService from "./trading-factory.service";
+import TradingInterface from "./interfaces/trading.interface";
+import { ConfigService } from "@nestjs/config";
+import { OrderService } from "src/entities/order/order.service";
+import { generateFakeAngelOrderResponse, mapToOrderResponseDTO } from "./angel/config/angel.utils";
+import AngelAPIResponse from "./angel/dto/generic.response.dto";
+import { AngelOrderStatusResponseDTO } from "./angel/dto/orderStatus.response.dto";
 
 type AlertServiceType = {
     demat: DematAccount;
@@ -107,7 +113,9 @@ export class TradingService {
         private readonly logger: CustomLogger = new CustomLogger(
             TradingService.name
         ),
-        private readonly stockDataService: StockDataService
+        private readonly stockDataService: StockDataService,
+        private readonly configService: ConfigService,
+        private readonly orderService: OrderService
     ) { }
 
     @Cron('0 */15 9-15 * * 1-5')
@@ -204,9 +212,39 @@ export class TradingService {
         current: StockInfoMarket,
         historical: StockInfoHistorical
     ): Promise<OrderResponseDTO> {
-        return await this.tradingFactory
-            .getInstance(demat.broker.name)
-            .placeOrder(orderDetail, holding, demat, current, historical);
+        const tradingInterface: TradingInterface = this.tradingFactory.getInstance(demat.broker.name);
+
+        const orderResponse: OrderResponseDTO = this.configService.get<boolean>('PLACE_ORDER') ?
+            await tradingInterface.placeOrder(orderDetail, holding, demat, current, historical)
+            : this.placeFakeOrder(orderDetail, holding, demat, current, historical);
+
+        this.saveIntoDb(orderDetail, holding, demat, current, historical, orderResponse);
+        return orderResponse;
+    }
+
+    //TODO
+    private async saveIntoDb(
+        orderDetail: OrderDetails,
+        holding: HoldingInfoDTO,
+        demat: DematAccount,
+        current: StockInfoMarket,
+        historical: StockInfoHistorical,
+        orderResponse: OrderResponseDTO
+    ): Promise<void> {
+        return null;
+    }
+
+    //TODO
+    private placeFakeOrder(
+        orderDetail: OrderDetails,
+        holding: HoldingInfoDTO,
+        demat: DematAccount,
+        current: StockInfoMarket,
+        historical: StockInfoHistorical
+    ) : OrderResponseDTO {
+        // creating angel-api-order-response
+        const fakeAngelOrderResponse: AngelAPIResponse<AngelOrderStatusResponseDTO> = generateFakeAngelOrderResponse(orderDetail, holding, demat, current, historical);
+        return mapToOrderResponseDTO(fakeAngelOrderResponse, holding, orderDetail, demat);
     }
 
     private processData(

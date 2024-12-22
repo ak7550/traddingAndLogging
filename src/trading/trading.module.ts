@@ -13,9 +13,9 @@ import { TradingService } from "./trading.service";
     providers: [TradingFactoryService, TradingService, CustomLogger],
     controllers: [TradingController],
     imports: [
-        ConfigModule.forRoot({
-            cache: true
-        }),
+        // ConfigModule.forRoot({
+        //     cache: true
+        // }),
         DhaanModule,
         AngelModule,
         EntityModule,
