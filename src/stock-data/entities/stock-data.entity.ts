@@ -30,8 +30,8 @@ export class OhlcvDataDTO {
         const totalCandleSize: number = Math.abs( this.high - this.low );
         const body: number = Math.abs( this.close - this.open );
         this.bodyPercentage = body * 100 / totalCandleSize;
-        this.wickPercentage = Math.abs( this.high - Math.max( this.open, this.close ) ) * 100 / body;
-        this.tailPercentage = Math.abs( this.low - Math.min( this.open, this.close ) ) * 100 / body;
+        this.wickPercentage = Math.abs( this.high - Math.max( this.open, this.close ) ) * 100 / totalCandleSize;
+        this.tailPercentage = Math.abs( this.low - Math.min( this.open, this.close ) ) * 100 / totalCandleSize;
         this.isGreen = this.open < this.close;
         this.isOpenHigh = percentageChange(this.high, this.open) < 0.5;
         this.isOpenLow = percentageChange(this.open, this.low) < 0.5;
