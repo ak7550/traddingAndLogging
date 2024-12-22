@@ -55,7 +55,6 @@ export default class TradingController {
         return await this.tradingService.placeSchedularOrder(strategy, userId, broker?.toLowerCase());
     }
 
-    //TODO: make sure that we get the webhook payload in json format,
     //DOCS: https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
     //DOCS: https://stackoverflow.com/questions/73495506/how-to-get-client-ip-in-nestjs
     @Post('tradingview')
