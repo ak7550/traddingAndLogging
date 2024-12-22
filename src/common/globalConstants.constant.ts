@@ -34,14 +34,51 @@ export default class GlobalConstant {
     public static readonly REFRESH_TOKEN = "refresh_token";
 }
 
-export enum ExchangeType { "NSE" , "BSE" , "NFO" , "MCX" , "BFO" , "CDS"} ;
-export enum OrderVariety { "NORMAL", "STOPLOSS", "AMO", "ROBO" };
-export enum TransactionType { "BUY", "SELL" };
-export enum OrderType { "MARKET", "LIMIT", "STOPLOSS_LIMIT", "STOPLOSS_MARKET" };
-export enum ProductType  { "DELIVERY", "CARRYFOREARD", "MARGIN", "INTRADAY", "BO" } ;
-export enum DurationType { "DAY", "IOC" } ;
+export enum ExchangeType {
+    NSE = "NSE",
+    BSE = "BSE",
+    NFO = "NFO",
+    MCX = "MCX",
+    BFO = "BFO",
+    CDS = "CDS"
+};
+
+export enum OrderVariety {
+    NORMAL = "NORMAL",
+    STOPLOSS = "STOPLOSS",
+    AMO = "AMO",
+    ROBO = "ROBO"
+};
+
+export enum TransactionType {
+    BUY = "BUY",
+    SELL = "SELL"
+};
+
+export enum OrderType {
+    MARKET = "MARKET",
+    LIMIT = "LIMIT",
+    STOPLOSS_LIMIT = "STOPLOSS_LIMIT",
+    STOPLOSS_MARKET = "STOPLOSS_MARKET"
+};
+
+export enum ProductType {
+    DELIVERY = "DELIVERY",
+    CARRYFORWARD = "CARRYFORWARD",
+    MARGIN = "MARGIN",
+    INTRADAY = "INTRADAY",
+    BO = "BO"
+};
+
+export enum DurationType {
+    DAY = "DAY",
+    IOC = "IOC"
+};
+
 export enum InstrumentType {
-    "OPTSTK", "OPTIDX", ""
+    OPTSTK = "OPTSTK",
+    OPTIDX = "OPTIDX",
+    EMPTY = ""
 };
 
 export const tradingViewWebhookIp: string[] = [
@@ -63,5 +100,8 @@ export enum IntegratedBroker {
 }
 
 export enum OrderStatus {
-    fulfilled, rejected, pending, skipped
+    FULFILLED = "fulfilled",
+    REJECTED = "rejected",
+    PENDING = "pending",
+    SKIPPED = "skipped"
 }

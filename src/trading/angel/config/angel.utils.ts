@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { IntegratedBroker, OrderStatus } from "../../../common/globalConstants.constant";
+import { ExchangeType, IntegratedBroker, OrderStatus } from "../../../common/globalConstants.constant";
 import { OrderDetails, StrategyDetails } from "../../../common/strategies";
 import { DematAccount } from "../../../entities/demat/entities/demat-account.entity";
 import HoldingInfoDTO from "../../dtos/holding-info.dto";
@@ -27,6 +27,7 @@ export const mapToOrderResponseDTO = (
     orderResponse.account = demat;
     orderResponse.quantity = parseInt( response.data.quantity );
     orderResponse.strategyName = orderDetails.name;
+    orderResponse.exchange = response.data.exchange;
     return orderResponse;
 };
 
@@ -35,17 +36,17 @@ const setOrderStatus = (status: string): OrderStatus => {
     switch (status) {
         case AngelConstant.ORDER_STATUS_REJECTED:
         case AngelConstant.ORDER_STATUS_CANCELLED:
-            statusVal = OrderStatus.rejected;
+            statusVal = OrderStatus.REJECTED;
             break;
         case AngelConstant.ORDER_STATUS_OPEN:
         case AngelConstant.ORDER_STATUS_MODIFIED:
-            statusVal = OrderStatus.pending;
+            statusVal = OrderStatus.PENDING;
             break;
         case AngelConstant.ORDER_STATUS_COMPLETE:
-            statusVal = OrderStatus.fulfilled;
+            statusVal = OrderStatus.FULFILLED;
             break;
         default:
-            statusVal = OrderStatus.skipped;
+            statusVal = OrderStatus.SKIPPED;
             break;
     }
 
@@ -74,5 +75,6 @@ export const generateFakeAngelOrderResponse = (): AngelAPIResponse<AngelOrderSta
     response.data.orderstatus = AngelConstant.ORDER_STATUS_CANCELLED;
     response.data.text = 'This is a fake order';
     response.data.quantity = '100';
+    response.data.exchange = ExchangeType.NSE;
     return response;
 }

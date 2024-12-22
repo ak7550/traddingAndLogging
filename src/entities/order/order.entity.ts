@@ -11,7 +11,7 @@ export class Order extends AbstractEntity<Order> {
     @Column({
         type: "enum",
         enum: OrderStatus,
-        default: OrderStatus.pending,
+        default: OrderStatus.PENDING,
         name: 'order_status'
     })
     orderStatus: OrderStatus;

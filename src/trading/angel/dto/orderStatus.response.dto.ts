@@ -1,8 +1,10 @@
+import { DurationType, ExchangeType, OrderType, ProductType } from "../../../common/globalConstants.constant";
+
 export class AngelOrderStatusResponseDTO {
     variety: string;
-    ordertype: string;
-    producttype: string;
-    duration: string;
+    ordertype: OrderType;
+    producttype: ProductType;
+    duration: DurationType;
     price: string;
     triggerprice: string;
     quantity: string;
@@ -12,7 +14,7 @@ export class AngelOrderStatusResponseDTO {
     trailingstoploss: string;
     tradingsymbol: string;
     transactiontype: string;
-    exchange: string;
+    exchange: ExchangeType;
     symboltoken: string;
     instrumenttype: string;
     strikeprice: string;
