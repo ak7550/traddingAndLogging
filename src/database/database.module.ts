@@ -13,20 +13,28 @@ import { User } from "../entities/user/entities/user.entity";
             useFactory: (configService: ConfigService) => ({
                 type: configService.getOrThrow<string>(`DB_TYPE`),
                 host: configService.getOrThrow<string>(`DB_HOST`),
-                port: parseInt(configService.getOrThrow(`DB_PORT`)) || 3306,
+                port: parseInt(configService.getOrThrow<string>(`DB_PORT`, "3306")),
                 username: configService.getOrThrow<string>(`DB_USER`),
                 password: configService.getOrThrow<string>(`DB_PASSWORD`),
-                database: configService.getOrThrow<string>('NODE_ENV') !== 'test' ?  configService.getOrThrow(`DB_NAME`) : configService.getOrThrow(`TEST_DB_NAME`),
+                database: configService.getOrThrow<string>(`DB_NAME`),
                 entities: [Credential, User, DematAccount, Broker],
                 autoLoadEntities: true,
                 synchronize: configService.getOrThrow(`DB_SYNCHRONIZE`),
                 retryAttempts: 5,
                 retryDelay: 1000,
-                logging: ["error", "info", "log", "query", "schema", "warn", "migration"],
+                logging: [
+                    "error",
+                    "info",
+                    "log",
+                    "query",
+                    "schema",
+                    "warn",
+                    "migration"
+                ],
                 maxQueryExecutionTime: 5000 //5 secs
             }),
-            inject: [ConfigService],
-        }),
-    ],
+            inject: [ConfigService]
+        })
+    ]
 })
 export class DataBaseModule {}
