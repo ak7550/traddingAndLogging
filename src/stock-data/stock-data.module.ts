@@ -1,6 +1,6 @@
 import { CacheModule } from "@nestjs/cache-manager";
 import { Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
 import { redisStore } from "cache-manager-redis-yet";
 import { CustomLogger } from "../custom-logger.service";
 import { CredentialModule } from "../entities/credential/credential.module";
@@ -12,12 +12,13 @@ import { StockDataService } from "./stock-data.service";
 
 @Module({
     imports: [
-        CacheModule.registerAsync({
+        CacheModule.registerAsync( {
+            imports: [VaultModule],
             useFactory: async (configService: ConfigService) => ({
                 store: await redisStore({
                     socket: {
-                        host: configService.getOrThrow<string>("REDIS_HOST"),
-                        port: configService.getOrThrow<number>("REDIS_PORT") // this redis will only store the daily stock info for caching purpose and delete after one day of use, security is not a major concern, we are saving only that data which is publicly available
+                        host: await configService.getOrThrow<string>("REDIS_HOST"),
+                        port: await configService.getOrThrow<number>("REDIS_PORT") // this redis will only store the daily stock info for caching purpose and delete after one day of use, security is not a major concern, we are saving only that data which is publicly available
                     }
                 }),
                 ttl: 7 * 3600,
