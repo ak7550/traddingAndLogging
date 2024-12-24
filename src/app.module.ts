@@ -11,6 +11,7 @@ import { StockDataModule } from "./stock-data/stock-data.module";
 import TradingModule from "./trading/trading.module";
 import { CustomConfigService } from "./vault/custom-config.service";
 import { VaultModule } from "./vault/vault.module";
+import { RedisModule } from "./database/redis.module";
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { VaultModule } from "./vault/vault.module";
         DataBaseModule,
         EntityModule,
         VaultModule,
-        StockDataModule
+        StockDataModule,
+        RedisModule
     ],
     controllers: [AppController],
     providers: [AppService, CustomLogger]

@@ -25,21 +25,20 @@ interface Secret<T> {
 
 @Injectable()
 export class VaultService {
-    private readonly mutex: Mutex;
     constructor(
         private readonly configService: ConfigService,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
         private readonly logger: CustomLogger = new CustomLogger(
             VaultService.name
         )
-    ) {
-        this.mutex = new Mutex();
-    }
+    ) {}
 
     private async getAccessToken(): Promise<string> {
         const keyName: string = "HCP_ACCESS_TOKEN";
+        const release: MutexInterface.Releaser = await new Mutex().acquire();
         const cachedData: string = await this.cacheManager.get(keyName);
-        if (cachedData !== undefined) {
+        if ( cachedData !== undefined ) {
+            release();
             return cachedData;
         }
         const hcpAuthenticateUrl: string =
@@ -67,14 +66,14 @@ export class VaultService {
             });
 
             this.cacheManager
-                .set(keyName, access_token, 55 * 60 * 1000)
+                .set( keyName, access_token, 55 * 60 * 1000 )
                 .then(() =>
                     this.logger.log(
                         `HCP ${keyName} is cached for 55 mins at ${moment().format(
                             "YYYY-MM-DD HH:mm"
                         )}`
                     )
-                );
+                ).finally(() => release());
 
             return access_token;
         } catch (error) {
@@ -93,12 +92,15 @@ export class VaultService {
      * @param {String} path - Path to the secret in vault
      * @returns data - Secret data
      */
-    async getSecret<T>(keyName: string): Promise<T> {
-        const release: MutexInterface.Releaser = await this.mutex.acquire();
-        const cachedData: T = await this.cacheManager.get(keyName);
-        if (cachedData !== undefined) {
-            release();
-            return cachedData;
+    async getSecret<T> ( keyName: string, doCache: boolean ): Promise<T> {
+        let release: MutexInterface.Releaser;
+        if ( doCache ) {
+            release = await new Mutex().acquire();
+            const cachedData: T = await this.cacheManager.get( keyName );
+            if ( cachedData !== undefined ) {
+                release();
+                return cachedData;
+            }
         }
         const orgId: string =
             this.configService.getOrThrow<string>("HCP_ORG_ID");
@@ -125,7 +127,8 @@ export class VaultService {
             }
         });
 
-        this.cacheManager
+
+        doCache && this.cacheManager
             .set(keyName, value, 55 * 60 * 1000)
             .then(() =>
                 this.logger.log(
@@ -133,7 +136,7 @@ export class VaultService {
                         "YYYY-MM-DD HH:mm"
                     )}`
                 )
-            );
+            ).finally(() => release());
 
         return value;
     }
