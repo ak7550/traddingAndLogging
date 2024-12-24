@@ -7,8 +7,6 @@ to implement this feature we may need a frontend, which will redirect us to our 
 ### database_design ==> normalization is good in terms of scalability, but query will take longer time to execute
 
 
-configure hashi corp key-vault => user docer container initially
-
 add more and more buy and sell strategies
 rename the methods, we must be having only 2 method 1 for buy 1 for sell, having only a single method for both the transactions is optimal
 
@@ -40,7 +38,7 @@ Integrate google sheets
 - [ ] Task 14:
 call some auth-less scanner GET apis to get the data regularly
 
-- [ ] Task 15: 
+- [ ] Task 15:
 start analysing flat trade, code base, I need to integrate that BROKER as well.
 
 - [ ] Task 3: Data base
