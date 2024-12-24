@@ -1,7 +1,7 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable, RequestMethod } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { Mutex, MutexInterface } from "async-mutex";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { catchError, firstValueFrom, from, Observable } from "rxjs";
 import utils from 'util';
@@ -13,7 +13,6 @@ import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelAPIResponse from "./dto/generic.response.dto";
 import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
-import { Mutex, MutexInterface } from "async-mutex";
 
 @Injectable()
 export default class AngelRequestHandler {
