@@ -1,5 +1,5 @@
 import { Injectable, RequestMethod } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { CustomConfigService as ConfigService } from "../../vault/custom-config.service";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import axiosRateLimit from "axios-rate-limit";
 import axiosRetry from "axios-retry";
@@ -14,11 +14,11 @@ class AxiosFactory {
     private static nonTradingAxios: AxiosInstance;
     private static historicalAxios: AxiosInstance;
 
-    private getAxiosInstance(maxRPS: number): AxiosInstance {
-        const client:AxiosInstance = axiosRateLimit(
+    private async  getAxiosInstance(maxRPS: number): Promise<AxiosInstance> {
+        const client:AxiosInstance = await axiosRateLimit(
             axios.create({
                 baseURL:
-                    this.configService.getOrThrow<string>("DHAAN_BASE_URL"),
+                    await this.configService.getOrThrow<string>("DHAAN_BASE_URL"),
                 headers: {
                     [GlobalConstant.ACCESS_TOKEN]:
                         this.configService.getOrThrow<string>(
@@ -38,9 +38,9 @@ class AxiosFactory {
     }
 
     constructor(private readonly configService: ConfigService) {
-        AxiosFactory.tradingAxios = this.getAxiosInstance(25);
-        AxiosFactory.nonTradingAxios = this.getAxiosInstance(100);
-        AxiosFactory.historicalAxios = this.getAxiosInstance(10);
+        this.getAxiosInstance(25).then(val => AxiosFactory.tradingAxios = val);
+        this.getAxiosInstance(100).then(val => AxiosFactory.nonTradingAxios = val);
+        this.getAxiosInstance(10).then(val => AxiosFactory.historicalAxios = val);
     }
 
     static getAxiosInstance(apiType: ApiType): AxiosInstance {

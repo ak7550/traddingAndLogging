@@ -27,7 +27,11 @@ export class CustomConfigService {
             "DB_USER",
             "DB_SYNCHRONIZE"
         ];
-        let data: T;
+        let data: T = this.configService.getOrThrow<T>( keyName );
+        if ( data !== undefined ) {
+            return data;
+        }
+        
         try {
             data = this.isProduction
                 ? await this.vaultService.getSecret<T>(

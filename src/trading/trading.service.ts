@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
 import { Cron } from "@nestjs/schedule";
 import _ from "lodash";
 import {
@@ -19,7 +19,6 @@ import { CreateOrderDTO } from "src/entities/order/dto/createOrder.dto";
 import { OrderService } from "src/entities/order/order.service";
 import utils from "util";
 import Strategy, {
-    OrderDetails,
     strategies,
     StrategyDetails
 } from "../common/strategies";
@@ -167,8 +166,8 @@ export class TradingService {
         private readonly configService: ConfigService,
         private readonly orderService: OrderService
     ) {
-        this.placeOrderFlag =
-            this.configService.getOrThrow<string>("PLACE_ORDER") === "true";
+            this.configService.getOrThrow<string>( "PLACE_ORDER" )
+            .then((ans: string) => this.placeOrderFlag = ans === "true")
     }
 
     @Cron("0 */15 9-15 * * 1-5")

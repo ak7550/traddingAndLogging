@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import axios, { AxiosInstance } from "axios";
 import axiosRateLimit from "axios-rate-limit";
 import { AngelConstant, ApiType } from "./config/angel.constant";
-import { ConfigService } from "@nestjs/config";
+import { CustomConfigService as ConfigService } from "../../vault/custom-config.service";
 import GlobalConstant from "../../common/globalConstants.constant";
 import axiosRetry from "axios-retry";
 
@@ -13,7 +13,7 @@ export default class AxiosFactory {
     private historicalApi: AxiosInstance;
     private otherApi: AxiosInstance;
 
-    public getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
+    public async getAxiosInstanceByMaxRPS(maxRequests: number): Promise<AxiosInstance> {
         const client: AxiosInstance = axiosRateLimit(
             axios.create({
                 baseURL: AngelConstant.ANGEL_BASE_URL,
@@ -23,7 +23,7 @@ export default class AxiosFactory {
                     [AngelConstant.X_USER_TYPE]: AngelConstant.USER,
                     [AngelConstant.X_SOURCE_ID]: AngelConstant.WEB,
                     [AngelConstant.X_PRIVATE_KEY]:
-                        this.configService.getOrThrow<string>("ANGEL_API_KEY"),
+                        await this.configService.getOrThrow<string>("ANGEL_API_KEY"),
                     [AngelConstant.X_MACAddress]: "process.env.MAC_ADDRESS"
                 }
             }),
@@ -40,10 +40,10 @@ export default class AxiosFactory {
     constructor (
         private readonly configService: ConfigService
     ) {
-        this.orderApi = this.getAxiosInstanceByMaxRPS(20);
-        this.gttApi = this.getAxiosInstanceByMaxRPS(10);
-        this.historicalApi = this.getAxiosInstanceByMaxRPS(3);
-        this.otherApi = this.getAxiosInstanceByMaxRPS(1);
+        this.getAxiosInstanceByMaxRPS(20).then(val => this.orderApi = val);
+        this.getAxiosInstanceByMaxRPS(10).then(val => this.gttApi = val);
+        this.getAxiosInstanceByMaxRPS(3).then(val => this.historicalApi = val);
+        this.getAxiosInstanceByMaxRPS(1).then(val => this.otherApi = val);
     }
 
     public getAxiosInstanceByApiType(apiType: ApiType): AxiosInstance {
