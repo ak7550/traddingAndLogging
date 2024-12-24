@@ -16,19 +16,20 @@ export default class AxiosFactory {
     public getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
         const client: AxiosInstance = axiosRateLimit(
             axios.create({
-                baseURL: this.configService.getOrThrow<string>("ANGEL_BASE_URL"),
+                baseURL: AngelConstant.ANGEL_BASE_URL,
                 headers: {
                     [GlobalConstant.CONTENT_TYPE]:
                         GlobalConstant.APPLICATION_JSON, // not necessary though
                     [AngelConstant.X_USER_TYPE]: AngelConstant.USER,
                     [AngelConstant.X_SOURCE_ID]: AngelConstant.WEB,
-                    [AngelConstant.X_PRIVATE_KEY]: this.configService.getOrThrow<string>("ANGEL_API_KEY"),
-                    [AngelConstant.X_MACAddress]: "process.env.MAC_ADDRESS",
-                },
+                    [AngelConstant.X_PRIVATE_KEY]:
+                        this.configService.getOrThrow<string>("ANGEL_API_KEY"),
+                    [AngelConstant.X_MACAddress]: "process.env.MAC_ADDRESS"
+                }
             }),
             {
-                maxRequests,
-            },
+                maxRequests
+            }
         );
 
         axiosRetry(client, {retries: 3, retryDelay: axiosRetry.exponentialDelay });

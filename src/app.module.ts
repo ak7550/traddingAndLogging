@@ -3,14 +3,14 @@ import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { CustomLogger } from "./custom-logger.service";
 import { DataBaseModule } from "./database/database.module";
 import { EntityModule } from "./entities/entity.module";
-import { KeyVaultService } from "./keyvault.service";
 import { SheetModule } from "./sheet/sheet.module";
 import { StockDataModule } from "./stock-data/stock-data.module";
 import TradingModule from "./trading/trading.module";
+import { CustomConfigService } from "./vault/custom-config.service";
 import { VaultModule } from "./vault/vault.module";
-import { CustomLogger } from "./custom-logger.service";
 
 @Module({
     imports: [
@@ -28,6 +28,6 @@ import { CustomLogger } from "./custom-logger.service";
         StockDataModule
     ],
     controllers: [AppController],
-    providers: [AppService, KeyVaultService, CustomLogger]
+    providers: [AppService, CustomLogger]
 })
 export class AppModule {}
