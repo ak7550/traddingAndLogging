@@ -1,6 +1,6 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import axiosRateLimit from "axios-rate-limit";
@@ -52,8 +52,10 @@ export class RequestHandlerService {
     async refreshToken(): Promise<string> {
         this.logger.verbose(`Cron job trigerred for FYERS refresh token at ${moment().format("YYYY-MM-DDTHH:mm:ssZ")}`);
 
-        const fyersAppId: string = this.configService.getOrThrow<string>("FYERS_APP_ID");
-        const fyersAppSecret = this.configService.getOrThrow<string>("FYERS_APP_SECRET");
+        const fyersAppIdPromise: Promise<string> = this.configService.getOrThrow<string>("FYERS_APP_ID");
+        const fyersAppSecretPromise: Promise<string> = this.configService.getOrThrow<string>( "FYERS_APP_SECRET" );
+        const [fyersAppId, fyersAppSecret] = await Promise.all( [ fyersAppIdPromise, fyersAppSecretPromise ] );
+
         const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
         const [refreshToken, pin, accessToken]: Credential[] = await this.dematService.findOne(2)
             .then(demat => this.credentialService.findAll(demat))
@@ -98,8 +100,10 @@ export class RequestHandlerService {
     ): Promise<Type> {
         const route: string = `${FYERS_HISTORICAL_ROUTE}?symbol=${stockName}&resolution=${resolution}&date_format=${dateFormat}&range_from=${rangeFrom}&range_to=${rangeTo}&oi_flag=1`;
 
-        const fyersAppId: string = this.configService.getOrThrow<string>("FYERS_APP_ID");
-        const accessToken: Credential = await this.credentialService.findCredentialByDematId(2, GlobalConstant.ACCESS_TOKEN);
+        const [ fyersAppId, accessToken ] = await Promise.all( [
+            this.configService.getOrThrow<string>( "FYERS_APP_ID" ),
+            this.credentialService.findCredentialByDematId( 2, GlobalConstant.ACCESS_TOKEN )
+        ] );
 
         this.logger.verbose(`Inside execute method: ${RequestHandlerService.name}, route ${route}`);
         const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
@@ -110,6 +114,10 @@ export class RequestHandlerService {
                     [GlobalConstant.Authorization]: `${fyersAppId}:${accessToken.keyValue}`
                 }
             })
-            .then((res: AxiosResponse<FyersApiResponseDTO<Type>>) => res.data.candles);
+            .then( ( res: AxiosResponse<FyersApiResponseDTO<Type>> ) => res.data.candles )
+            .catch( err => {
+                this.logger.error( `Faced error while handling api request ${ route }, ${ utils.inspect( err, { depth: 4, colors: true } ) } at ${ moment().format( 'YYYY-MM-DD HH:mm' ) }` );
+                return null;
+            });
     }
 }

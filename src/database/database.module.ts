@@ -11,7 +11,7 @@ import { User } from "../entities/user/entities/user.entity";
         TypeOrmModule.forRootAsync({
             //@ts-ignore => just to avoid userFactory type error
             useFactory: (configService: ConfigService) => ({
-                type: configService.getOrThrow<string>(`DB_TYPE`),
+                type: 'mysql',
                 host: configService.getOrThrow<string>(`DB_HOST`),
                 port: parseInt(configService.getOrThrow<string>(`DB_PORT`, "3306")),
                 username: configService.getOrThrow<string>(`DB_USER`),

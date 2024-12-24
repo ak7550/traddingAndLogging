@@ -1,13 +1,14 @@
 import { CacheModule } from "@nestjs/cache-manager";
 import { Module } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { redisStore } from "cache-manager-redis-yet";
+import { CustomLogger } from "../custom-logger.service";
+import { CredentialModule } from "../entities/credential/credential.module";
+import { DematModule } from "../entities/demat/demat.module";
+import { VaultModule } from "../vault/vault.module";
+import { RequestHandlerService } from "./request-handler.service";
 import { StockDataController } from "./stock-data.controller";
 import { StockDataService } from "./stock-data.service";
-import { RequestHandlerService } from "./request-handler.service";
-import { CredentialModule } from "../entities/credential/credential.module";
-import { ConfigService } from "@nestjs/config";
-import { CustomLogger } from "../custom-logger.service";
-import { DematModule } from "../entities/demat/demat.module";
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { DematModule } from "../entities/demat/demat.module";
             inject: [ConfigService]
         }),
         CredentialModule,
-        DematModule
+        DematModule,
+        VaultModule
     ],
     controllers: [StockDataController],
     providers: [StockDataService, CustomLogger, RequestHandlerService],
