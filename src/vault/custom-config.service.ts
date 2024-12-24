@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { VaultService } from "./vault.service";
+import { CustomLogger } from "../custom-logger.service";
+import utils from 'util';
 
 @Injectable()
 export class CustomConfigService {
@@ -8,12 +10,13 @@ export class CustomConfigService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly vaultService: VaultService
+        private readonly vaultService: VaultService,
+        private readonly logger: CustomLogger = new CustomLogger(CustomConfigService.name)
     ) {
         this.isProduction = process.env.NODE_ENV === "local";
     }
 
-    async getOrThrow<T> ( keyName: string ): Promise<T> {
+    async getOrThrow<T>(keyName: string, defaultValue?: T): Promise<T> {
         const shouldNotCache: string[] = [
             "REDIS_HOST",
             "REDIS_PORT",
@@ -24,15 +27,18 @@ export class CustomConfigService {
             "DB_USER",
             "DB_SYNCHRONIZE"
         ];
+        let data: T;
         try {
-            if (this.isProduction) {
-                const data: T =
-                    await this.vaultService.getSecret<T>(keyName, !shouldNotCache.includes(keyName));
-                return data;
-            } else {
-                return this.configService.getOrThrow<T>(keyName);
-            }
-        } catch (error) {}
-        return undefined;
+            data = this.isProduction
+                ? await this.vaultService.getSecret<T>(
+                      keyName,
+                      !shouldNotCache.includes(keyName), defaultValue
+                  )
+                : this.configService.getOrThrow<T>(keyName, defaultValue);
+        } catch ( error ) {
+            this.logger.error( `Faced error while pulling ${ keyName } from configModule, ${utils.inspect(error, {depth: 4, colors: true})}` );
+            data = defaultValue;
+        }
+        return data;
     }
 }

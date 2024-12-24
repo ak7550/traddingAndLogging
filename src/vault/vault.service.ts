@@ -92,7 +92,7 @@ export class VaultService {
      * @param {String} path - Path to the secret in vault
      * @returns data - Secret data
      */
-    async getSecret<T> ( keyName: string, doCache: boolean ): Promise<T> {
+    async getSecret<T> ( keyName: string, doCache: boolean, defaultValue?: T ): Promise<T> {
         let release: MutexInterface.Releaser;
         if ( doCache ) {
             release = await new Mutex().acquire();
@@ -138,6 +138,6 @@ export class VaultService {
                 )
             ).finally(() => release());
 
-        return value;
+        return value || defaultValue;
     }
 }
