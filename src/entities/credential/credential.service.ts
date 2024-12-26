@@ -71,7 +71,7 @@ export class CredentialService {
                     .set(cacheKey, credential, 6 * 3600 * 1000) // saving them for 6 hours only, to make sure they are not present inside cache, when we are refreshing them.
                     .then(() => release())
                     .then(() =>
-                        this.logger.debug(`${cacheKey} is cached for 1 day.`)
+                        this.logger.debug(`${cacheKey} is cached for 6 hours.`)
                     );
                 return credential;
             });
