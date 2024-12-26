@@ -20,15 +20,18 @@ import { mapFyersDataToStockInfo } from "./config/stock-data.constant";
 export class StockDataService {
     constructor(
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-        private readonly logger: CustomLogger = new CustomLogger(StockDataService.name),
+        private readonly logger: CustomLogger = new CustomLogger(
+            StockDataService.name
+        ),
         private readonly requestHandler: RequestHandlerService
     ) {}
 
     //TODO: costly operation, think of implementing worker thread.
     async getCurrentData ( stockName: string ): Promise<StockInfoMarket> {
         const currentTime = moment().unix().toString();
-        const todayAt915 = moment("2024-10-31 09:15", "YYYY-MM-DD HH:mm")
-            // .set({ hour: 9, minute: 15, second: 0, millisecond: 0, date: 31, month: 10})
+        const todayAt915 = moment()
+            // moment( "2024-10-31 09:15", "YYYY-MM-DD HH:mm" )
+            .set({ hour: 9, minute: 15, second: 0, millisecond: 0})
             .unix()
             .toString();
 
@@ -54,6 +57,7 @@ export class StockDataService {
         });
     }
 
+    //TODO: costly operation, think of implementing worker thread.
     async getHistoricalData(stockName: string): Promise<StockInfoHistorical> {
         return await this.useCaching(stockName, this._getHistoricalData);
     }
@@ -88,7 +92,7 @@ export class StockDataService {
                 stockName,
                 "1D",
                 twoYrBefore.format("YYYY-MM-DD"),
-                oneYrBefore.subtract( 1, "day" ).format( "YYYY-MM-DD" ),
+                oneYrBefore.subtract(1, "day").format("YYYY-MM-DD"),
                 1
             );
 

@@ -9,19 +9,19 @@ import { VaultService } from "./vault.service";
 @Module({
     imports: [
         ConfigModule,
-        CacheModule.registerAsync({
-            useFactory: async (configService: ConfigService) => ({
-                store: await redisStore({
-                    socket: {
-                        host: configService.getOrThrow<string>("REDIS_HOST"),
-                        port: configService.getOrThrow<number>("REDIS_PORT")
-                    }
-                }),
-                ttl: 7 * 3600,
-                max: 3000 // maximum number of items that can be stored in cache
-            }),
-            inject: [ConfigService]
-        })
+        // CacheModule.registerAsync({
+        //     useFactory: async (configService: ConfigService) => ({
+        //         store: await redisStore({
+        //             socket: {
+        //                 host: configService.getOrThrow<string>("REDIS_HOST"),
+        //                 port: configService.getOrThrow<number>("REDIS_PORT")
+        //             }
+        //         }),
+        //         ttl: 7 * 3600,
+        //         max: 3000 // maximum number of items that can be stored in cache
+        //     }),
+        //     inject: [ConfigService]
+        // })
     ],
     providers: [VaultService, CustomLogger, CustomConfigService],
     exports: [CustomConfigService]

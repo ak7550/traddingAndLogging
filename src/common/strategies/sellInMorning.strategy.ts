@@ -23,7 +23,7 @@ export const sellconfirmationMorning: Strategy = {
             description: "Monthly RSI value needs to be more than 60"
         },
         {
-            description: `Previous candle was a red candle with big body`,
+            description: `Previous candle was a big body`,
             filter: ({ historical: { oneDay: { candleInfo } } }) => isBigDaddy(candleInfo[candleInfo.length - 1])
         },
         {
@@ -34,10 +34,10 @@ export const sellconfirmationMorning: Strategy = {
             description: `Previous 15 min candle was also below previous day candle's low`,
             filter: ({ historical: { oneDay }, current: { fifteenMinutes: { candleInfo } } }) => candleInfo[candleInfo.length - 2].close < oneDay.candleInfo[oneDay.candleInfo.length - 1].low
         },
-        {
-            description: `recent 15 min candle is below 1 hour vwap`,
-            filter: ({ current: { fifteenMinutes: { candleInfo }, oneHour: { vwap } } }) => getCandleData(candleInfo, 1, 'close') < vwap[0]
-        }
+        // {
+        //     description: `recent 15 min candle is below 1 hour vwap`,
+        //     filter: ({ current: { fifteenMinutes: { candleInfo }, oneHour: { vwap } } }) => getCandleData(candleInfo, 1, 'close') < vwap[0]
+        // }
     ],
     mustConditions: [
         {
@@ -55,6 +55,7 @@ export const sellconfirmationMorning: Strategy = {
             description: `recent 15 min candle is breaking the low of previous 15 min candle`,
             filter: ({ current: { fifteenMinutes: { candleInfo } } }) => getCandleData(candleInfo, 1, 'close') < getCandleData(candleInfo, 2, 'low')
         }
+        // body percentage of last 2 15 min candles are more than 65.
     ],
     orderDetails: {
         decidingFactor: undefined,

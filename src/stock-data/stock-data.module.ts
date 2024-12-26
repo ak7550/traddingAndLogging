@@ -12,20 +12,20 @@ import { StockDataService } from "./stock-data.service";
 
 @Module({
     imports: [
-        CacheModule.registerAsync( {
-            imports: [VaultModule],
-            useFactory: async (configService: ConfigService) => ({
-                store: await redisStore({
-                    socket: {
-                        host: await configService.getOrThrow<string>("REDIS_HOST"),
-                        port: await configService.getOrThrow<number>("REDIS_PORT") // this redis will only store the daily stock info for caching purpose and delete after one day of use, security is not a major concern, we are saving only that data which is publicly available
-                    }
-                }),
-                ttl: 7 * 3600,
-                max: 3000 // maximum number of items that can be stored in cache
-            }),
-            inject: [ConfigService]
-        }),
+        // CacheModule.registerAsync( {
+        //     imports: [VaultModule],
+        //     useFactory: async (configService: ConfigService) => ({
+        //         store: await redisStore({
+        //             socket: {
+        //                 host: await configService.getOrThrow<string>("REDIS_HOST"),
+        //                 port: await configService.getOrThrow<number>("REDIS_PORT") // this redis will only store the daily stock info for caching purpose and delete after one day of use, security is not a major concern, we are saving only that data which is publicly available
+        //             }
+        //         }),
+        //         ttl: 7 * 3600,
+        //         max: 3000 // maximum number of items that can be stored in cache
+        //     }),
+        //     inject: [ConfigService]
+        // }),
         CredentialModule,
         DematModule,
         VaultModule

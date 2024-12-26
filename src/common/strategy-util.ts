@@ -15,7 +15,7 @@ export const findBigDaddyCandle = (candleInfo: OhlcvDataDTO[], days: number) : O
         const currentCandle = candleInfo[candleInfo.length - index];
         if(isBigDaddy(currentCandle)){
             return currentCandle;
-        } 
+        }
     }
     return null;
 }
@@ -76,7 +76,6 @@ export const getEmaValue = (
     return ema.reverse();
 };
 
-//BUG: vwap data is not correct
 export const getVwap = ( data: OhlcvDataDTO[] ): number[] => {
     const vwapArray: number[] = [];
 
