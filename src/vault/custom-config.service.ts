@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { VaultService } from "./vault.service";
 import { CustomLogger } from "../custom-logger.service";
 import utils from 'util';
+import _ from "lodash";
 
 @Injectable()
 export class CustomConfigService {
@@ -13,7 +14,7 @@ export class CustomConfigService {
         private readonly vaultService: VaultService,
         private readonly logger: CustomLogger = new CustomLogger(CustomConfigService.name)
     ) {
-        this.isProduction = process.env.NODE_ENV === "local";
+        this.isProduction = process.env.NODE_ENV === "prod";
     }
 
     async getOrThrow<T>(keyName: string, defaultValue?: T): Promise<T> {
@@ -27,11 +28,11 @@ export class CustomConfigService {
             "DB_USER",
             "DB_SYNCHRONIZE"
         ];
-        let data: T = this.configService.getOrThrow<T>( keyName );
-        if ( data !== undefined ) {
+        let data: T = this.configService.get<T>( keyName );
+        if ( data !== undefined && !_.isEmpty(data)) {
             return data;
         }
-        
+
         try {
             data = this.isProduction
                 ? await this.vaultService.getSecret<T>(

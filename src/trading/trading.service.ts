@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
 import { Cron } from "@nestjs/schedule";
 import _ from "lodash";
+import moment from "moment";
 import {
     filter,
     from,
@@ -10,21 +10,21 @@ import {
     Observable,
     toArray
 } from "rxjs";
-import { daily21EMARetestBuy } from "src/common/strategies/daily21EMARetestBuy.strategy";
-import { dailyRSIBelow60 } from "src/common/strategies/rsiBelow60.strategy";
-import { sellEvery15min } from "src/common/strategies/sellEvery15min.strategy";
-import { sellconfirmationMorning } from "src/common/strategies/sellInMorning.strategy";
-import { DematService } from "src/entities/demat/demat.service";
-import { CreateOrderDTO } from "src/entities/order/dto/createOrder.dto";
-import { OrderService } from "src/entities/order/order.service";
 import utils from "util";
 import Strategy, {
     strategies,
     StrategyDetails
 } from "../common/strategies";
+import { daily21EMARetestBuy } from "../common/strategies/daily21EMARetestBuy.strategy";
 import { openHighSellClosingHour } from "../common/strategies/openHighSellClosingHour.strategy";
+import { dailyRSIBelow60 } from "../common/strategies/rsiBelow60.strategy";
+import { sellEvery15min } from "../common/strategies/sellEvery15min.strategy";
+import { sellconfirmationMorning } from "../common/strategies/sellInMorning.strategy";
 import { CustomLogger } from "../custom-logger.service";
+import { DematService } from "../entities/demat/demat.service";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
+import { CreateOrderDTO } from "../entities/order/dto/createOrder.dto";
+import { OrderService } from "../entities/order/order.service";
 import { User } from "../entities/user/entities/user.entity";
 import { UserService } from "../entities/user/user.service";
 import {
@@ -32,6 +32,7 @@ import {
     StockInfoMarket
 } from "../stock-data/entities/stock-data.entity";
 import { StockDataService } from "../stock-data/stock-data.service";
+import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
 import {
     generateFakeAngelOrderResponse,
     mapToOrderResponseDTO
@@ -43,7 +44,6 @@ import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingInterface from "./interfaces/trading.interface";
 import TradingFactoryService from "./trading-factory.service";
-import moment from "moment";
 
 type AlertServiceType = {
     demat: DematAccount;

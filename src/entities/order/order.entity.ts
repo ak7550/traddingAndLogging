@@ -1,8 +1,8 @@
-import { ExchangeType, OrderStatus, OrderType, TransactionType } from "src/common/globalConstants.constant";
-import AbstractEntity from "src/database/abstract.entity";
 import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { DematAccount } from "../demat/entities/demat-account.entity";
 import moment from "moment-timezone";
+import AbstractEntity from "../../database/abstract.entity";
+import { ExchangeType, OrderStatus, OrderType, TransactionType } from "../../common/globalConstants.constant";
 
 @Entity({
     name: "order",

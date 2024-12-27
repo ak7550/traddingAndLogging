@@ -1,10 +1,10 @@
-import { Module, Post } from "@nestjs/common";
-import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
+import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Broker } from "../entities/broker/entities/broker.entity";
 import { Credential } from "../entities/credential/credential.entity";
 import { DematAccount } from "../entities/demat/entities/demat-account.entity";
 import { User } from "../entities/user/entities/user.entity";
+import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
 import { VaultModule } from "../vault/vault.module";
 
 @Module({

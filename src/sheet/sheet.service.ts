@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { CustomConfigService as ConfigService } from '../vault/custom-config.service';
 import {
     GoogleAuth,
     JSONClient
@@ -9,15 +9,14 @@ import { CustomLogger } from "../custom-logger.service";
 
 @Injectable()
 export class SheetService {
-    private readonly spreadsheetId: string;
+    private spreadsheetId: string;
     private readonly auth: GoogleAuth<JSONClient>;
     private readonly sheets: sheets_v4.Sheets;
     private readonly logger: CustomLogger = new CustomLogger(SheetService.name);
 
     constructor(private readonly configService: ConfigService) {
         this.sheets = google.sheets("v4");
-        this.spreadsheetId =
-            this.configService.getOrThrow<string>("SPREAD_SHEET_ID");
+        this.configService.getOrThrow<string>("SPREAD_SHEET_ID").then(v => this.spreadsheetId = v);
         this.auth = new google.auth.GoogleAuth({
             keyFile: "credentails.json",
             scopes: "https://www.googleapis.com/auth/spreadsheets"
