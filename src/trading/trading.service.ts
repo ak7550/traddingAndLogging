@@ -43,6 +43,7 @@ import HoldingInfoDTO from "./dtos/holding-info.dto";
 import OrderResponseDTO from "./dtos/order.response.dto";
 import TradingInterface from "./interfaces/trading.interface";
 import TradingFactoryService from "./trading-factory.service";
+import moment from "moment";
 
 type AlertServiceType = {
     demat: DematAccount;
@@ -55,6 +56,7 @@ export class TradingService {
         alert: AlertRequestDTO,
         dematAccountId?: number
     ): Promise<OrderResponseDTO[] | void> {
+        this.logger.log( `Logging from handleTradingView alert method` );
         const strategiesForThisAlert: Strategy[] = alert.strategyNumber
             .map(n => strategies[n])
             .filter(res => res !== undefined);
@@ -171,7 +173,8 @@ export class TradingService {
     }
 
     @Cron("0 */15 9-15 * * 1-5")
-    async sellEvery15min(): Promise<OrderResponseDTO[]> {
+    async sellEvery15min (): Promise<OrderResponseDTO[]> {
+        this.logger.log( `Logging from method sellEvery15min` );
         const strategies: Strategy[] = [sellEvery15min];
         const orderResponses: OrderResponseDTO[] =
             await this.placeSchedularOrder(strategies);
@@ -213,7 +216,8 @@ export class TradingService {
 
     // sequence of the strategies in this array are very very very important. If a strategy satisfies, the order will be executed for that stock based upon that strategy
     @Cron("0 */30 9-15 * * 1-5")
-    async placeMorningSLOrders(): Promise<void> {
+    async placeMorningSLOrders (): Promise<void> {
+        this.logger.log( `PlaceMorningSlOrders triggered` );
         const strategies: Strategy[] = [sellconfirmationMorning];
         await this.placeSchedularOrder(strategies).then(() =>
             this.logger.verbose(`${_.map(strategies, "name")} are executed.`)
@@ -221,7 +225,8 @@ export class TradingService {
     }
 
     @Cron("0 20 15 * * 1-5")
-    public async closingTimeOrder(): Promise<void> {
+    public async closingTimeOrder (): Promise<void> {
+        this.logger.log( `closingTimeOrder triggered` );
         const strategies: Strategy[] = [
             openHighSellClosingHour,
             daily21EMARetestBuy,
@@ -362,14 +367,14 @@ export class TradingService {
         holding: HoldingInfoDTO,
         strategies: Strategy[]
     ): StrategyDetails | void {
-        if (!this.placeOrderFlag) {
-            this.logger.log(`Faking this method`);
-            return {
-                orderDetails: strategies[0].orderDetails,
-                name: strategies[0].name,
-                description: strategies[0].description
-            };
-        }
+        // if (!this.placeOrderFlag) {
+        //     this.logger.log(`Faking this method`);
+        //     return {
+        //         orderDetails: strategies[0].orderDetails,
+        //         name: strategies[0].name,
+        //         description: strategies[0].description
+        //     };
+        // }
 
         const orders: StrategyDetails[] = [];
         for (let index = 0; index < strategies.length; index++) {
@@ -460,6 +465,7 @@ export class TradingService {
             );
         }
 
+        this.logger.log( `${ orders[ 0 ].name } is applicable for ${ holding } at ${ moment().format( 'YYYY-MM-DD HH:mm' ) }` );
         return orders[0]; //TODO: more optimisation needed.
     }
 }
