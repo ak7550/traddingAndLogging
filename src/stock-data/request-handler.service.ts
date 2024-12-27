@@ -19,6 +19,7 @@ import utils from 'util';
 
 @Injectable()
 export class RequestHandlerService {
+    private dataApi: AxiosInstance;
     constructor(
         private readonly configService: ConfigService,
         private readonly logger: CustomLogger = new CustomLogger(
@@ -27,7 +28,9 @@ export class RequestHandlerService {
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
         private readonly credentialService: CredentialService,
         private readonly dematService: DematService
-    ) { }
+    ) {
+        this.dataApi = this.getAxiosInstanceByMaxRPS( 3 );
+     }
 
     getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
         const client: AxiosInstance = axiosRateLimit(
@@ -106,7 +109,7 @@ export class RequestHandlerService {
         ] );
 
         this.logger.verbose(`Inside execute method: ${RequestHandlerService.name}, route ${route}`);
-        const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
+        const http: AxiosInstance = this.dataApi;
 
         return await http
             .get(route, {
