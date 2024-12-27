@@ -30,7 +30,6 @@ export class StockDataService {
     async getCurrentData ( stockName: string ): Promise<StockInfoMarket> {
         const currentTime = moment().unix().toString();
         const todayAt915 = moment()
-            // moment( "2024-10-31 09:15", "YYYY-MM-DD HH:mm" )
             .set({ hour: 9, minute: 15, second: 0, millisecond: 0})
             .unix()
             .toString();
