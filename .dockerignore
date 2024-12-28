@@ -7,3 +7,12 @@ trading_view
 Dockerfile
 docker-compose.yml
 *.md
+.env.dev
+.env.local
+doubts.txt
+netst-js-middleware-architechture.jpg
+nodemon.json
+*.drawio
+*.drawio.pdf
+*.drawio.svg
+*.drawio.png
