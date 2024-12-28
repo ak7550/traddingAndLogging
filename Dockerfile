@@ -4,8 +4,8 @@ COPY package.json .
 COPY package-lock.json .
 COPY . .
 
+RUN npm install --omit=dev
 RUN npm i -D @swc/cli @swc/core
-RUN npm install
 RUN npm run build
 
 # Set environment variable explicitly
