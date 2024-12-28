@@ -1,6 +1,6 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
-import { Mutex, MutexInterface } from 'async-mutex';
+import { Mutex, MutexInterface } from "async-mutex";
 import { HttpStatusCode } from "axios";
 import { EntityManager } from "typeorm";
 import utils from "util";
@@ -78,9 +78,16 @@ export class CredentialService {
     }
 
     async save(credentials: Credential[]): Promise<void> {
-        await this.entityManager.save(credentials)
+        await this.entityManager
+            .save(credentials)
             .then(() => this.logger.log(`updated the credentials in db`))
-            .catch(err => this.logger.error(`faced error while updating the credentials in db, ${utils.inspect(err)}`));
+            .catch(err =>
+                this.logger.error(
+                    `faced error while updating the credentials in db
+                    //TODO:{(err as Error).message}
+                    `
+                )
+            );
     }
 
     //TODO: remove this method, rename above findCredential as findCredentials and it will do the job
@@ -109,7 +116,8 @@ export class CredentialService {
                 newCredential.keyValue = createCredentialDto.keyValue;
                 newCredential.account = account;
 
-                await this.entityManager.createQueryBuilder()
+                await this.entityManager
+                    .createQueryBuilder()
                     .insert()
                     .into(Credential)
                     .values([newCredential])
@@ -124,19 +132,17 @@ export class CredentialService {
                     )
                     .catch(err =>
                         this.logger.error(
-                            `faced error while doing insert operation, ${utils.inspect(
-                                err,
-                                { depth: 4 }
-                            )}`
+                            `faced error while doing insert operation
+                            //TODO:{(err as Error).message}
+                            `
                         )
                     );
             }
         } catch (error) {
             this.logger.error(
-                `error occured while saving credential info ${utils.inspect(
-                    error,
-                    { depth: 4, colors: true }
-                )}`
+                `error occured while saving credential info
+                    //TODO:{(err as Error).message}
+                `
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),
@@ -169,10 +175,9 @@ export class CredentialService {
             });
         } catch (error) {
             this.logger.error(
-                `error occured while saving new broker info ${utils.inspect(
-                    error,
-                    { depth: 4, colors: true }
-                )}`
+                `error occured while saving new broker info
+                    //TODO:{(err as Error).message}
+                `
             );
             throw new HttpException(
                 HttpStatusCode.Forbidden.toString(),

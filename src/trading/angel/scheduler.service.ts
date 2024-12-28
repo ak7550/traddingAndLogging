@@ -41,7 +41,11 @@ export default class AngelScheduler {
                 .then( () => this.logger.verbose(`All the credentials are refershed for ${IntegratedBroker.Angel}`) );
 
         } catch (error) {
-            this.logger.error(`failed to update credentials`, `${utils.inspect(error, {depth: 4, colors: true, })}`);
+            this.logger.error(
+                `failed to update credentials
+                    //TODO:{(err as Error).message}
+                `
+            );
         }
     }
 
@@ -84,7 +88,7 @@ export default class AngelScheduler {
                 jwtToken,
                 feedToken
             ];
-            
+
             await this.credentialService.save( updatedCredentials )
                 .then(() => this.logger.verbose(`new credentials are saved successfully for ${account.id} at ${moment().format('YYYY-MM-DD HH:mm')}`) );
 
@@ -92,8 +96,9 @@ export default class AngelScheduler {
         } catch (error) {
             // TODO: need to handle errors in a proper manner, unable to handle the errors efficiently, crashing the whole service
             this.logger.error(
-                `error occured while generating a new accessTokens for ${account.accountNumber}`,
-                `${utils.inspect(error, {depth: 4, colors: true, })}`
+                `error occured while generating a new accessTokens for ${account.accountNumber}
+                    //TODO:{(err as Error).message}
+                `
             );
         }
     }

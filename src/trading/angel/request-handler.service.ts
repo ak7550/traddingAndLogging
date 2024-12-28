@@ -158,8 +158,9 @@ export default class AngelRequestHandler {
             return response.data.data;
         } catch (error) {
             this.logger.error(
-                `Error occured while generating the refreshtoken request from Angel apis`,
-                `${utils.inspect(error, {depth: 4, colors: true, })}`
+                `Error occured while generating the refreshtoken request from Angel apis
+                    //TODO:{(err as Error).message}
+                `
             );
         }
     }

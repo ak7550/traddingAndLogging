@@ -89,7 +89,11 @@ export class RequestHandlerService {
                 return response.data.access_token;
             } )
             .catch( err => {
-                this.logger.error( `Request failed with ${ utils.inspect( err, { depth: 4, colors: true } ) }` );
+                this.logger.error(
+                    `Request failed with
+                    //TODO:{(err as Error).message}
+                    `
+                );
                 return null;
             } );
     }

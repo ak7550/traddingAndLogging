@@ -37,7 +37,7 @@ export class VaultService {
         const keyName: string = "HCP_ACCESS_TOKEN";
         const release: MutexInterface.Releaser = await new Mutex().acquire();
         const cachedData: string = await this.cacheManager.get(keyName);
-        if ( cachedData !== undefined ) {
+        if (cachedData !== undefined) {
             release();
             return cachedData;
         }
@@ -66,20 +66,21 @@ export class VaultService {
             });
 
             this.cacheManager
-                .set( keyName, access_token, 55 * 60 * 1000 )
+                .set(keyName, access_token, 55 * 60 * 1000)
                 .then(() =>
                     this.logger.log(
                         `HCP ${keyName} is cached for 55 mins at ${moment().format(
                             "YYYY-MM-DD HH:mm"
                         )}`
                     )
-                ).finally(() => release());
+                )
+                .finally(() => release());
 
             return access_token;
         } catch (error) {
             this.logger.error(
-                `Failed to get access token: ${(error as Error).message}`,
-                (error as Error).stack
+                `Failed to get access token`
+                //TODO:{(err as Error).message}
             );
         } finally {
         }
@@ -92,12 +93,16 @@ export class VaultService {
      * @param {String} path - Path to the secret in vault
      * @returns data - Secret data
      */
-    async getSecret<T> ( keyName: string, doCache: boolean, defaultValue?: T ): Promise<T> {
+    async getSecret<T>(
+        keyName: string,
+        doCache: boolean,
+        defaultValue?: T
+    ): Promise<T> {
         let release: MutexInterface.Releaser;
-        if ( doCache ) {
+        if (doCache) {
             release = await new Mutex().acquire();
-            const cachedData: T = await this.cacheManager.get( keyName );
-            if ( cachedData !== undefined ) {
+            const cachedData: T = await this.cacheManager.get(keyName);
+            if (cachedData !== undefined) {
                 release();
                 return cachedData;
             }
@@ -121,22 +126,33 @@ export class VaultService {
                     static_version: { value }
                 }
             }
-        }: AxiosResponse<Secret<T>> = await axios.get<Secret<T>>(apiUrl, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
+        }: AxiosResponse<Secret<T>> = await axios
+            .get<Secret<T>>(apiUrl, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            })
+            .then(data => data)
+            .catch(err => {
+                this.logger.error(
+                    `Failed to get access token
+                    //TODO:{(err as Error).message}
+                    `
+                );
+                return null;
+            });
 
-
-        doCache && this.cacheManager
-            .set(keyName, value, 55 * 60 * 1000)
-            .then(() =>
-                this.logger.log(
-                    `HCP ${keyName} is cached for 55 mins at ${moment().format(
-                        "YYYY-MM-DD HH:mm"
-                    )}`
+        doCache &&
+            this.cacheManager
+                .set(keyName, value, 55 * 60 * 1000)
+                .then(() =>
+                    this.logger.log(
+                        `HCP ${keyName} is cached for 55 mins at ${moment().format(
+                            "YYYY-MM-DD HH:mm"
+                        )}`
+                    )
                 )
-            ).finally(() => release());
+                .finally(() => release());
 
         return value || defaultValue;
     }
