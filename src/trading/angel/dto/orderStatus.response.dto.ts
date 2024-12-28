@@ -1,0 +1,40 @@
+import { DurationType, ExchangeType, OrderType, ProductType } from "../../../common/globalConstants.constant";
+
+export class AngelOrderStatusResponseDTO {
+    variety: string;
+    ordertype: OrderType;
+    producttype: ProductType;
+    duration: DurationType;
+    price: string;
+    triggerprice: string;
+    quantity: string;
+    disclosedquantity: string;
+    squareoff: string;
+    stoploss: string;
+    trailingstoploss: string;
+    tradingsymbol: string;
+    transactiontype: string;
+    exchange: ExchangeType;
+    symboltoken: string;
+    instrumenttype: string;
+    strikeprice: string;
+    optiontype: string;
+    expirydate: string;
+    lotsize: string;
+    cancelsize: string;
+    averageprice: string;
+    filledshares: string;
+    unfilledshares: string;
+    orderid: string;
+    text: string;
+    status: string;
+    orderstatus: string;
+    updatetime: string;
+    exchtime: string;
+    exchorderupdatetime: string;
+    fillid: string;
+    filltime: string;
+    parentorderid: string;
+    ordertag: string;
+    uniqueorderid: string;
+}

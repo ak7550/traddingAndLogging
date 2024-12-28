@@ -6,6 +6,7 @@ import { EntityManager } from 'typeorm';
 import CreateDematAccountDto from './dto/create-demat-account.dto';
 import { UserService } from '../user/user.service';
 import { BrokerService } from '../broker/broker.service';
+import { IntegratedBroker } from '../../common/globalConstants.constant';
 
 @Injectable()
 export class DematService {
@@ -24,10 +25,12 @@ export class DematService {
   }
 
 
-  async findAll(broker: Broker): Promise<DematAccount[]> {
-    return await this.entityManager.findBy(DematAccount, {
-        broker,
-    });
+  async findAll ( broker?: IntegratedBroker ): Promise<DematAccount[]> {
+    const query = this.entityManager.createQueryBuilder(DematAccount, 'dematAccount');
+    if (broker) {
+      query.where('dematAccount.broker = :broker', { broker });
+    }
+    return await query.getMany();
 }
 
   async findOne(id: number) : Promise<DematAccount> {

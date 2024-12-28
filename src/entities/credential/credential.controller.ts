@@ -3,20 +3,16 @@ import {
     Controller,
     Delete,
     Get,
-    HttpException,
     HttpStatus,
     Param,
     Post,
     Put
 } from "@nestjs/common";
-import { HttpStatusCode } from "axios";
 import { DematService } from "../demat/demat.service";
-import { DematAccount } from "../demat/entities/demat-account.entity";
 import { Credential } from "./credential.entity";
 import { CredentialService } from "./credential.service";
 import { CreateCredentialDto } from "./dto/create-credential.dto";
 import { UpdateCredentialDto } from "./dto/update-credential.dto";
-import { AngelConstant } from "../../trading/angel/config/angel.constant";
 
 @Controller("credential")
 export class CredentialController {
@@ -25,25 +21,14 @@ export class CredentialController {
         private readonly dematService: DematService
     ) {}
 
-    //TEST
-    @Post()
-    async createCredential(
-        @Body() createCredentialDto: CreateCredentialDto
-    ): Promise<HttpStatus> {
-        try {
-            await this.credentialService.create(createCredentialDto);
-            return HttpStatus.ACCEPTED;
-        } catch (error) {
-            throw new HttpException(
-                HttpStatusCode.Forbidden.toString(),
-                HttpStatus.FORBIDDEN
-            );
-        }
-    }
-
     @Get("")
     async getAll() {
         return await this.credentialService.getAll();
+    }
+
+    @Post()
+    async createCredential(@Body() credential: CreateCredentialDto){
+        return await this.credentialService.create(credential);
     }
 
     @Put(":id")
@@ -57,14 +42,7 @@ export class CredentialController {
 
     @Get(":id")
     async findCredntial(@Param("id") id: number): Promise<Credential> {
-        return await this.dematService
-            .findOne(id)
-            .then((demat: DematAccount) =>
-                this.credentialService.findCredential(
-                    demat,
-                    AngelConstant.AUTH_TOKEN
-                )
-            );
+        return await this.credentialService.findCredentialById( id );
     }
 
     //TEST

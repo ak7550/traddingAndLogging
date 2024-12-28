@@ -1,86 +1,130 @@
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import axiosRateLimit from 'axios-rate-limit';
-import GlobalConstant from '../common/globalConstants.constant';
-import { Credential } from '../entities/credential/credential.entity';
-import { CredentialService } from '../entities/credential/credential.service';
-import { FYERS_ACCESS_TOKEN, Resolution } from './config/stock-data.constant';
-import { FyersApiResponseDTO } from './dto/fyers-api-response.dto';
-import { FyersHistoricalDataDTO } from './dto/fyers-historical-response.dto';
-import { RefreshTokenResponseDTO } from './dto/refresh-token-response.dto';
-import { RefreshTokenRequestDTO } from './dto/refresh-token.request.dto';
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable } from "@nestjs/common";
+import { CustomConfigService as ConfigService } from "../vault/custom-config.service";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axiosRateLimit from "axios-rate-limit";
+import axiosRetry from "axios-retry";
+import moment from "moment-timezone";
+import GlobalConstant from "../common/globalConstants.constant";
+import { CustomLogger } from "../custom-logger.service";
+import { Credential } from "../entities/credential/credential.entity";
+import { CredentialService } from "../entities/credential/credential.service";
+import { DematService } from "../entities/demat/demat.service";
+import { FYERS_HISTORICAL_ROUTE, FYERS_REFRESH_TOKEN_URL, Resolution } from "./config/stock-data.constant";
+import { FyersApiResponseDTO } from "./dto/fyers-api-response.dto";
+import { RefreshTokenResponseDTO } from "./dto/refresh-token-response.dto";
+import { RefreshTokenRequestDTO } from "./dto/refresh-token.request.dto";
+import utils from 'util';
 
 @Injectable()
 export class RequestHandlerService {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly logger: Logger = new Logger( RequestHandlerService.name ),
-    @Inject( CACHE_MANAGER ) private readonly cacheManager: Cache,
-    private readonly credentialService: CredentialService
-  ) {}
+    private dataApi: AxiosInstance;
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly logger: CustomLogger = new CustomLogger(
+            RequestHandlerService.name
+        ),
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+        private readonly credentialService: CredentialService,
+        private readonly dematService: DematService
+    ) {
+        this.dataApi = this.getAxiosInstanceByMaxRPS( 3 );
+     }
 
-  getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
-        return axiosRateLimit(
+    getAxiosInstanceByMaxRPS(maxRequests: number): AxiosInstance {
+        const client: AxiosInstance = axiosRateLimit(
             axios.create({
                 // baseURL: this.configService.getOrThrow<string>("FYERS_BASE_URL"), // base url is not needed here => check the docs
                 headers: {
                     [GlobalConstant.CONTENT_TYPE]:
-                        GlobalConstant.APPLICATION_JSON, // not necessary though
-                },
+                        GlobalConstant.APPLICATION_JSON // not necessary though
+                }
             }),
             {
-                maxRequests,
-            },
+                maxRequests
+            }
         );
-  }
 
-  private async getAccessToken (): Promise<string> {
-    let fyersAccessToken: string = await this.cacheManager.get<string>( FYERS_ACCESS_TOKEN );
-    if ( fyersAccessToken !== undefined ) {
-      return fyersAccessToken;
+        axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
+        return client;
     }
 
-    this.logger.log( `data is not available in the cache, refresh the codes` );
-    fyersAccessToken = await this.refreshToken();
-    await this.cacheManager.set( FYERS_ACCESS_TOKEN, fyersAccessToken, 24*3600*1000 );
-    return fyersAccessToken;
-  }
+    @Cron(CronExpression.EVERY_DAY_AT_9AM)
+    async refreshToken(): Promise<string> {
+        this.logger.verbose(`Cron job trigerred for FYERS refresh token at ${moment().format("YYYY-MM-DDTHH:mm:ssZ")}`);
 
-  private async refreshToken (): Promise<string> {
-    const fyersAppId: string = this.configService.getOrThrow<string>( 'FYERS_APP_ID' );
-    const fyersAppSecret = this.configService.getOrThrow<string>( 'FYERS_APP_SECRET' );
-    const http: AxiosInstance = this.getAxiosInstanceByMaxRPS( 3 );
-    const url: string = `https://api-t1.fyers.in/api/v3/validate-refresh-token`;
-    //TODO: direct dematAccountId is being passed here => not a good aproach.
-    const refreshToken: Credential = await this.credentialService.findCredentialByDematId( 2, GlobalConstant.REFRESH_TOKEN );
-    const pin: Credential = await this.credentialService.findCredentialByDematId( 2, 'pin' );
-    const accessToken: Credential = await this.credentialService.findCredentialByDematId(2, GlobalConstant.ACCESS_TOKEN)
+        const fyersAppIdPromise: Promise<string> = this.configService.getOrThrow<string>("FYERS_APP_ID");
+        const fyersAppSecretPromise: Promise<string> = this.configService.getOrThrow<string>( "FYERS_APP_SECRET" );
+        const [fyersAppId, fyersAppSecret] = await Promise.all( [ fyersAppIdPromise, fyersAppSecretPromise ] );
 
-    return await http.post( url,
-      new RefreshTokenRequestDTO( refreshToken.keyValue, pin.keyValue, fyersAppId, fyersAppSecret ) )
-      .then( ( response: AxiosResponse<RefreshTokenResponseDTO> ) => {
-        const { access_token: accT } = response.data;
-        accessToken.keyValue = accT;
-        this.credentialService.save( [accessToken ] );
-        return response.data.access_token;
-      } );
-  }
+        const http: AxiosInstance = this.getAxiosInstanceByMaxRPS(3);
+        const [refreshToken, pin, accessToken]: Credential[] = await this.dematService.findOne(2)
+            .then(demat => this.credentialService.findAll(demat))
+            .then(credentials => {
+                const refreshToken = credentials.filter(({ keyName }) => keyName === GlobalConstant.REFRESH_TOKEN)[0];
+                const pin = credentials.filter(({ keyName }) => keyName === "pin")[0];
+                const accessToken = credentials.filter(({ keyName }) => keyName === GlobalConstant.ACCESS_TOKEN)[0];
+                return [refreshToken, pin, accessToken];
+            });
 
-  async getData ( stockName: string, resolution: Resolution, rangeFrom: string, rangeTo: string ) :Promise<FyersHistoricalDataDTO[]> {
-    const route: string = `https://api-t1.fyers.in/data/history?symbol=${ stockName }&resolution=${ resolution }&date_format=1&range_from=${ rangeFrom }&range_to=${ rangeTo }&oi_flag=1`;
-    const fyersAppId: string = this.configService.getOrThrow<string>('FYERS_APP_ID');
-    const accessToken: string = await this.getAccessToken();
 
-    this.logger.log(`Inside execute method: ${RequestHandlerService.name}, route ${route}`);
-    const http: AxiosInstance = this.getAxiosInstanceByMaxRPS( 3 );
+        return await http
+            .post(
+                FYERS_REFRESH_TOKEN_URL,
+                new RefreshTokenRequestDTO(
+                    refreshToken.keyValue,
+                    pin.keyValue,
+                    fyersAppId,
+                    fyersAppSecret
+                )
+            )
+            .then((response: AxiosResponse<RefreshTokenResponseDTO>) => {
+                const { access_token: accT } = response.data;
+                accessToken.keyValue = accT;
+                this.credentialService.save([accessToken]);
+                this.cacheManager.set(`2-${GlobalConstant.ACCESS_TOKEN}`, accT, 7 * 60 * 60 * 1000);
+                this.logger.log(`Fyers credentials are updated and cached at ${moment().format('YYYY-MM-DD HH:mm')}`)
+                return response.data.access_token;
+            } )
+            .catch( err => {
+                this.logger.error(
+                    `Request failed with
+                    //TODO:{(err as Error).message}
+                    `
+                );
+                return null;
+            } );
+    }
 
-    return await http.get( route, {
-      headers: {
-        [ GlobalConstant.Authorization ]: `${fyersAppId}:${accessToken}`
-      },
-    }).then((res: AxiosResponse<FyersApiResponseDTO<FyersHistoricalDataDTO>>) => res.data.candles)
-  }
+    async getData<Type>(
+        stockName: string,
+        resolution: Resolution,
+        rangeFrom: string,
+        rangeTo: string,
+        dateFormat: number
+    ): Promise<Type> {
+        const route: string = `${FYERS_HISTORICAL_ROUTE}?symbol=${stockName}&resolution=${resolution}&date_format=${dateFormat}&range_from=${rangeFrom}&range_to=${rangeTo}&oi_flag=1`;
 
+        const [ fyersAppId, accessToken ] = await Promise.all( [
+            this.configService.getOrThrow<string>( "FYERS_APP_ID" ),
+            this.credentialService.findCredentialByDematId( 2, GlobalConstant.ACCESS_TOKEN )
+        ] );
+
+        this.logger.verbose(`Inside execute method: ${RequestHandlerService.name}, route ${route}`);
+        const http: AxiosInstance = this.dataApi;
+
+        return await http
+            .get(route, {
+                headers: {
+                    [GlobalConstant.Authorization]: `${fyersAppId}:${accessToken.keyValue}`
+                }
+            })
+            .then( ( res: AxiosResponse<FyersApiResponseDTO<Type>> ) => res.data.candles )
+            .catch( err => {
+                this.logger.error( `Faced error while handling api request ${ route }, ${ utils.inspect( err, { depth: 4, colors: true } ) } at ${ moment().format( 'YYYY-MM-DD HH:mm' ) }` );
+                return null;
+            });
+    }
 }

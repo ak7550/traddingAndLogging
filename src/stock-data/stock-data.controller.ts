@@ -1,15 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CreateStockDatumDto } from './dto/create-stock-datum.dto';
 import { UpdateStockDatumDto } from './dto/update-stock-datum.dto';
-import { StockInfoHistorical } from './entities/stock-data.entity';
+import { StockInfoHistorical, StockInfoMarket } from './entities/stock-data.entity';
 import { StockDataService } from './stock-data.service';
+import { RequestHandlerService } from './request-handler.service';
+import StockInfoDTO from '../trading/dtos/stock-info.dto';
 
 @Controller('stock-data')
 // @UseInterceptors(CacheInterceptor)
 export class StockDataController {
   constructor(
     private readonly stockDataService: StockDataService,
+    private readonly requestHandler: RequestHandlerService
   ) {}
+
+  @Put( 'refresh-token' )
+  async refreshToken (): Promise<string> {
+    return await this.requestHandler.refreshToken();
+  }
 
   @Post()
   create(@Body() createStockDatumDto: CreateStockDatumDto) {
@@ -31,6 +39,11 @@ export class StockDataController {
   @Get( '/historical/:stockName' )
   async getHistoricalData ( @Param( 'stockName' ) stockName: string ): Promise<StockInfoHistorical> {
     return await this.stockDataService.getHistoricalData( stockName );
+  }
+
+  @Get( '/current/:stockName' )
+  async getCurrentData ( @Param( 'stockName' ) stockName: string ): Promise<StockInfoMarket> {
+    return await this.stockDataService.getCurrentData( stockName );
   }
 
   @Patch(':id')

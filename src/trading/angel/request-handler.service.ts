@@ -1,22 +1,58 @@
-import { Injectable, Logger, RequestMethod } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable, RequestMethod } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { Mutex, MutexInterface } from "async-mutex";
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-import { Observable, catchError, firstValueFrom, from } from "rxjs";
+import { catchError, firstValueFrom, from, Observable } from "rxjs";
+import utils from 'util';
 import GlobalConstant from "../../common/globalConstants.constant";
+import { CustomLogger } from "../../custom-logger.service";
 import AxiosFactory from "./axios-factory.service";
-import { ApiType } from "./config/angel.constant";
+import { AngelConstant, ApiType } from "./config/angel.constant";
 import GenerateTokenDto from "./dto/generate-token.request.dto.";
 import GenerateTokenResponseDto from "./dto/generate-token.response.dto";
 import AngelAPIResponse from "./dto/generic.response.dto";
+import AngelSymbolTokenDTO from "./dto/symboltoken.response.dto";
 
 @Injectable()
 export default class AngelRequestHandler {
+
+    @Cron(CronExpression.EVERY_DAY_AT_8AM)
+    async getAllAngelSymbolToken (): Promise<AngelSymbolTokenDTO[]> {
+        const keyName: string = "angel-symbol-token";
+        const release: MutexInterface.Releaser = await this.mutex.acquire();
+        const data: AngelSymbolTokenDTO[] = await this.cacheManager.get<AngelSymbolTokenDTO[]>(keyName);
+
+        if ( data !== undefined ) {
+            release();
+            this.logger.verbose( `${ keyName } found in cache` );
+            return data;
+        }
+
+
+        const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(
+            ApiType.others
+        );
+        return await http.get( AngelConstant.ANGEL_SYMBOL_TOKEN_URL )
+            .then( ({data} :AxiosResponse<AngelSymbolTokenDTO[]>) => {
+                this.cacheManager.set( keyName, data, 8 * 3600 * 1000 )
+                    .then( () => release());
+                return data;
+            });
+    }
+
+    private mutex: Mutex;
     constructor(
-        private readonly configService: ConfigService,
         private readonly axiosFactory: AxiosFactory,
-        private readonly logger: Logger = new Logger(AngelRequestHandler.name),
-    ) {}
+        private readonly logger: CustomLogger = new CustomLogger(
+            AngelRequestHandler.name
+        ),
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    ) {
+        this.mutex = new Mutex();
+    }
+
+
 
     /**
      * this method is being used to call almost all the angel apis and handle their responses
@@ -33,11 +69,11 @@ export default class AngelRequestHandler {
         requestMethod: RequestMethod,
         requestBody: Object,
         apiType: ApiType,
-        jwtToken?: string,
-    ): Promise<Type> {
+        jwtToken?: string
+    ): Promise<AngelAPIResponse<Type>> {
         try {
-            this.logger.log(
-                `Inside execute method: ${AngelRequestHandler.name}, route ${route}`,
+            this.logger.verbose(
+                `Inside execute method: ${AngelRequestHandler.name}, route ${route}`
             );
             const http: AxiosInstance =
                 this.axiosFactory.getAxiosInstanceByApiType(apiType);
@@ -47,8 +83,8 @@ export default class AngelRequestHandler {
                 case RequestMethod.GET:
                     promise = http.get<AngelAPIResponse<Type>>(route, {
                         headers: {
-                            [GlobalConstant.Authorization]: `Bearer ${jwtToken}`,
-                        },
+                            [GlobalConstant.Authorization]: `Bearer ${jwtToken}`
+                        }
                     });
                     break;
                 case RequestMethod.POST:
@@ -57,9 +93,9 @@ export default class AngelRequestHandler {
                         requestBody,
                         {
                             headers: {
-                                [GlobalConstant.Authorization]: `Bearer ${jwtToken}`,
-                            },
-                        },
+                                [GlobalConstant.Authorization]: `Bearer ${jwtToken}`
+                            }
+                        }
                     );
                     break;
                 case RequestMethod.PUT:
@@ -74,75 +110,76 @@ export default class AngelRequestHandler {
                     break;
             }
 
-            const observableRequest: Observable<AxiosResponse<any>> = from(
-                promise,
-            ).pipe(
+            const observableRequest: Observable<
+                AxiosResponse<AngelAPIResponse<Type>>
+            > = from(promise).pipe(
                 catchError((error: AxiosError) => {
-                    this.logger.error("error that we faced just now", error);
+                    this.logger.error(`error that we faced just now,${utils.inspect(error, {depth: 4, colors: true, })}`);
                     throw new Error("An error happened!");
-                }),
+                })
             );
 
             const response: AxiosResponse<AngelAPIResponse<Type>> =
                 await firstValueFrom(observableRequest);
 
-            this.logger.log(
+            this.logger.verbose(
                 `${AngelRequestHandler.name}: ${this.execute.name} => response received:
-                            ${response.data.data}`,
-                `route: ${route}`,
+                            ${utils.inspect(response.data.data, {depth: 4})}`,
+                `route: ${route}`
             );
-            return response.data.data;
+            return response.data;
         } catch (error) {
             this.logger.error(
-                `Error occured while hitting the ${route} request from Angel apis`,
-                error,
+                `Error occured while hitting the ${route} request from Angel apis, ${utils.inspect(error, {depth: 4, colors: true, })}`
             );
         }
     }
 
     async refreshToken(
         request: GenerateTokenDto,
-        jwtToken: string,
+        jwtToken: string
     ): Promise<GenerateTokenResponseDto> {
         try {
-            this.logger.log(
-                `Inside refreshToken method: ${AngelRequestHandler.name}, route ${request}`,
-            );
-            const http: AxiosInstance =
-                this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+            this.logger.verbose( `Inside refreshToken method: ${ AngelRequestHandler.name }, route`);
 
-            const response: AxiosResponse<
-                AngelAPIResponse<GenerateTokenResponseDto>
-            > = await http.post(this.configService.getOrThrow<string>("ANGEL_REFRESH_TOKEN_URL"), request,
+            const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+
+            const response: AxiosResponse<AngelAPIResponse<GenerateTokenResponseDto>> =
+                await http.post( AngelConstant.ANGEL_REFRESH_TOKEN_URL, request,
                 {
                     headers: {
-                        [GlobalConstant.Authorization]: `Bearer ${jwtToken}`,
-                    },
-                },);
-
-            this.logger.log(
-                `${AngelRequestHandler.name}: ${this.refreshToken.name} => response received:
-                            ${response.data.data}`,
-                `data: ${request}`,
+                        [GlobalConstant.Authorization]: `Bearer ${jwtToken}`
+                    }
+                }
             );
+
+            this.logger.verbose( `${ AngelRequestHandler.name }: ${ this.refreshToken.name } => response received: ${ response.data.data }`, `data: ${utils.inspect(request, {depth: 4, colors: true, })}` );
+
             return response.data.data;
         } catch (error) {
             this.logger.error(
-                `Error occured while generating the refreshtoken request from Angel apis`,
-                error,
+                `Error occured while generating the refreshtoken request from Angel apis
+                    //TODO:{(err as Error).message}
+                `
             );
         }
     }
 
-    @Cron(CronExpression.EVERY_30_MINUTES)
+    // @Cron(CronExpression.EVERY_30_MINUTES)
     async serviceTester() {
-        const webHookUrl = "https://webhook.site/61274f5c-9719-4fff-8ff8-f278080432e5";
-        const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(ApiType.others);
+        const webHookUrl =
+            "https://webhook.site/61274f5c-9719-4fff-8ff8-f278080432e5";
+        const http: AxiosInstance = this.axiosFactory.getAxiosInstanceByApiType(
+            ApiType.others
+        );
 
         const response: AxiosResponse<string> = await http.post(webHookUrl, {
             message: "service is working well"
         });
 
-        this.logger.log(`response received from periodic webhook`, response.data);
+        this.logger.verbose(
+            `response received from periodic webhook`,
+            response.data
+        );
     }
 }

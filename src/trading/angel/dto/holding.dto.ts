@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsAlphanumeric, IsNotEmpty } from "class-validator";
-import { ExchangeType } from '../../../common/globalConstants.constant';
+import { ExchangeType, ProductType } from '../../../common/globalConstants.constant';
 
 
 /**
@@ -42,7 +42,7 @@ export default class AngelHoldingDTO {
 
     authorisedquantity: number;
 
-    product: string;
+    product: ProductType;
 
     collateralquantity: number;
 

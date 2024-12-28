@@ -14,3 +14,5 @@ https://dev.to/smolinari/nestjs-and-project-structure-what-to-do-1223
 
 Redis info
 https://dev.to/fikkyman1/exploring-caching-with-nestjs-and-redis-56aj
+
+[Use of worker thread in Nestjs](https://medium.com/@Abdelrahman_Rezk/understanding-worker-threads-in-nestjs-a-hands-on-guide-with-fibonacci-example-6f09998e9129)

@@ -63,6 +63,7 @@ export class UserController {
         return "thanks";
     }
 
+    //TODO: remove any
     private async getRawBody(rawContent: any): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             let buffer: Buffer = Buffer.from("");

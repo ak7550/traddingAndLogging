@@ -10,11 +10,6 @@ export class AngelController {
         private readonly dematService: DematService
     ){}
 
-    @Put("/orders/sl/daily")
-    async placeDailyStopLossOrders(): Promise<any> {
-        return await this.schedularService.placeDailyStopLossOrders([]);
-    }
-
     @Put('refresh-token')
     async refreshTokenForAllUser(){
         await this.schedularService.updateCredentials();

@@ -1,12 +1,19 @@
-import Strategy from "src/common/strategies";
+
 import OrderResponseDTO from "../dtos/order.response.dto";
-import { DematAccount } from "src/entities/demat/entities/demat-account.entity";
+
+import HoldingInfoDTO from "../dtos/holding-info.dto";
+import { StrategyDetails } from "../../common/strategies";
+import { DematAccount } from "../../entities/demat/entities/demat-account.entity";
+import { StockInfoHistorical, StockInfoMarket } from "../../stock-data/entities/stock-data.entity";
+
 
 export default interface TradingInterface {
-    placeStopLossOrders(
+    getHolding(demat: DematAccount): Promise<HoldingInfoDTO[]>;
+    placeOrder(
+        orderDetail: StrategyDetails,
+        holding: HoldingInfoDTO,
         demat: DematAccount,
-        strategy: Strategy[]
-    ): Promise<OrderResponseDTO[]>;
-    getAllHoldings(accessToken): Promise<any[]>;
-    placeOrders(accessToken): Promise<any>;
+        current: StockInfoMarket,
+        historical: StockInfoHistorical
+    ): Promise<OrderResponseDTO>;
 }

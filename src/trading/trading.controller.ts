@@ -1,35 +1,35 @@
 import {
+    Body,
     Controller,
-    DefaultValuePipe,
     Get,
+    Headers,
+    Ip,
     Param,
     Post,
     Put,
     Query
 } from "@nestjs/common";
+import GlobalConstant, { tradingViewWebhookIp } from "../common/globalConstants.constant";
+import Strategy, { strategies } from "../common/strategies";
+import AlertRequestDTO from "./dtos/alert.request.dto";
 import HoldingInfoDTO from "./dtos/holding-info.dto";
-import TradingInterface from "./interfaces/trading.interface";
-import TradingFactoryService from "./trading-factory.service";
-import { DematService } from "../entities/demat/demat.service";
-import { DematAccount } from "../entities/demat/entities/demat-account.entity";
-import GlobalConstant from "../common/globalConstants.constant";
-import { AngelConstant } from "./angel/config/angel.constant";
+import OrderResponseDTO from "./dtos/order.response.dto";
+import { TradingService } from './trading.service';
 
 //docs: [how to handle exception and exception filters in Nest](https://docs.nestjs.com/exception-filters)
 @Controller("trading")
 export default class TradingController {
     constructor(
-        private readonly tradingFactory: TradingFactoryService, // private readonly schedular: AngelScheduler,
-        private readonly dematService: DematService,
-    ) {}
+        private readonly tradingService: TradingService
+    ) { }
 
-    @Get("holdings/:id")
+    @Get("holdings/user/:userId")
     async getAllHoldings(
-        @Param('id') dematAccountId: number
+        @Param('userId') userId: number,
+        @Query(GlobalConstant.BROKER)
+        broker: string
     ): Promise<HoldingInfoDTO[]> {
-        return await this.dematService.findOne(dematAccountId)
-        .then((demat: DematAccount) => Promise.resolve(this.tradingFactory.getInstance(demat.broker.name)))
-        .then((tradingService: TradingInterface) => tradingService.getAllHoldings(demat))
+        return await this.tradingService.getHoldings(userId, broker);
     }
 
     @Put("update-credentials")
@@ -43,32 +43,30 @@ export default class TradingController {
         return "hello";
     }
 
-    @Post("/orders/sl/daily")
-    async placeDailyStopLossOrders(
-        @Query(
-            GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName)
-        )
-        broker: string
-    ): Promise<any> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(broker);
-        return await tradingService.placeStopLossOrders(new DematAccount({}), []);
+    @Post("order")
+    public async placeOrder(
+        @Query('user') userId: number,
+        @Query('broker') broker: string,
+        @Body() strategyNumber: number[]
+    ): Promise<OrderResponseDTO[]> {
+        const strategy: Strategy[] = strategyNumber.map(val => strategies[val])
+            .filter(val => val !== undefined);
+
+        return await this.tradingService.placeSchedularOrder(strategy, userId, broker?.toLowerCase());
     }
 
-    @Get("placeOrders")
-    async placeOrders(
-        @Query(
-            GlobalConstant.BROKER,
-            new DefaultValuePipe(AngelConstant.brokerName)
-        )
-        broker: string
-    ): Promise<any> {
-        const tradingService: TradingInterface =
-            this.tradingFactory.getInstance(broker);
-        return await tradingService.placeOrders("");
+    //DOCS: https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
+    //DOCS: https://stackoverflow.com/questions/73495506/how-to-get-client-ip-in-nestjs
+    @Post('tradingview')
+    public async tradingViewAlert(
+        @Query('dematId') dematId: number,
+        @Body() body: AlertRequestDTO, @Ip() ip: string, @Headers('content-type') contentType: string) {
+        const ipV6Prefix = '::ffff:';
+        if (ip.includes(ipV6Prefix)) {
+            ip = ip.split(ipV6Prefix)[1];
+        }
+        if (tradingViewWebhookIp.includes(ip) && contentType === 'application/json') {
+            this.tradingService.handleTradingViewAlert(body, dematId);
+        }
     }
-}
-function demat(value: DematAccount): DematAccount | PromiseLike<DematAccount> {
-    throw new Error("Function not implemented.");
 }

@@ -1,0 +1,14 @@
+{
+    "exchange": "{{exchange}}",
+    "ticker": "{{ticker}}",
+    "close": "{{close}}",
+    "open": "{{open}}",
+    "high": "{{high}}",
+    "low": "{{low}}",
+    "alertTrggerTime": "{{time}}",
+    "volume": "{{volume}}",
+    "currentTime": "{{timenow}}",
+    "interval": "{{interval}}",
+    "indicatorValue": "{{plot_0}}",
+    "strategyNumber": [100]
+}

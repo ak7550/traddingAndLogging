@@ -8,7 +8,10 @@ import { AngelConstant } from "./angel/config/angel.constant";
 @Injectable()
 export default class TradingFactoryService {
     //@Inject is doing the constructor dependency injection
-    constructor(private readonly dhaanService: DhaanService, private readonly angelService: AngelService) {}
+    constructor(
+        private readonly dhaanService: DhaanService, 
+        private readonly angelService: AngelService
+    ) {}
 
     public getInstance(broker: string): TradingInterface {
         let tradingService: TradingInterface;

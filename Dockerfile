@@ -1,7 +1,16 @@
-FROM node:alpine
-WORKDIR /ak-trading-and-logging
-COPY package*.json .
-RUN npm install
+FROM node:20-alpine
+
+COPY package.json .
+COPY package-lock.json .
 COPY . .
+
+RUN npm install --omit=dev
+RUN npm i -D @swc/cli @swc/core
 RUN npm run build
-CMD ["npm", "run", "start"]
+
+# Set environment variable explicitly
+ENV NODE_ENV=prod
+
+EXPOSE 80
+
+CMD ["npm", "run", "start:prod"]

@@ -1,8 +1,8 @@
-import moment from "moment";
-import { BollingerBand, getBollingerBandData, getEmaValue, getRSI, getVwap } from '../../common/strategy-util';
+import moment from "moment-timezone";
+import { BollingerBand, getBollingerBandData, getEmaValue, getRSI, getVwap, percentageChange } from '../../common/strategy-util';
 import _ from "lodash";
 
-export class OhlcvDataDTO{
+export class OhlcvDataDTO {
     open: number;
     high: number;
     low: number;
@@ -16,10 +16,7 @@ export class OhlcvDataDTO{
     isOpenHigh: boolean;
     isWholeBody: boolean;
     timeStamp: number; // epoch format
-    candleType?: 'DOJI' | 'DRAGON-FLY-DOJI' | 'HAMMER' | 'PIN-BAR' | 'MARUBOZU'; // todo => create a method to determine the candle type
     timeStr: string;
-
-    //TODO: apply a criteria to find the what is the candle type (doji, dragonfly-doji, hammer, pin bar, whole-body)
 
     constructor ( t: number, o: number, high: number, l: number, c: number, vol: number ) {
         this.timeStamp = t;
@@ -28,17 +25,17 @@ export class OhlcvDataDTO{
         this.low = l;
         this.close = c;
         this.volume = vol;
-        this.timeStr = moment.unix( this.timeStamp ).format( 'YYYY-MM-DD' );
+        this.timeStr = moment.unix(this.timeStamp).format('YYYY-MM-DD HH:mm');
 
         const totalCandleSize: number = Math.abs( this.high - this.low );
         const body: number = Math.abs( this.close - this.open );
         this.bodyPercentage = body * 100 / totalCandleSize;
-        this.wickPercentage = Math.abs( this.high - Math.max( this.open, this.close ) ) * 100 / body;
-        this.tailPercentage = Math.abs( this.low - Math.min( this.open, this.close ) ) * 100 / body;
+        this.wickPercentage = Math.abs( this.high - Math.max( this.open, this.close ) ) * 100 / totalCandleSize;
+        this.tailPercentage = Math.abs( this.low - Math.min( this.open, this.close ) ) * 100 / totalCandleSize;
         this.isGreen = this.open < this.close;
-        this.isOpenHigh = this.open === this.high;
-        this.isOpenLow = this.open === this.low;
-        this.isWholeBody = this.bodyPercentage === 100;
+        this.isOpenHigh = percentageChange(this.high, this.open) < 0.5;
+        this.isOpenLow = percentageChange(this.open, this.low) < 0.5;
+        this.isWholeBody = this.bodyPercentage >= 80;
     }
 }
 

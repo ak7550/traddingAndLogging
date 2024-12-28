@@ -2,9 +2,16 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { CustomLogger } from "./custom-logger.service";
+import moment from "moment-timezone";
+import { NestExpressApplication } from "@nestjs/platform-express";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>( AppModule, {
+        bufferLogs: true
+    } );
+
+    moment.tz.setDefault("Asia/Kolkata"); // setting the default time zone with GMT+5:30
     app.useGlobalPipes( new ValidationPipe( {
         transform: true,
         disableErrorMessages: process.env.NODE_ENV === 'prod',
@@ -26,7 +33,8 @@ async function bootstrap() {
 
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup( "api", app, document );
-    const port = process.env.PORT || 3000;
+    const port = process.env.APP_PORT || 80;
+    app.useLogger( new CustomLogger('NestApplication') );
     await app.listen(port, () => console.log(`app is running on port ${port}`));
 }
 bootstrap();

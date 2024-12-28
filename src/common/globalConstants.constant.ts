@@ -32,19 +32,76 @@ export default class GlobalConstant {
     public static readonly FULFILLED = "fulfilled";
     public static readonly REJECTED = "rejected";
     public static readonly REFRESH_TOKEN = "refresh_token";
-    public static readonly EXPIRES_AT: string = "expiresAt";
 }
 
-export type ExchangeType = "NSE" | "BSE" | "NFO";
-export type OrderVariety = "NORMAL" | "STOPLOSS";
-export type TransactionType = "BUY" | "SELL";
-export type OrderType = "MARKET" | "LIMIT" | "STOPLOSS_LIMIT" | "STOPLOSS_MARKET";
-export type ProductType = "DELIVERY" | "CARRYFOREARD";
-export type DurationType = "DAY" | "IOC";
+export enum ExchangeType {
+    NSE = "NSE",
+    BSE = "BSE",
+    NFO = "NFO",
+    MCX = "MCX",
+    BFO = "BFO",
+    CDS = "CDS"
+};
+
+export enum OrderVariety {
+    NORMAL = "NORMAL",
+    STOPLOSS = "STOPLOSS",
+    AMO = "AMO",
+    ROBO = "ROBO"
+};
+
+export enum TransactionType {
+    BUY = "BUY",
+    SELL = "SELL"
+};
+
+export enum OrderType {
+    MARKET = "MARKET",
+    LIMIT = "LIMIT",
+    STOPLOSS_LIMIT = "STOPLOSS_LIMIT",
+    STOPLOSS_MARKET = "STOPLOSS_MARKET"
+};
+
+export enum ProductType {
+    DELIVERY = "DELIVERY",
+    CARRYFORWARD = "CARRYFORWARD",
+    MARGIN = "MARGIN",
+    INTRADAY = "INTRADAY",
+    BO = "BO"
+};
+
+export enum DurationType {
+    DAY = "DAY",
+    IOC = "IOC"
+};
+
+export enum InstrumentType {
+    OPTSTK = "OPTSTK",
+    OPTIDX = "OPTIDX",
+    EMPTY = ""
+};
+
+export const tradingViewWebhookIp: string[] = [
+    "52.89.214.238",
+    "34.212.75.30",
+    "54.218.53.128",
+    "52.32.178.7" ,
+    '0.0.0.0',
+    '192.168.0.1',
+    'localhost',
+    '::1' // this happens when we fire requests from local env to localhost
+]
 
 //this will be considered as the single source of truth for all the integrated brokers
 export enum IntegratedBroker {
     Angel = "angel",
     Dhaan = "dhaan",
     Fyers = "fyers"
+}
+
+export enum OrderStatus {
+    FULFILLED = "fulfilled",
+    REJECTED = "rejected",
+    PENDING = "pending",
+    SKIPPED = "skipped"
 }
