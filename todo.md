@@ -25,19 +25,11 @@ Task 4:
 Alert system trigger implementation, so that we can get an webhook call whenever there's an alert notification
 
 Task 5:
-Segregation of core logic in to Trading module. 
-I will call the broker module methods only when they are absolutely needed. => this will make code more efficient. 
+Segregation of core logic in to Trading module.
+I will call the broker module methods only when they are absolutely needed. => this will make code more efficient.
 
 Task 6:
 Compelte the order placement tasks
 
 Task 7:
 Complete all the well known strategies implementations
-
-Task 8:
-Make sure the logs are customised, so that all the logs get stored into the local file system.
-
--------------------
-[text](https://trendlyne.com/fundamentals/all-in-one-screener-data-get/?screenpk=190988&perPageCount=100&pageNumber=0&columns=&groupType=all&groupName=all&sortBy=&order=&query=&filterListId=&ownerpk=)
-
-screener link, that needs no authentication.
