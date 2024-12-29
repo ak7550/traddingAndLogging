@@ -3,6 +3,7 @@ dist
 .git
 .vscode
 logs
+test
 trading_view
 Dockerfile
 docker-compose.yml
@@ -16,3 +17,5 @@ nodemon.json
 *.drawio.pdf
 *.drawio.svg
 *.drawio.png
+.prettierrc
+.eslintrc.js
