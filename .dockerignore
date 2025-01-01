@@ -8,8 +8,7 @@ trading_view
 Dockerfile
 docker-compose.yml
 *.md
-.env.dev
-.env.local
+.env.*
 doubts.txt
 netst-js-middleware-architechture.jpg
 nodemon.json
