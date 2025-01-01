@@ -12,6 +12,7 @@ docker-compose.yml
 doubts.txt
 netst-js-middleware-architechture.jpg
 nodemon.json
+credentails.json
 *.drawio
 *.drawio.pdf
 *.drawio.svg
