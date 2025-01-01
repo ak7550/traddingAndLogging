@@ -6,19 +6,18 @@ import axiosRetry from "axios-retry";
 import { Observable, catchError, firstValueFrom, from } from "rxjs";
 import GlobalConstant from "../../common/globalConstants.constant";
 import { CustomLogger } from "../../custom-logger.service";
-import { ApiType } from "./config/dhaan.constant";
-import utils from 'util';
+import { ApiType, DhaanConstants } from "./config/dhaan.constant";
+import utils from "util";
 
 class AxiosFactory {
     private static tradingAxios: AxiosInstance;
     private static nonTradingAxios: AxiosInstance;
     private static historicalAxios: AxiosInstance;
 
-    private async  getAxiosInstance(maxRPS: number): Promise<AxiosInstance> {
-        const client:AxiosInstance = await axiosRateLimit(
+    private async getAxiosInstance(maxRPS: number): Promise<AxiosInstance> {
+        const client: AxiosInstance = await axiosRateLimit(
             axios.create({
-                baseURL:
-                    await this.configService.getOrThrow<string>("DHAAN_BASE_URL"),
+                baseURL: DhaanConstants.baseUrl,
                 headers: {
                     [GlobalConstant.ACCESS_TOKEN]:
                         this.configService.getOrThrow<string>(
@@ -33,14 +32,23 @@ class AxiosFactory {
             }
         );
 
-        axiosRetry(client, {retries: 3, retryDelay: axiosRetry.exponentialDelay });
+        axiosRetry(client, {
+            retries: 3,
+            retryDelay: axiosRetry.exponentialDelay
+        });
         return client;
     }
 
     constructor(private readonly configService: ConfigService) {
-        this.getAxiosInstance(25).then(val => AxiosFactory.tradingAxios = val);
-        this.getAxiosInstance(100).then(val => AxiosFactory.nonTradingAxios = val);
-        this.getAxiosInstance(10).then(val => AxiosFactory.historicalAxios = val);
+        this.getAxiosInstance(25).then(
+            val => (AxiosFactory.tradingAxios = val)
+        );
+        this.getAxiosInstance(100).then(
+            val => (AxiosFactory.nonTradingAxios = val)
+        );
+        this.getAxiosInstance(10).then(
+            val => (AxiosFactory.historicalAxios = val)
+        );
     }
 
     static getAxiosInstance(apiType: ApiType): AxiosInstance {
@@ -98,7 +106,7 @@ export default class DhaanRequestHandler {
                 catchError((error: AxiosError) => {
                     this.logger.error(
                         "error that we faced just now",
-                        `${utils.inspect(error, {depth: 4, colors: true, })}`
+                        `${utils.inspect(error, { depth: 4, colors: true })}`
                     );
                     throw new Error("An error happened!");
                 })
@@ -111,7 +119,7 @@ export default class DhaanRequestHandler {
         } catch (error) {
             this.logger.error(
                 `Error occured while hitting the ${route} request from Dhaan apis`,
-                `${utils.inspect(error, {depth: 4, colors: true, })}`
+                `${utils.inspect(error, { depth: 4, colors: true })}`
             );
         }
     }
