@@ -3,7 +3,7 @@ services:
   my-app:
     image: ak-trading-and-logging
     ports:
-      - "${APP_PORT}:3001"
+      - "${PORT}:80"
     env_file: .env.local
 
   db:
@@ -19,7 +19,7 @@ services:
         - MYSQL_PASSWORD=${DB_PASSWORD}
       env_file: .env.local
       # volumes:
-      
+
   cache:
     redis:
       image: redis

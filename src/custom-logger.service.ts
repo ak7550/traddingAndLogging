@@ -1,19 +1,21 @@
-import { ConsoleLogger } from '@nestjs/common';
+import { ConsoleLogger } from "@nestjs/common";
 import * as fs from "fs-extra";
 import moment from "moment-timezone";
 import path from "path";
 
 export class CustomLogger extends ConsoleLogger {
     private logFilePath: string;
+    private isDebug: boolean;
 
     constructor(context: string) {
         super(context);
-        this.logFilePath = this.createLogFilePath();
+        this.isDebug = process.env.NODE_ENV !== "prod";
+        this.logFilePath = this.isDebug && this.createLogFilePath();
     }
 
     private createLogFilePath(): string {
         const today: string = moment().format("YYYY-MM-DD");
-        const logDir = path.resolve( __dirname, "../logs" ); // Customize your log directory if needed
+        const logDir = path.resolve(__dirname, "../logs"); // Customize your log directory if needed
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir, { recursive: true });
         }
@@ -32,7 +34,8 @@ export class CustomLogger extends ConsoleLogger {
         }","${message}"\n`;
 
         // Ensure the log file exists and write log entry
-        fs.appendFileSync(this.logFilePath, logEntry, { encoding: "utf8" });
+        this.isDebug &&
+            fs.appendFileSync(this.logFilePath, logEntry, { encoding: "utf8" });
     }
 
     log(message: string, context?: string): void {

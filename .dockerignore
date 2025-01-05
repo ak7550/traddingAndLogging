@@ -3,6 +3,7 @@ dist
 .git
 .vscode
 logs
+test
 trading_view
 Dockerfile
 docker-compose.yml
@@ -11,7 +12,10 @@ docker-compose.yml
 doubts.txt
 netst-js-middleware-architechture.jpg
 nodemon.json
+credentails.json
 *.drawio
 *.drawio.pdf
 *.drawio.svg
 *.drawio.png
+.prettierrc
+.eslintrc.js

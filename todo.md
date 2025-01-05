@@ -62,3 +62,6 @@ while calculating historical and curent stock data, we are using so many numbers
 
 - [ ] task 19:
 implement worker thread using picsana for getHistoricalData and getCurrentData
+
+- [ ] task 20:
+make sure every time this server runs, it talks with the db and checks if the necessary data are available or not (broker table), if not then it should create the data automatically at the time of starting the application.
