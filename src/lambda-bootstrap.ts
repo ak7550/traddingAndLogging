@@ -34,11 +34,11 @@ async function loadSecrets() {
   }
    // Debug: Check if environment variables are set
     console.log('Environment variables after loading secrets:');
-console.log(`DB_HOST: ${process.env.DB_HOST}`, process.env.DB_HOST ? 'SET' : 'NOT SET');   
- console.log('DB_USERNAME:', process.env.DB_USERNAME ? 'SET' : 'NOT SET');
+    console.log(`DB_HOST: ${process.env.DB_HOST}`, process.env.DB_HOST ? 'SET' : 'NOT SET');   
+    console.log('DB_USERNAME:', process.env.DB_USERNAME ? 'SET' : 'NOT SET');
     console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? 'SET' : 'NOT SET');
     console.log('DB_NAME:', process.env.DB_NAME ? 'SET' : 'NOT SET');
-console.log(`DB_HOST: ${process.env.PLACE_ORDER}`, process.env.PLACE_ORDER ? 'SET' : 'NOT SET');   
+    console.log(`DB_HOST: ${process.env.PLACE_ORDER}`, process.env.PLACE_ORDER ? 'SET' : 'NOT SET');   
 }
 catch (error) {
   console.log('Error loading secrets:', error);
