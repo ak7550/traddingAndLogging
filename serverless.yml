@@ -1,0 +1,62 @@
+service: ak-trading-and-logging
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+  timeout: 30
+  environment:
+    NODE_ENV: prod
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource: 
+        - "arn:aws:secretsmanager:ap-south-1:933887400551:secret:aniket-secret-l4IqeH"
+
+functions:
+  trading:
+    name: trading
+    handler: lambda.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+          cors: true
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    target: node20
+    platform: node
+    exclude: ['aws-sdk']
+    concurrency: 10
+    keepNames: true
+    define:
+      'require.resolve': undefined
+    packager: npm
+    external:
+      - moment-timezone
+      - class-transformer
+      - class-validator
+      - '@nestjs/websockets'
+      - '@nestjs/websockets/socket-module'
+      - '@nestjs/microservices'
+      - '@nestjs/microservices/microservices-module'
+      - '@nestjs/platform-fastify'
+      - 'cache-manager'
+      - 'redis'
+      - 'ioredis'
+      - 'express'
+      - 'fastify'
+      - '@nestjs/swagger'
+
+package:
+  individually: false
+  excludeDevDependencies: true

@@ -8,24 +8,32 @@ import AbstractEntity from "../../../database/abstract.entity";
 export class User extends AbstractEntity<User> {
     @Column({
         name: "first_name",
+        type: "varchar",
+        length: 255
     })
     firstName: string;
 
     @Column({
         name: "middle_name",
         nullable: true,
+        type: "varchar",
+        length: 255
     })
     middleName: string;
 
     @Column({
         name: "last_name",
         nullable: true,
+        type: "varchar",
+        length: 255
     })
     lastName: string;
 
     @Column( {
         name: "pan_card_no",
-        nullable: true
+        nullable: true,
+        type: "varchar",
+        length: 255
     } )
     private _panCardNumber: string;
 
@@ -39,7 +47,9 @@ export class User extends AbstractEntity<User> {
     @Column( {
         nullable: true, // make it false in prod
         name: "address",
-        length: 400
+        length: 400,
+        type: "varchar",
+        
     } )
     private _address: string;
 
@@ -53,6 +63,8 @@ export class User extends AbstractEntity<User> {
     @Column( {
         name: "encrypted_password",
         nullable: true, // make it false in prod
+        type: "varchar",
+        length: 255
     } )
     private _password: string;
 
