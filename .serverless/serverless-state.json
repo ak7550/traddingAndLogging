@@ -190,7 +190,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ak-trading-and-logging/dev/1751788275219-2025-07-06T07:51:15.219Z/ak-trading-and-logging.zip"
+                "S3Key": "serverless/ak-trading-and-logging/dev/1751788642537-2025-07-06T07:57:22.537Z/ak-trading-and-logging.zip"
               },
               "Handler": "lambda.handler",
               "Runtime": "nodejs20.x",
@@ -213,14 +213,14 @@
               "TradingLogGroup"
             ]
           },
-          "TradingLambdaVersionpp8s9Sxt44B6chhCsXdCVTpZhjIYZaA76Uo9uviqc": {
+          "TradingLambdaVersionKV519zNQSfV6hJJApvu6oKXNTdIh1gAIt4vn2ifvUpg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "TradingLambdaFunction"
               },
-              "CodeSha256": "GfRdSNtSed4WQmyejp7zU3oA/ZSsKV7uxbXGxsxxKas="
+              "CodeSha256": "bRcVNfI3GPOPNPH7ldQQXsuBTAzpJ9+0cyBpVUX8JZw="
             }
           },
           "ApiGatewayRestApi": {
@@ -341,7 +341,7 @@
               "TradingLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1751788256728": {
+          "ApiGatewayDeployment1751788624061": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -404,7 +404,7 @@
           "TradingLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "TradingLambdaVersionpp8s9Sxt44B6chhCsXdCVTpZhjIYZaA76Uo9uviqc"
+              "Ref": "TradingLambdaVersionKV519zNQSfV6hJJApvu6oKXNTdIh1gAIt4vn2ifvUpg"
             },
             "Export": {
               "Name": "sls-ak-trading-and-logging-dev-TradingLambdaFunctionQualifiedArn"
@@ -596,7 +596,7 @@
         "timeout": 30,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "TradingLambdaVersionpp8s9Sxt44B6chhCsXdCVTpZhjIYZaA76Uo9uviqc"
+        "versionLogicalId": "TradingLambdaVersionKV519zNQSfV6hJJApvu6oKXNTdIh1gAIt4vn2ifvUpg"
       }
     },
     "configValidationMode": "warn",
@@ -626,7 +626,7 @@
   },
   "package": {
     "individually": false,
-    "artifactDirectoryName": "serverless/ak-trading-and-logging/dev/1751788275219-2025-07-06T07:51:15.219Z",
+    "artifactDirectoryName": "serverless/ak-trading-and-logging/dev/1751788642537-2025-07-06T07:57:22.537Z",
     "artifact": "ak-trading-and-logging.zip"
   }
 }
