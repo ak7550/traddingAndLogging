@@ -18,6 +18,8 @@ let cachedServer: any;
  * Loads secrets from AWS Secrets Manager and sets them as process.env variables
  */
 async function loadSecrets() {
+  try {
+  
   const client = new SecretsManagerClient({ region: 'ap-south-1' });
 
   const command = new GetSecretValueCommand({
@@ -30,8 +32,18 @@ async function loadSecrets() {
   for (const [key, value] of Object.entries(secrets)) {
     process.env[key] = value as string; 
   }
+   // Debug: Check if environment variables are set
+    console.log('Environment variables after loading secrets:');
+console.log(`DB_HOST: ${process.env.DB_HOST}`, process.env.DB_HOST ? 'SET' : 'NOT SET');   
+ console.log('DB_USERNAME:', process.env.DB_USERNAME ? 'SET' : 'NOT SET');
+    console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? 'SET' : 'NOT SET');
+    console.log('DB_NAME:', process.env.DB_NAME ? 'SET' : 'NOT SET');
+console.log(`DB_HOST: ${process.env.PLACE_ORDER}`, process.env.PLACE_ORDER ? 'SET' : 'NOT SET');   
 }
-
+catch (error) {
+  console.log('Error loading secrets:', error);
+}
+}
 /**
  * Bootstraps NestJS inside AWS Lambda using aws-serverless-express
  */
