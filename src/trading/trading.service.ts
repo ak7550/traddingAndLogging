@@ -174,6 +174,13 @@ export class TradingService {
             this.placeOrderFlag = ans === "true";
             console.log(`placeOrderFlag set to: ${this.placeOrderFlag}`);
         })
+        .catch((error) => {
+            console.error(`PLACE_ORDER key not found or error occurred:`, error);
+            console.error(`Error details:`, error.message);
+            // Set default behavior
+            this.placeOrderFlag = false;
+            console.log(`⚠️  placeOrderFlag set to default: ${this.placeOrderFlag}`);
+        })
 }
 
     @Cron("0 */15 9-15 * * 1-5")
