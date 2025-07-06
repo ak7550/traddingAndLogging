@@ -24,6 +24,8 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     @Column({
         name: "account_number",
         comment: "associated_bank_account_number",
+        type: "varchar",
+        length: 255,
         nullable: true, // false
     })
     private _accountNumber: string;
@@ -39,6 +41,8 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     //TODO: finally make it false
     @Column({
         name: "demat_account_number",
+        type: "varchar", 
+        length: 255,
         nullable: true,
     })
     private _dematAccountNumber: string;
@@ -54,6 +58,8 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     //TODO: finally make it false
     @Column({
         name: "dp_id",
+        type: "varchar",
+        length: 255,
         nullable: true,
     })
     private _dpId: string;
@@ -68,6 +74,8 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     //TODO: finally make it false
     @Column({
         name: "client_id",
+        type: "varchar",
+        length: 255,
         nullable: true,
     })
     private _clientId: string;
@@ -83,6 +91,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     //TODO: finally make it false
     @Column({
         name: "cdsl_tpin",
+        type: "int",
         nullable: true,
     })
     private _CDSLTpin: string;
@@ -97,6 +106,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     @Column({
         name: "shares_bought",
         comment: "total amount of shares currently present in this account",
+        type: "int",
         nullable: true,
         default: 0
     })
@@ -105,6 +115,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
     @Column({
         name: "remaining_amount",
         comment: "it says the amount remaining into the demat account wallet",
+        type: "double",
         nullable: true,
     })
     remainingAmount: number;
@@ -113,6 +124,7 @@ export class DematAccount extends AbstractEntity<DematAccount> {
         name: "total_fund",
         comment:
             "total fund present into the demat account ==> holding shares + remaining account balance",
+            type: "double",
         nullable: true,
         default: 0
     })

@@ -16,11 +16,14 @@ import moment from "moment-timezone";
 export class Credential extends AbstractEntity<Credential> {
     @Column({
         name: "key_name",
+        length: 255,
+        type: "varchar",
     })
     keyName: string;
 
     @Column({
         name: "key_value",
+        type: "varchar",
         length: 4000, // max size of a jwt token can be 7kb
     })
     private _keyValue: string;

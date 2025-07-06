@@ -23,12 +23,14 @@ export class Order extends AbstractEntity<Order> {
     lastModifiedOn: Date;
 
     @Column({
-        length: 600
+        length: 600,
+        type: "varchar",
     })
     message: string;
 
     @Column({
         length: 25,
+        type: "varchar",
         name: 'stock_symbol'
     })
     stockSymbol: string;
@@ -64,7 +66,7 @@ export class Order extends AbstractEntity<Order> {
     @Column("float", { name: "trigger_price", default: 0 })
     triggerPrice: number
 
-    @Column({ name: 'market_place_order_id' })
+    @Column({ name: 'market_place_order_id' ,type: "varchar", length: 255})
     marketplaceOrderId: string;
 
     @ManyToOne(() => DematAccount, demat => demat.id)
@@ -83,6 +85,6 @@ export class Order extends AbstractEntity<Order> {
         this.lastModifiedOn = moment().toDate();
     }
 
-    @Column({name: 'strategy_name'})
+    @Column({name: 'strategy_name',type: "varchar", length: 255})
     strategyName: string;
 }
