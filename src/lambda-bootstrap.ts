@@ -40,6 +40,7 @@ async function loadSecrets() {
     console.log('DB_NAME:', process.env.DB_NAME ? 'SET' : 'NOT SET');
     console.log(`DB_HOST: ${process.env.PLACE_ORDER}`, process.env.PLACE_ORDER ? 'SET' : 'NOT SET');   
 }
+
 catch (error) {
   console.log('Error loading secrets:', error);
 }

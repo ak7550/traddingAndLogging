@@ -190,7 +190,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ak-trading-and-logging/dev/1751791684891-2025-07-06T08:48:04.891Z/ak-trading-and-logging.zip"
+                "S3Key": "serverless/ak-trading-and-logging/dev/1751791805243-2025-07-06T08:50:05.243Z/ak-trading-and-logging.zip"
               },
               "Handler": "lambda.handler",
               "Runtime": "nodejs20.x",
@@ -341,7 +341,7 @@
               "TradingLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1751791670648": {
+          "ApiGatewayDeployment1751791791021": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -626,7 +626,7 @@
   },
   "package": {
     "individually": false,
-    "artifactDirectoryName": "serverless/ak-trading-and-logging/dev/1751791684891-2025-07-06T08:48:04.891Z",
+    "artifactDirectoryName": "serverless/ak-trading-and-logging/dev/1751791805243-2025-07-06T08:50:05.243Z",
     "artifact": "ak-trading-and-logging.zip"
   }
 }
