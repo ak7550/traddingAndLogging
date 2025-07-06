@@ -169,7 +169,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/ak-trading-and-logging/dev/1751787585679-2025-07-06T07:39:45.679Z/ak-trading-and-logging.zip"
+          "S3Key": "serverless/ak-trading-and-logging/dev/1751788275219-2025-07-06T07:51:15.219Z/ak-trading-and-logging.zip"
         },
         "Handler": "lambda.handler",
         "Runtime": "nodejs20.x",
@@ -192,14 +192,14 @@
         "TradingLogGroup"
       ]
     },
-    "TradingLambdaVersionrYQXU5AiO4g8BADVzbPewOMeLDl6IidxsE9HIdoeo": {
+    "TradingLambdaVersionpp8s9Sxt44B6chhCsXdCVTpZhjIYZaA76Uo9uviqc": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "TradingLambdaFunction"
         },
-        "CodeSha256": "PHZ06g0iWK9opv5JLKdKOAzkRgDdo+yKXK3gaVwVuTY="
+        "CodeSha256": "GfRdSNtSed4WQmyejp7zU3oA/ZSsKV7uxbXGxsxxKas="
       }
     },
     "ApiGatewayRestApi": {
@@ -320,7 +320,7 @@
         "TradingLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1751787569377": {
+    "ApiGatewayDeployment1751788256728": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -383,7 +383,7 @@
     "TradingLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "TradingLambdaVersionrYQXU5AiO4g8BADVzbPewOMeLDl6IidxsE9HIdoeo"
+        "Ref": "TradingLambdaVersionpp8s9Sxt44B6chhCsXdCVTpZhjIYZaA76Uo9uviqc"
       },
       "Export": {
         "Name": "sls-ak-trading-and-logging-dev-TradingLambdaFunctionQualifiedArn"

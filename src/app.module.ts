@@ -23,7 +23,7 @@ import { CustomLogger } from "./custom-logger.service";
             isGlobal: true,
             ttl: 7 * 3600 * 1000
         }),
-        SheetModule,
+        // SheetModule,
         TradingModule,
         ScheduleModule.forRoot(),
         DataBaseModule,
