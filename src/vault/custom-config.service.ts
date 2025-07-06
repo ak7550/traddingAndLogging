@@ -19,8 +19,8 @@ export class CustomConfigService {
 
     async getOrThrow<T>(keyName: string, defaultValue?: T): Promise<T> {
         const shouldNotCache: string[] = [
-            "REDIS_HOST",
-            "REDIS_PORT",
+            // "REDIS_HOST",
+            // "REDIS_PORT",
             "DB_HOST",
             "DB_PORT",
             "DB_PASSWORD",
