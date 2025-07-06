@@ -168,9 +168,13 @@ export class TradingService {
         private readonly configService: ConfigService,
         private readonly orderService: OrderService
     ) {
-            this.configService.getOrThrow<string>( "PLACE_ORDER" )
-            .then((ans: string) => this.placeOrderFlag = ans === "true")
-    }
+    this.configService.getOrThrow<string>("PLACE_ORDER")
+        .then((ans: string) => {
+            console.log(`PLACE_ORDER key found with value: ${ans}`);
+            this.placeOrderFlag = ans === "true";
+            console.log(`placeOrderFlag set to: ${this.placeOrderFlag}`);
+        })
+}
 
     @Cron("0 */15 9-15 * * 1-5")
     async sellEvery15min (): Promise<OrderResponseDTO[]> {
