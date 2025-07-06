@@ -168,19 +168,20 @@ export class TradingService {
         private readonly configService: ConfigService,
         private readonly orderService: OrderService
     ) {
-    this.configService.getOrThrow<string>("PLACE_ORDER")
-        .then((ans: string) => {
-            console.log(`PLACE_ORDER key found with value: ${ans}`);
-            this.placeOrderFlag = ans === "true";
-            console.log(`placeOrderFlag set to: ${this.placeOrderFlag}`);
-        })
-        .catch((error) => {
-            console.error(`PLACE_ORDER key not found or error occurred:`, error);
-            console.error(`Error details:`, error.message);
-            // Set default behavior
-            this.placeOrderFlag = false;
-            console.log(`⚠️  placeOrderFlag set to default: ${this.placeOrderFlag}`);
-        })
+    // this.configService.getOrThrow<string>("PLACE_ORDER")
+    //     .then((ans: string) => {
+    //         console.log(`PLACE_ORDER key found with value: ${ans}`);
+    //         this.placeOrderFlag = ans === "true";
+    //         console.log(`placeOrderFlag set to: ${this.placeOrderFlag}`);
+    //     })
+    //     .catch((error) => {
+    //         console.error(`PLACE_ORDER key not found or error occurred:`, error);
+    //         console.error(`Error details:`, error.message);
+    //         // Set default behavior
+    //         this.placeOrderFlag = false;
+    //         console.log(`⚠️  placeOrderFlag set to default: ${this.placeOrderFlag}`);
+    //     })
+    this.placeOrderFlag = false;
 }
 
     @Cron("0 */15 9-15 * * 1-5")
